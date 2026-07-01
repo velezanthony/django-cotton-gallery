@@ -1,0 +1,8 @@
+{# @description Lint stress-test fixture #}
+{# @prop variant:text | default:"a" | description:"x" #}
+{# @prop count:number | default:"bad" #}
+<c-vars variant="b" count="bad" extra="z" />
+<div class="rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3 text-amber-900 text-sm">
+  <strong>mix-0</strong>
+  {{ variant }} {{ count }} {{ extra }} {{ stranger }}
+</div>

@@ -1,0 +1,23 @@
+{# @description Page navigation — prev/next buttons + page indicator #}
+{# @prop current:number | default:1 | description:"Current page (1-indexed)" #}
+{# @prop total:number | default:1 | description:"Total page count" #}
+{# @prop prev_href:text | default:"#" | description:"URL for the previous page" #}
+{# @prop next_href:text | default:"#" | description:"URL for the next page" #}
+
+<c-vars current=1 total=1 prev_href="#" next_href="#" />
+
+<nav class="flex items-center justify-between gap-3" aria-label="Pagination" {{ attrs }}>
+  <a
+    href="{{ prev_href }}"
+    class="px-3 py-1.5 rounded border border-gray-300 text-sm hover:bg-gray-50
+           {% if current <= 1 %}pointer-events-none opacity-40{% endif %}"
+    {% if current <= 1 %}aria-disabled="true"{% endif %}
+  >‹ Prev</a>
+  <span class="text-sm text-gray-600 tabular-nums">Page <strong>{{ current }}</strong> of {{ total }}</span>
+  <a
+    href="{{ next_href }}"
+    class="px-3 py-1.5 rounded border border-gray-300 text-sm hover:bg-gray-50
+           {% if current >= total %}pointer-events-none opacity-40{% endif %}"
+    {% if current >= total %}aria-disabled="true"{% endif %}
+  >Next ›</a>
+</nav>

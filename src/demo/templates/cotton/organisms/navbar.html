@@ -1,0 +1,25 @@
+{# @description Top-of-page horizontal navigation with brand, links, and actions #}
+{# @prop brand:text | default:"Brand" | description:"Logo text or brand name" #}
+{# @prop sticky:boolean | default:False | description:"Pin to top on scroll" #}
+{# @slot:links — Inline list of <a> nav items #}
+{# @slot:actions — Right-aligned action area (login button, avatar, etc.) #}
+
+<c-vars brand="Brand" sticky=False />
+
+<header
+  class="w-full border-b border-gray-200 bg-white
+         {% if sticky %}sticky top-0 z-30{% endif %}"
+  {{ attrs }}
+>
+  <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-6">
+      <a href="/" class="text-lg font-semibold text-gray-900">{{ brand }}</a>
+      {% if links %}<div class="flex items-center gap-4 text-sm text-gray-600">{{ links }}</div>{% endif %}
+    </div>
+    {% if actions %}
+      <div class="flex items-center gap-2">{{ actions }}</div>
+    {% else %}
+      <c-molecules.profile-chip name="Anthony" role="Architect" status="online" />
+    {% endif %}
+  </nav>
+</header>

@@ -1,0 +1,28 @@
+{# @description Searchable + paginated data table with toolbar #}
+{# @prop title:text | default:"Records" | description:"Heading shown above the table" #}
+{# @prop search_placeholder:text | default:"Search…" | description:"Placeholder for the search input" #}
+{# @slot:toolbar — Custom toolbar buttons rendered alongside the search box #}
+{# @slot Rows — <tr>…</tr> rows; the wrapping <table> + thead are provided #}
+
+<c-vars title="Records" search_placeholder="Search…" />
+
+<section class="border border-gray-200 rounded-lg overflow-hidden bg-white" {{ attrs }}>
+  <header class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200">
+    <h2 class="text-sm font-semibold text-gray-900">{{ title }}</h2>
+    <div class="flex items-center gap-2">
+      <input
+        type="search"
+        placeholder="{{ search_placeholder }}"
+        class="px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-indigo-500"
+      >
+      {% if toolbar %}{{ toolbar }}{% endif %}
+    </div>
+  </header>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <tbody>
+        {{ slot }}
+      </tbody>
+    </table>
+  </div>
+</section>

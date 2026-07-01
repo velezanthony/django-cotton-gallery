@@ -1,0 +1,18 @@
+{# @description Vertical navigation panel with grouped sections #}
+{# @prop collapsed:boolean | default:False | description:"Render compact (icon-only) variant" #}
+{# @slot:header — Title or logo at the top #}
+{# @slot Items — One <a> per nav item; group with headings if needed #}
+
+<c-vars collapsed=False />
+
+<aside
+  class="h-full border-r border-gray-200 bg-gray-50
+         {% if collapsed %}w-16{% else %}w-60{% endif %}"
+  aria-label="Sidebar"
+  {{ attrs }}
+>
+  {% if header %}<div class="px-4 py-4 border-b border-gray-200">{{ header }}</div>{% endif %}
+  <nav class="flex flex-col gap-1 p-2 text-sm">
+    {{ slot }}
+  </nav>
+</aside>

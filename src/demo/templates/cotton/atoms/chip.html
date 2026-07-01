@@ -1,0 +1,20 @@
+{# @description Removable tag — small clickable label with optional dismiss #}
+{# @prop tone:select['neutral', 'brand', 'success', 'danger'] | default:"neutral" | description:"Color theme" #}
+{# @prop dismissible:boolean | default:False | description:"Show an × button" #}
+{# @slot Label — Chip text #}
+
+<c-vars tone="neutral" dismissible=False />
+
+<span
+  class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs rounded-full
+         {% if tone == 'neutral' %}bg-gray-100 text-gray-700{% endif %}
+         {% if tone == 'brand' %}bg-indigo-50 text-indigo-700{% endif %}
+         {% if tone == 'success' %}bg-emerald-50 text-emerald-700{% endif %}
+         {% if tone == 'danger' %}bg-rose-50 text-rose-700{% endif %}"
+  {{ attrs }}
+>
+  <span>{{ slot }}</span>
+  {% if dismissible %}
+    <button type="button" class="rounded-full hover:bg-black/5 px-1 leading-none" aria-label="Remove">×</button>
+  {% endif %}
+</span>

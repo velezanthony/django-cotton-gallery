@@ -1,0 +1,331 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Insights" %}{% endblock %}
+
+{% block content %}
+  <header class="cg-insights__header">
+    <h1 class="cg-insights__title">{% trans "Catalog insights" %}</h1>
+    <p class="cg-insights__intro">
+      {% blocktranslate %}Health and usage signals across your component catalog. Lint, annotation coverage and deprecation come from the catalog itself; zombies and most-referenced metrics require scanning your project's templates and are opt-in.{% endblocktranslate %}
+    </p>
+  </header>
+
+  <section class="cg-insights__grid">
+    <article class="cg-insight-card cg-insight-card--stat">
+      <h2 class="cg-insight-card__title">{% trans "Catalog" %}</h2>
+      <p class="cg-insight-card__big">{{ report.total_components }}</p>
+      <p class="cg-insight-card__sub">{% blocktranslate count counter=report.total_components %}component{% plural %}components{% endblocktranslate %}</p>
+      {% if report.by_category %}
+        <ul class="cg-insight-card__breakdown">
+          {% for cat, count in report.by_category %}
+            <li><span class="cg-insight-card__breakdown-label">{{ cat }}</span><span class="cg-insight-card__breakdown-count">{{ count }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </article>
+
+    <article class="cg-insight-card cg-insight-card--health">
+      <h2 class="cg-insight-card__title">
+        {% trans "Lint health" %}
+        <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'How is this score computed?' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8h.01M11 12h1v4h1"/>
+          </svg>
+          <span class="cg-info__bubble" role="tooltip">
+            {% blocktranslate %}<strong>Higher is better.</strong> Starts at <strong>100</strong> (clean catalog, no annotation issues) and subtracts <strong>5 per error</strong> and <strong>1 per warning</strong>, floored at <strong>0</strong>. <strong>Hints don't subtract</strong> — they're heuristic checks (e.g. context-processor variables) that may produce false positives. So 100 = perfect, 0 = lots of issues. Click "Open lint report" to see exactly which rules fired.{% endblocktranslate %}
+          </span>
+        </span>
+      </h2>
+      <p class="cg-insight-card__big cg-insight-card__big--{% if report.lint_health_score >= 80 %}good{% elif report.lint_health_score >= 50 %}warn{% else %}bad{% endif %}">
+        {{ report.lint_health_score }}<span class="cg-insight-card__suffix">/100</span>
+        <span class="cg-insight-card__verdict cg-insight-card__verdict--{{ report.lint_health_label }}">
+          {% if report.lint_health_label == 'clean' %}{% trans "clean ✓" %}
+          {% elif report.lint_health_label == 'healthy' %}{% trans "healthy" %}
+          {% elif report.lint_health_label == 'needs-attention' %}{% trans "needs attention" %}
+          {% else %}{% trans "many issues" %}{% endif %}
+        </span>
+      </p>
+      <p class="cg-insight-card__sub">
+        <strong>{{ report.lint_total_errors }}</strong> {% blocktranslate count counter=report.lint_total_errors %}error{% plural %}errors{% endblocktranslate %}
+        ·
+        <strong>{{ report.lint_total_warnings }}</strong> {% blocktranslate count counter=report.lint_total_warnings %}warning{% plural %}warnings{% endblocktranslate %}
+        {% if report.lint_total_hints %}
+          ·
+          <strong>{{ report.lint_total_hints }}</strong> {% blocktranslate count counter=report.lint_total_hints %}hint{% plural %}hints{% endblocktranslate %}
+        {% endif %}
+      </p>
+      <p class="cg-insight-card__formula" aria-hidden="true">{% trans "100 = clean · −5 / error · −1 / warning · hints don't subtract · higher is better" %}</p>
+      <a class="cg-insight-card__link" href="{% url 'django_cotton_gallery:lint' %}">{% trans "Open lint report →" %}</a>
+    </article>
+
+    <article class="cg-insight-card cg-insight-card--coverage">
+      <h2 class="cg-insight-card__title">
+        {% trans "Annotation coverage" %}
+        <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What does each row mean?' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8h.01M11 12h1v4h1"/>
+          </svg>
+          <span class="cg-info__bubble" role="tooltip">
+            {% blocktranslate %}<strong>How many of your components carry which kind of annotation.</strong> Higher = the gallery has more metadata to render rich previews and the linter has more material to check. <strong>Documented</strong>: have at least one <code>@description</code> or <code>@prop</code>. <strong>With props</strong>: declare at least one <code>@prop</code>. <strong>With slots</strong>: declare at least one <code>@slot</code>. <strong>Accept attrs</strong>: render <code>&#123;&#123; attrs &#125;&#125;</code> so callers can pass extra HTML attributes through.{% endblocktranslate %}
+          </span>
+        </span>
+      </h2>
+      <p class="cg-insight-card__hint">{% trans "% of components that carry each kind of annotation. Higher is better — more metadata to drive the gallery's controls and lint checks." %}</p>
+      <ul class="cg-insight-card__bars">
+        <li>
+          <span class="cg-insight-card__bar-label" title="{% trans 'Components that have at least one @description or @prop comment' %}">{% trans "Documented" %}</span>
+          <div class="cg-insight-card__bar"><div class="cg-insight-card__bar-fill" style="width: {{ report.annotated_percent }}%"></div></div>
+          <span class="cg-insight-card__bar-value">{{ report.annotated_percent }}%</span>
+        </li>
+        <li>
+          <span class="cg-insight-card__bar-label" title="{% trans 'Components that declare at least one @prop' %}">{% trans "With props" %}</span>
+          <div class="cg-insight-card__bar"><div class="cg-insight-card__bar-fill" style="width: {{ report.with_props_percent }}%"></div></div>
+          <span class="cg-insight-card__bar-value">{{ report.with_props_percent }}%</span>
+        </li>
+        <li>
+          <span class="cg-insight-card__bar-label" title="{% trans 'Components that declare at least one @slot' %}">{% trans "With slots" %}</span>
+          <div class="cg-insight-card__bar"><div class="cg-insight-card__bar-fill" style="width: {{ report.with_slots_percent }}%"></div></div>
+          <span class="cg-insight-card__bar-value">{{ report.with_slots_percent }}%</span>
+        </li>
+        <li>
+          <span class="cg-insight-card__bar-label" title="{% trans 'Components that render {{ attrs }} so callers can pass extra HTML attributes' %}">{% trans "Accept attrs" %}</span>
+          <div class="cg-insight-card__bar"><div class="cg-insight-card__bar-fill" style="width: {{ report.accepts_attrs_percent }}%"></div></div>
+          <span class="cg-insight-card__bar-value">{{ report.accepts_attrs_percent }}%</span>
+        </li>
+      </ul>
+    </article>
+
+    <article id="cotton-config" class="cg-insight-card cg-insight-card--config{% if cotton_health.has_mismatch %} cg-insight-card--config-bad{% elif cotton_health.snake_cased %} cg-insight-card--config-warn{% else %} cg-insight-card--config-good{% endif %}">
+      <h2 class="cg-insight-card__title">
+        {% trans "Cotton configuration" %}
+        <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Why does this matter?' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8h.01M11 12h1v4h1"/>
+          </svg>
+          <span class="cg-info__bubble" role="tooltip">
+            {% blocktranslate %}A snapshot of the two Cotton settings the gallery cares about — <strong>where</strong> it scans for components and <strong>how</strong> Cotton maps your tags to files. Mismatches between your filenames and these settings break previews silently, so this card flags them up front.{% endblocktranslate %}
+          </span>
+        </span>
+      </h2>
+
+      {% comment %}
+      Live snapshot of the Cotton settings. One row per setting, label
+      on the left, value on the right (mono pill). The absolute SCANNING
+      path uses RTL-truncation so the meaningful tail stays visible even
+      when the column is narrow.
+      {% endcomment %}
+      <dl class="cg-insight-card__kv">
+        <div class="cg-insight-card__kv-row">
+          <dt>
+            <code>COTTON_DIR</code>
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is COTTON_DIR?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Subfolder name (relative to <code>TEMPLATES['DIRS']</code>) where Cotton — and the gallery — look for component files. Default <code>"cotton"</code>. Belongs to the Cotton folder convention; the gallery just reads it.{% endblocktranslate %}
+              </span>
+            </span>
+          </dt>
+          <dd><code>"{{ cotton_health.cotton_subfolder }}"</code></dd>
+        </div>
+
+        <div class="cg-insight-card__kv-row">
+          <dt>
+            {% trans "Scanning" %}
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is being scanned?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% trans "The absolute filesystem path the gallery is currently scanning. If this isn't where you expect your components to live, check your TEMPLATES['DIRS'] and COTTON_DIR settings." %}
+              </span>
+            </span>
+          </dt>
+          <dd>
+            <code
+              class="cg-insight-card__abs-path"
+              title="{{ cotton_health.cotton_dir_abs }}"
+              tabindex="0"
+            >{{ cotton_health.cotton_dir_abs }}</code>
+          </dd>
+        </div>
+
+        <div class="cg-insight-card__kv-row">
+          <dt>
+            <code>COTTON_SNAKE_CASED_NAMES</code>
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What does this setting do?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Cotton's setting that decides how a tag like <code>&lt;c-foo-bar /&gt;</code> maps to a file. With <code>True</code> (Cotton's default) it strips hyphens and looks for <code>foo_bar.html</code>; with <code>False</code> it keeps the hyphen and looks for <code>foo-bar.html</code>. The gallery indexes both styles transparently — pick whichever you prefer and stay consistent across the catalog.{% endblocktranslate %}
+              </span>
+            </span>
+          </dt>
+          <dd><strong>{% if cotton_health.snake_cased %}True{% else %}False{% endif %}</strong></dd>
+        </div>
+      </dl>
+
+      {% comment %}
+      Verdict block — same visual rhythm as the Lint health card: a big
+      glyph (number for BAD, symbol for GOOD/WARN) + a verdict pill that
+      carries an info ⓘ with the long-form explanation and the fix. The
+      paragraph hint of the previous design moves entirely into the
+      tooltip so the card stays compact.
+      {% endcomment %}
+      {% if cotton_health.has_mismatch %}
+        <p class="cg-insight-card__big cg-insight-card__big--bad">
+          {{ cotton_health.hyphen_count }}
+          <span class="cg-insight-card__verdict cg-insight-card__verdict--bad">
+            {% blocktranslate count counter=cotton_health.hyphen_count %}error component{% plural %}error components{% endblocktranslate %}
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'How to fix this' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Cotton transforms <code>-</code> into <code>_</code> when looking up files, but these components have a hyphen in their filename — Cotton can't find them. <strong>Two ways to fix it:</strong> rename the files (<code>form-field.html</code> → <code>form_field.html</code>) <strong>or</strong> set <code>COTTON_SNAKE_CASED_NAMES = False</code> in your <code>settings.py</code> to keep the hyphens.{% endblocktranslate %}
+              </span>
+            </span>
+          </span>
+        </p>
+        <p class="cg-insight-card__list-label">{% trans "Affected components:" %}</p>
+        <ul class="cg-insight-card__paths cg-insight-card__paths--scrollable">
+          {% for path in cotton_health.components_with_hyphen %}
+            <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-insight-card__path">{{ path }}</a></li>
+          {% endfor %}
+        </ul>
+      {% elif cotton_health.snake_cased %}
+        <p class="cg-insight-card__big cg-insight-card__big--warn">
+          <span aria-hidden="true">!</span>
+          <span class="cg-insight-card__verdict cg-insight-card__verdict--warn">
+            {% trans "suboptimal" %}
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Why suboptimal?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Your filenames have no hyphens and <code>COTTON_SNAKE_CASED_NAMES = True</code> — cotton's default. Cotton resolves your tags fine. If you'd rather have kebab-case filenames matching your tags 1:1 (e.g. <code>form-field.html</code> → <code>&lt;c-form-field /&gt;</code>), set the setting to <code>False</code>; both styles work.{% endblocktranslate %}
+              </span>
+            </span>
+          </span>
+        </p>
+        <p class="cg-insight-card__all-clean">{% blocktranslate count counter=report.total_components %}All <strong>{{ counter }}</strong> component is correctly named for this configuration — Cotton's snake_case convention is being followed.{% plural %}All <strong>{{ counter }}</strong> components are correctly named for this configuration — Cotton's snake_case convention is being followed.{% endblocktranslate %}</p>
+      {% else %}
+        <p class="cg-insight-card__big cg-insight-card__big--good">
+          <span aria-hidden="true">✓</span>
+          <span class="cg-insight-card__verdict cg-insight-card__verdict--good">
+            {% trans "optimal" %}
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Why optimal?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Your filenames map 1:1 to Cotton tags (e.g. <code>atoms/form-field.html</code> → <code>&lt;c-atoms.form-field /&gt;</code>). No surprises.{% endblocktranslate %}
+              </span>
+            </span>
+          </span>
+        </p>
+        <p class="cg-insight-card__all-clean">{% blocktranslate count counter=report.total_components %}All <strong>{{ counter }}</strong> component maps 1:1 to its Cotton tag. No surprises.{% plural %}All <strong>{{ counter }}</strong> components map 1:1 to their Cotton tags. No surprises.{% endblocktranslate %}</p>
+      {% endif %}
+    </article>
+
+    <article class="cg-insight-card cg-insight-card--list">
+      <h2 class="cg-insight-card__title">
+        {% trans "Deprecated" %}
+        <span class="cg-insight-card__count">{{ report.deprecated|length }}</span>
+      </h2>
+      {% if report.deprecated %}
+        <ul class="cg-insight-card__paths">
+          {% for path in report.deprecated %}
+            <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-insight-card__path">{{ path }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cg-insight-card__empty">{% trans "No component declares deprecated props." %}</p>
+      {% endif %}
+    </article>
+
+    <article class="cg-insight-card cg-insight-card--list">
+      <h2 class="cg-insight-card__title">
+        {% trans "Coverage gaps" %}
+        <span class="cg-insight-card__count">{{ report.coverage_gaps|length }}</span>
+      </h2>
+      <p class="cg-insight-card__hint">{% trans "Components missing a top-level @description, or with at least one prop that has no description." %}</p>
+      {% if report.coverage_gaps %}
+        <ul class="cg-insight-card__paths">
+          {% for path in report.coverage_gaps %}
+            <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-insight-card__path">{{ path }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cg-insight-card__empty">{% trans "Every component and every prop is documented." %}</p>
+      {% endif %}
+    </article>
+
+    <article class="cg-insight-card cg-insight-card--external{% if not scan_enabled %} cg-insight-card--locked{% endif %}">
+      <h2 class="cg-insight-card__title">
+        {% trans "External usage — where your components are referenced" %}
+        <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'How does the scan work?' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8h.01M11 12h1v4h1"/>
+          </svg>
+          <span class="cg-info__bubble" role="tooltip">
+            {% blocktranslate %}When opted in, the gallery walks every <code>.html</code> file under your <code>TEMPLATES['DIRS']</code> entries and each app's <code>templates/</code> folder, looking for <code>&lt;c-X.Y /&gt;</code> tags that reference catalog components. The catalog itself (your <code>cotton/</code>) is excluded — the scan only looks at consumer code. Read-only, dev-only, only template paths surface in the UI.{% endblocktranslate %}
+          </span>
+        </span>
+        {% if scan_enabled %}<span class="cg-insight-card__badge cg-insight-card__badge--on">{% trans "scanning" %}</span>{% else %}<span class="cg-insight-card__badge cg-insight-card__badge--off">{% trans "disabled" %}</span>{% endif %}
+      </h2>
+      <p class="cg-insight-card__hint">{% trans "Tracks who uses your components from OUTSIDE the catalog (your real pages, layouts, partials). Without this, the gallery only knows about references between catalog components themselves." %}</p>
+      {% if scan_enabled %}
+        <div class="cg-insights__external-grid">
+          <div>
+            <h3 class="cg-insight-card__subtitle">
+              {% trans "Most referenced" %}
+              <span class="cg-insight-card__count">{{ report.most_referenced|length }}</span>
+            </h3>
+            {% if report.most_referenced %}
+              <ol class="cg-insight-card__paths cg-insight-card__paths--ranked">
+                {% for path, count in report.most_referenced %}
+                  <li>
+                    <a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-insight-card__path">{{ path }}</a>
+                    <span class="cg-insight-card__rank">{{ count }}</span>
+                  </li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p class="cg-insight-card__empty">{% trans "Nothing references your components yet." %}</p>
+            {% endif %}
+          </div>
+          <div>
+            <h3 class="cg-insight-card__subtitle">
+              {% trans "Zombies" %}
+              <span class="cg-insight-card__count">{{ report.zombies|length }}</span>
+            </h3>
+            <p class="cg-insight-card__hint">{% trans "Components with zero references — neither inside the catalog nor in your project's templates." %}</p>
+            {% if report.zombies %}
+              <ul class="cg-insight-card__paths">
+                {% for path in report.zombies %}
+                  <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-insight-card__path">{{ path }}</a></li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="cg-insight-card__empty">{% trans "Every component is used somewhere — clean catalog." %}</p>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="cg-insight-card__lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <p class="cg-insight-card__lock-text">{% trans "Zombies and most-referenced metrics require scanning your project's templates." %}</p>
+          <p class="cg-insight-card__lock-hint">{% blocktranslate %}The gallery never reads consumer code without consent. Set <code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> in your Django settings to enable. Read-only, dev-only — only template paths are exposed in the gallery UI.{% endblocktranslate %}</p>
+        </div>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Profile</title>
+</head>
+<body>
+  {% include "_partials/topbar.html" %}
+
+  <main class="profile">
+    <c-molecules.breadcrumb>
+      <li><c-atoms.link href="/" tone="subtle">Home</c-atoms.link></li>
+      <li><span class="text-gray-400">/</span></li>
+      <li><span aria-current="page">Profile</span></li>
+    </c-molecules.breadcrumb>
+
+    <header class="profile__header">
+      <c-atoms.avatar src="/static/me.png" name="Anthony" size="lg" />
+      <div>
+        <h1>Anthony Velez Tapia</h1>
+        <p>Senior architect · example.com</p>
+        <c-atoms.badge variant="success">Pro</c-atoms.badge>
+        <c-atoms.badge>Verified</c-atoms.badge>
+        <c-atoms.chip tone="brand">team-alpha</c-atoms.chip>
+      </div>
+    </header>
+
+    <c-molecules.card title="Recent activity">
+      <ul>
+        <li>Pushed to main — 2h ago</li>
+        <li>Opened PR #482 — yesterday</li>
+        <li>Reviewed PR #480 — 2 days ago</li>
+      </ul>
+    </c-molecules.card>
+
+    <c-molecules.card title="Account">
+      <c-atoms.button variant="secondary">Edit profile</c-atoms.button>
+      <c-atoms.button variant="danger">Delete account</c-atoms.button>
+    </c-molecules.card>
+
+    <section class="profile__feed">
+      <h2>Recent comments</h2>
+      <c-molecules.comment-card author="Maria" role="QA Lead" timestamp="2h ago" pinned="true">
+        <p>Awesome work on the new pipeline — green across the board.</p>
+      </c-molecules.comment-card>
+      <c-molecules.comment-card author="Diego" role="Backend" timestamp="yesterday">
+        <p>Could we pair on the rate-limiter design tomorrow?</p>
+      </c-molecules.comment-card>
+    </section>
+
+    <section class="profile__notifications">
+      <h2>Notifications</h2>
+      <c-molecules.notification-item sender="Build bot" kind="success">
+        <span>Deployment <strong>#1294</strong> succeeded.</span>
+      </c-molecules.notification-item>
+      <c-molecules.notification-item sender="Maria" kind="info" unread="true">
+        <span>Left a comment on PR #482.</span>
+      </c-molecules.notification-item>
+      <c-molecules.notification-item sender="Security alert" kind="danger">
+        <span>New sign-in from an unknown device.</span>
+      </c-molecules.notification-item>
+    </section>
+  </main>
+</body>
+</html>

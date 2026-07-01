@@ -1,0 +1,81 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+</head>
+<body>
+  {% include "_partials/topbar.html" %}
+
+  <main class="dashboard">
+    <c-molecules.breadcrumb>
+      <li><c-atoms.link href="/" tone="subtle">Home</c-atoms.link></li>
+      <li><span class="text-gray-400">/</span></li>
+      <li><span aria-current="page">Dashboard</span></li>
+    </c-molecules.breadcrumb>
+
+    <header class="dashboard__header">
+      <h1>Welcome back</h1>
+      <c-atoms.avatar src="/static/me.png" name="Anthony" size="md" />
+    </header>
+
+    <div class="dashboard__keyboard-hint">
+      Press <c-atoms.kbd>Ctrl</c-atoms.kbd>+<c-atoms.kbd>K</c-atoms.kbd> to search.
+    </div>
+
+    <div class="dashboard__filters">
+      <c-atoms.chip tone="brand" dismissible="true">last 7 days</c-atoms.chip>
+      <c-atoms.chip tone="success">production</c-atoms.chip>
+    </div>
+
+    <c-atoms.alert variant="info">
+      <p>You have 3 unread notifications.</p>
+    </c-atoms.alert>
+
+    <section class="dashboard__stats">
+      <c-molecules.stat label="Revenue" value="€42,830" trend="up" />
+      <c-molecules.stat label="Active users" value="1,294" trend="up" />
+      <c-molecules.stat label="Churn" value="2.1%" trend="down" />
+      <c-molecules.stat label="MRR" value="€18,200" trend="up" />
+    </section>
+
+    <section class="dashboard__features">
+      <c-molecules.feature-tile icon="zap" title="Speed" description="Fastest in class." />
+      <c-molecules.feature-tile icon="shield" title="Security" description="SOC 2 compliant." />
+      <c-molecules.feature-tile icon="globe" title="Global" description="Edge in 12 regions." />
+    </section>
+
+    <section class="dashboard__cards">
+      <c-molecules.card title="Latest deploys">
+        <ul>
+          <li>main → production <c-atoms.badge variant="success">live</c-atoms.badge></li>
+          <li>staging <c-atoms.badge variant="warning">pending</c-atoms.badge></li>
+          <li>preview/feature-x <c-atoms.badge>draft</c-atoms.badge></li>
+        </ul>
+        <c-atoms.button variant="primary">View all</c-atoms.button>
+      </c-molecules.card>
+
+      <c-molecules.card title="Team activity">
+        <p>4 commits today across 2 branches.</p>
+        <c-atoms.button variant="secondary" size="sm">Open log</c-atoms.button>
+      </c-molecules.card>
+    </section>
+
+    <c-atoms.divider label="Recent activity" />
+
+    <c-organisms.data-grid title="Latest events" search_placeholder="Filter events…">
+      <tr><td>commit pushed to main</td><td>2m ago</td></tr>
+      <tr><td>PR #482 opened</td><td>1h ago</td></tr>
+      <tr><td>build #1294 passed</td><td>3h ago</td></tr>
+    </c-organisms.data-grid>
+
+    <c-molecules.pagination current="2" total="7" prev_href="/dashboard?p=1" next_href="/dashboard?p=3" />
+
+    <footer class="dashboard__footer">
+      <c-atoms.button variant="ghost">Learn more</c-atoms.button>
+      <c-atoms.button variant="primary">Upgrade</c-atoms.button>
+    </footer>
+  </main>
+</body>
+</html>

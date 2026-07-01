@@ -1,0 +1,24 @@
+{# @description Animated loading spinner #}
+{# @prop size:select['xs', 'sm', 'md', 'lg'] | default:"md" | description:"Size scale" #}
+{# @prop tone:select['current', 'brand', 'muted'] | default:"current" | description:"Color: inherit, brand, or subdued" #}
+{# @prop label:text | default:"Loading" | description:"Screen-reader label" #}
+
+<c-vars size="md" tone="current" label="Loading" />
+
+<span
+  role="status"
+  aria-label="{{ label }}"
+  class="inline-block animate-spin
+         {% if size == 'xs' %}h-3 w-3{% endif %}
+         {% if size == 'sm' %}h-4 w-4{% endif %}
+         {% if size == 'md' %}h-6 w-6{% endif %}
+         {% if size == 'lg' %}h-10 w-10{% endif %}
+         {% if tone == 'brand' %}text-indigo-600{% endif %}
+         {% if tone == 'muted' %}text-gray-400{% endif %}"
+  {{ attrs }}
+>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+    <path d="M22 12a10 10 0 0 1-10 10" stroke-linecap="round" />
+  </svg>
+</span>

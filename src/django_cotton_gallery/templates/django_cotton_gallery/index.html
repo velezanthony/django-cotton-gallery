@@ -1,0 +1,150 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load catalog_tags i18n %}
+
+{% block title %}{% trans "Home" %}{% endblock %}
+
+{% block content %}
+  <section class="cg-hero">
+    <span class="cg-hero__eyebrow">
+      <span class="cg-hero__eyebrow-dot" aria-hidden="true"></span>
+      {% trans "Cotton component library" %}
+    </span>
+    <h1 class="cg-hero__title">
+      {% trans "Production-ready components for" %}
+      <span class="cg-hero__title-accent">Django Cotton</span>
+    </h1>
+    <p class="cg-hero__lead">{% trans "Stack-agnostic playground for your Cotton components. Every component is annotated, copy-and-pasteable, and themable through your design tokens — bring your own stack (Tailwind, HTMX, Alpine, your own bundle…) and start shipping." %}</p>
+
+    <div class="cg-hero__actions">
+      <a href="{% url 'django_cotton_gallery:get_started' %}" class="cg-hero__cta cg-hero__cta--primary">
+        {% trans "Get started" %}
+        <svg class="cg-hero__cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+      </a>
+      {% if categories %}
+        <a href="#{% for cat_name, _ in categories.items %}{% if forloop.first %}{{ cat_name }}{% endif %}{% endfor %}" class="cg-hero__cta cg-hero__cta--secondary">
+          {% trans "Browse components" %}
+        </a>
+      {% else %}
+        <a href="{% url 'django_cotton_gallery:docs' %}" class="cg-hero__cta cg-hero__cta--secondary">
+          {% trans "Read the docs" %}
+        </a>
+      {% endif %}
+    </div>
+
+    {% if categories %}
+      <div class="cg-hero__stats">
+        <div class="cg-hero__stat cg-hero__stat--accent">
+          <p class="cg-hero__stat-value">{{ categories|total_components }}</p>
+          <p class="cg-hero__stat-label">{% trans "Components" %}</p>
+        </div>
+        {% for cat_name, subcategories in categories.items %}
+          <div class="cg-hero__stat">
+            <p class="cg-hero__stat-value">{{ subcategories|component_count }}</p>
+            <p class="cg-hero__stat-label">{{ cat_name }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="cg-badges">
+      <span class="cg-badge cg-badge--blue"><span class="cg-badge__dot"></span>Django Cotton</span>
+      {% for dep in cotton_gallery.dependencies %}
+        <span class="cg-badge cg-badge--{{ dep.color }}"><span class="cg-badge__dot"></span>{{ dep.name|capfirst }}</span>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if not categories %}
+    <section class="cg-empty-state">
+      <svg class="cg-empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L12 12.75 6.429 9.75m11.142 0 4.179 2.25-9.75 5.25-9.75-5.25 4.179-2.25"/>
+      </svg>
+
+      {% if not onboarding.cotton_dir_exists %}
+        <h2 class="cg-empty-state__title">{% trans "Cotton folder not found" %}</h2>
+        <p class="cg-empty-state__lead">
+          {% blocktranslate with path=onboarding.cotton_dir_abs %}The gallery is looking for components in <code>{{ path }}</code>, but that folder doesn't exist yet.{% endblocktranslate %}
+        </p>
+        <div class="cg-empty-state__hint">
+          <p class="cg-empty-state__hint-label">{% trans "Two ways to fix it:" %}</p>
+          <ol class="cg-empty-state__steps">
+            <li>{% blocktranslate with subfolder=onboarding.cotton_subfolder %}Create the folder at <code>{{ subfolder }}/</code> inside one of your <code>TEMPLATES['DIRS']</code> entries (or any installed app's <code>templates/</code> folder when <code>APP_DIRS</code> is on) and drop a component file in it.{% endblocktranslate %}</li>
+            <li>{% blocktranslate with subfolder=onboarding.cotton_subfolder %}If your components live under a different folder name, change the gallery's lookup by setting <code>COTTON_DIR = '...'</code> in your <code>settings.py</code>. The default is <code>'{{ subfolder }}'</code> — set it to whatever name your components folder uses.{% endblocktranslate %}</li>
+          </ol>
+        </div>
+      {% else %}
+        <h2 class="cg-empty-state__title">{% trans "No components yet" %}</h2>
+        <p class="cg-empty-state__lead">
+          {% blocktranslate with path=onboarding.cotton_dir_abs %}Drop your first Cotton component into <code>{{ path }}</code> and the gallery will pick it up automatically — no restart needed.{% endblocktranslate %}
+        </p>
+      {% endif %}
+
+      <div class="cg-empty-state__hint">
+        <p class="cg-empty-state__hint-label">{% trans "Example layout:" %}</p>
+        <pre class="cg-empty-state__tree"><code>{{ onboarding.cotton_subfolder }}/
+├── atoms/
+│   ├── ui/
+│   │   └── button.html        <span class="cg-empty-state__comment">&lt;c-atoms.ui.button /&gt;</span>
+│   └── form/
+│       └── input.html         <span class="cg-empty-state__comment">&lt;c-atoms.form.input /&gt;</span>
+└── molecules/
+    └── form/
+        └── form-field.html    <span class="cg-empty-state__comment">&lt;c-molecules.form.form-field /&gt;</span></code></pre>
+      </div>
+
+      <p class="cg-empty-state__footer">
+        {% blocktranslate %}Add <code>@prop</code> annotation headers at the top of each file so the gallery can build interactive controls automatically.{% endblocktranslate %}
+        <a href="{% url 'django_cotton_gallery:docs' %}" class="cg-empty-state__link">{% trans "Read the documentation →" %}</a>
+      </p>
+
+      {% comment %}
+        Surface the language-switcher requirement only when the consumer
+        hasn't mounted django.conf.urls.i18n. If `set_language` resolves,
+        their setup is already complete and the switcher is visible in
+        the sidebar — no need to remind them.
+      {% endcomment %}
+      {% url 'set_language' as i18n_setup_url %}
+      {% if not i18n_setup_url %}
+        <div class="cg-empty-state__hint cg-empty-state__hint--optional">
+          <p class="cg-empty-state__hint-label">{% trans "Optional: enable language switching" %}</p>
+          <p>{% blocktranslate %}The gallery is translated into English, Spanish, Basque, and French — but the language dropdown only appears when your project mounts Django's i18n URLs and <code>LocaleMiddleware</code>. Add both in your <code>urls.py</code> and <code>settings.py</code> to enable it.{% endblocktranslate %}</p>
+          <p style="margin-top:0.5rem;">
+            <a href="{% url 'django_cotton_gallery:get_started' %}#i18n" class="cg-empty-state__link">{% trans "See the i18n setup steps →" %}</a>
+          </p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% for cat_name, subcategories in categories.items %}
+    <section id="{{ cat_name|default:'uncategorized' }}" class="cg-section">
+      <header class="cg-section__header">
+        <h2 class="cg-section__title">{% if cat_name %}{{ cat_name }}{% else %}{% trans "Components" %}{% endif %}</h2>
+        <span class="cg-section__count">{{ subcategories|component_count }}</span>
+      </header>
+      {% for sub_name, components in subcategories.items %}
+        {% if sub_name %}<h3 class="cg-subsection__title">{{ sub_name }}</h3>{% endif %}
+        <div class="cg-grid">
+          {% for comp in components %}
+            <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}" class="cg-card">
+              <div class="cg-card__preview" data-cg-thumb="{% url 'django_cotton_gallery:component_thumb' comp.path %}">
+                <span class="cg-card__skeleton" aria-hidden="true"></span>
+                <code class="cg-card__tag">&lt;c-{{ comp.tag_path }} /&gt;</code>
+              </div>
+              <div class="cg-card__info">
+                <h3 class="cg-card__name">{{ comp.name }}</h3>
+                {% if comp.description %}
+                  <p class="cg-card__desc">{{ comp.description }}</p>
+                {% else %}
+                  <p class="cg-card__path">{{ cat_name }}{% if sub_name %} / {{ sub_name }}{% endif %}</p>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+{% endblock %}

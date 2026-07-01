@@ -1,0 +1,54 @@
+{# @description Bordered or borderless data table with optional dense rows #}
+{# @prop bordered:boolean | default:True | description:"Show outer border + cell separators" #}
+{# @prop dense:boolean | default:False | description:"Tighter row padding" #}
+{# @prop striped:boolean | default:False | description:"Zebra-stripe rows" #}
+{# @slot Default body — table rows (HTML <tr>/<td>); fallback shows demo rows #}
+
+<c-vars bordered=True dense=False striped=False />
+
+<div
+  class="overflow-hidden
+         {% if bordered %}rounded-lg border border-gray-200{% endif %}"
+  {{ attrs }}
+>
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <tr>
+        <th scope="col" class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Name</th>
+        <th scope="col" class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Role</th>
+        <th scope="col" class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Status</th>
+        <th scope="col" class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} text-right">Score</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100 text-gray-700">
+      {% if slot %}
+        {{ slot }}
+      {% else %}
+        <tr class="{% if striped %}even:bg-gray-50{% endif %}">
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} font-medium text-gray-900">Marie Curie</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Research lead</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">
+            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+          </td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} text-right tabular-nums">98</td>
+        </tr>
+        <tr class="{% if striped %}even:bg-gray-50{% endif %}">
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} font-medium text-gray-900">Ada Lovelace</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Engineer</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">
+            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
+          </td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} text-right tabular-nums">87</td>
+        </tr>
+        <tr class="{% if striped %}even:bg-gray-50{% endif %}">
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} font-medium text-gray-900">Alan Turing</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">Scientist</td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %}">
+            <span class="inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">Inactive</span>
+          </td>
+          <td class="{% if dense %}px-3 py-2{% else %}px-4 py-3{% endif %} text-right tabular-nums">72</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>

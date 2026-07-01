@@ -1,0 +1,21 @@
+{# @description Inline alert message with semantic tones #}
+{# @prop tone:select['info', 'success', 'warn', 'danger'] | default:"info" | description:"Semantic tone" #}
+{# @prop dismissible:boolean | default:False | description:"Show close button" #}
+{# @slot Default alert message — Alert content #}
+
+<c-vars tone="info" dismissible=False />
+
+<div
+  role="alert"
+  class="flex items-start gap-3 rounded-lg border p-4
+         {% if tone == 'info' %}border-blue-200 bg-blue-50 text-blue-800{% endif %}
+         {% if tone == 'success' %}border-green-200 bg-green-50 text-green-800{% endif %}
+         {% if tone == 'warn' %}border-yellow-200 bg-yellow-50 text-yellow-800{% endif %}
+         {% if tone == 'danger' %}border-red-200 bg-red-50 text-red-800{% endif %}"
+  {{ attrs }}
+>
+  <div class="flex-1 text-sm">{{ slot }}</div>
+  {% if dismissible %}
+    <button class="text-current opacity-60 hover:opacity-100" aria-label="Dismiss">&times;</button>
+  {% endif %}
+</div>

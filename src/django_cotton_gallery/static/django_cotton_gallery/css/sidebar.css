@@ -1,0 +1,1288 @@
+/* Sidebar — nav, search input + suggestions, theme + language switchers,
+   mobile drawer trigger, scroll memory. */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Sidebar
+───────────────────────────────────────────────────────────────────────── */
+.cg-sidebar {
+  width: var(--cg-sidebar-width);
+  flex-shrink: 0;
+  /* Deep slate-tinted near-black. Two-stop vertical fade plus a brand
+     halo at the top and a cool accent at the bottom — gives depth without
+     screaming "dark mode". Mobile-first: slide-in drawer below 1024px. */
+  background:
+    radial-gradient(ellipse 500px 320px at 50% -10%, rgba(255, 157, 10, 0.10), transparent 62%),
+    radial-gradient(ellipse 400px 300px at 100% 105%, rgba(99, 102, 241, 0.06), transparent 65%),
+    linear-gradient(180deg, #0b0f17 0%, #050810 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  color: var(--cg-sidebar-text);
+  isolation: isolate;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform var(--cg-duration-slow) var(--cg-ease-out);
+  will-change: transform;
+}
+
+[data-cg-app][data-cg-sidebar-open] .cg-sidebar {
+  transform: translateX(0);
+  box-shadow: 8px 0 32px -8px rgba(0, 0, 0, 0.5);
+}
+
+.cg-sidebar::before {
+  /* Soft vertical accent on the right edge — brand orange fading into a
+     cool indigo replaces the flat border so the divider has personality. */
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 157, 10, 0.32) 22%, rgba(255, 255, 255, 0.06) 50%, rgba(99, 102, 241, 0.18) 78%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Mobile drawer overlay + hamburger trigger */
+.cg-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--cg-duration-slow) var(--cg-ease-out),
+              visibility var(--cg-duration-slow) var(--cg-ease-out);
+}
+
+[data-cg-app][data-cg-sidebar-open] .cg-sidebar-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cg-mobile-toggle {
+  position: fixed;
+  top: 0.875rem;
+  left: 0.875rem;
+  z-index: 30;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cg-surface);
+  color: var(--cg-text);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-md);
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-mobile-toggle:hover {
+  border-color: var(--cg-brand-300);
+  box-shadow: var(--cg-shadow-lg);
+}
+
+.cg-mobile-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--cg-ring);
+}
+
+.cg-mobile-toggle__icon {
+  width: 1rem;
+  height: 1rem;
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out),
+              transform var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-mobile-toggle__icon--close { display: none; }
+
+[data-cg-app][data-cg-sidebar-open] .cg-mobile-toggle {
+  /* Slide the toggle alongside the drawer when it opens. */
+  left: calc(var(--cg-sidebar-width) + 0.875rem);
+}
+
+[data-cg-app][data-cg-sidebar-open] .cg-mobile-toggle__icon--open  { display: none; }
+
+[data-cg-app][data-cg-sidebar-open] .cg-mobile-toggle__icon--close { display: block; }
+
+.cg-sidebar__logo {
+  padding: var(--cg-space-5) var(--cg-space-4);
+  border-bottom: 1px solid var(--cg-sidebar-border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  text-decoration: none;
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__logo:hover { opacity: 0.92; }
+
+.cg-sidebar__logo:hover .cg-sidebar__logo-mark { transform: rotate(-6deg) scale(1.04); box-shadow: 0 8px 18px -4px rgba(255, 133, 0, 0.55); }
+
+.cg-sidebar__logo-mark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--cg-radius-md);
+  background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-300));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -2px rgba(255, 133, 0, 0.4);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__logo-text { display: flex; flex-direction: column; line-height: 1.2; }
+
+.cg-sidebar__logo-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.015em;
+}
+
+.cg-sidebar__logo-sub {
+  font-size: 0.625rem;
+  color: var(--cg-sidebar-muted);
+  letter-spacing: 0.02em;
+  margin-top: 0.125rem;
+}
+
+.cg-sidebar__search {
+  padding: var(--cg-space-3);
+  border-bottom: 1px solid var(--cg-sidebar-border);
+  flex-shrink: 0;
+}
+
+.cg-sidebar__search-wrap { position: relative; }
+
+.cg-sidebar__search-icon {
+  position: absolute;
+  left: var(--cg-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cg-sidebar-muted);
+  pointer-events: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__search-input {
+  width: 100%;
+  padding: 0.4375rem 3.25rem 0.4375rem 2.25rem;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--cg-radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  color: #f3f4f6;
+  font-family: inherit;
+  outline: none;
+  letter-spacing: -0.005em;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__search-input:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cg-sidebar__search-input:focus {
+  background: rgba(255, 157, 10, 0.04);
+  border-color: rgba(255, 157, 10, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 157, 10, 0.12);
+}
+
+.cg-sidebar__search-input:focus + .cg-sidebar__search-kbd,
+.cg-sidebar__search-input:not(:placeholder-shown) ~ .cg-sidebar__search-kbd { opacity: 0; }
+
+.cg-sidebar__search-wrap:focus-within .cg-sidebar__search-icon { color: var(--cg-brand-400, #ffb632); }
+
+.cg-sidebar__search-input::placeholder { color: var(--cg-sidebar-muted); }
+
+/* Kill the browser's built-in clear button on type=search — we already have
+   our own .cg-sidebar__search-clear and the duplicate Xs were confusing. */
+.cg-sidebar__search-input::-webkit-search-cancel-button,
+.cg-sidebar__search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.cg-sidebar__search-kbd {
+  position: absolute;
+  right: var(--cg-space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--cg-font-mono);
+  font-size: 0.625rem;
+  padding: 0.0625rem 0.375rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-sidebar-muted);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__search-clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cg-sidebar-muted);
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__search-clear:hover { color: #f3f4f6; }
+
+.cg-sidebar__nav {
+  padding: var(--cg-space-2) 0;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cg-gray-700) transparent;
+}
+
+/* "Components" mini toolbar — sits between the doclinks and the categories.
+   Houses bulk actions (collapse all / expand all) so the user doesn't have
+   to click each chevron individually when the tree gets noisy. */
+.cg-sidebar__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--cg-space-3) var(--cg-space-4) var(--cg-space-2);
+  margin-top: var(--cg-space-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.cg-sidebar__toolbar-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--cg-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cg-sidebar__toolbar-actions { display: inline-flex; gap: 0.125rem; }
+
+.cg-sidebar__toolbar-btn {
+  width: 1.375rem;
+  height: 1.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--cg-sidebar-muted);
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  cursor: pointer;
+  transition: color var(--cg-duration-fast) var(--cg-ease-out),
+              background var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-sidebar__toolbar-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cg-sidebar__toolbar-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.5);
+}
+
+.cg-sidebar__toolbar-btn svg { width: 0.75rem; height: 0.75rem; }
+.cg-sidebar__toolbar-icon { transition: transform var(--cg-duration-base) var(--cg-ease-out); }
+
+/* Issues toggle — eye / eye-off icons. Show eye by default; when pressed
+   (badges hidden) we swap to the eye-off icon. The button uses
+   `data-cg-hidden` to drive the swap. */
+.cg-sidebar__toolbar-icon--hide { display: none; }
+[data-cg-toggle-issues][data-cg-hidden="true"] .cg-sidebar__toolbar-icon--show { display: none; }
+[data-cg-toggle-issues][data-cg-hidden="true"] .cg-sidebar__toolbar-icon--hide { display: inline-block; }
+[data-cg-toggle-issues][data-cg-hidden="true"] {
+  /* Slightly muted when off so the user can tell at a glance. */
+  opacity: 0.7;
+}
+
+/* Hide-lint state — the badges next to component links collapse. */
+.cg-sidebar.cg-sidebar--hide-lint .cg-link__lint { display: none; }
+
+/* Personal-filter toggles — outlined icon by default, filled when active.
+   Both buttons share the same icon-swap trick; the active one also takes
+   the brand colour so the user gets a clear "this filter is on" signal. */
+.cg-sidebar__toolbar-icon--on { display: none; }
+[data-cg-filter][data-cg-on="true"] .cg-sidebar__toolbar-icon--off { display: none; }
+[data-cg-filter][data-cg-on="true"] .cg-sidebar__toolbar-icon--on { display: inline-block; }
+[data-cg-filter][data-cg-on="true"] { color: var(--cg-brand-400, #ffb632); }
+
+/* Personal filter — the pinned and recent lists DO NOT show by default;
+   they only appear when the matching filter is active. Each filter mode
+   also hides the catalog tree and the catalog-only toolbar actions so
+   the view is dedicated to the chosen list. The search stays in pins
+   mode (the favourites list may grow large) and disappears in recents
+   mode (capped, short list). The toolbar stays so the user can flip the
+   filter back off. */
+[data-cg-personal] { display: none; }
+.cg-sidebar--show-pins-only [data-cg-personal="pins"]:not([hidden]),
+.cg-sidebar--show-recents-only [data-cg-personal="recents"]:not([hidden]) { display: block; }
+.cg-sidebar--show-pins-only [data-cg-category],
+.cg-sidebar--show-recents-only [data-cg-category],
+.cg-sidebar--show-recents-only .cg-sidebar__search-wrap,
+.cg-sidebar--show-recents-only [data-cg-empty-search],
+.cg-sidebar--show-recents-only [data-cg-suggestions],
+.cg-sidebar--show-pins-only [data-cg-toggle-all],
+.cg-sidebar--show-recents-only [data-cg-toggle-all],
+.cg-sidebar--show-pins-only [data-cg-toggle-issues],
+.cg-sidebar--show-recents-only [data-cg-toggle-issues] { display: none; }
+/* Annotate the "Components" label to reflect the active filter. */
+.cg-sidebar--show-pins-only .cg-sidebar__toolbar-label::after { content: " · pinned"; }
+.cg-sidebar--show-recents-only .cg-sidebar__toolbar-label::after { content: " · recent"; }
+.cg-sidebar--show-pins-only .cg-sidebar__toolbar-label::after,
+.cg-sidebar--show-recents-only .cg-sidebar__toolbar-label::after {
+  color: var(--cg-brand-400, #ffb632);
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Search filter count — appears under the input only while the user is
+   typing. Shows visible/total so the noise of empty categories collapsing
+   doesn't feel like the gallery lost components. */
+.cg-sidebar__search-count {
+  margin: var(--cg-space-2) 0 0;
+  padding: 0 var(--cg-space-1);
+  font-size: 0.625rem;
+  color: var(--cg-sidebar-muted);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.cg-sidebar__search-count strong {
+  color: var(--cg-brand-400, #ffb632);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-sidebar__search-count em {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Empty-search state — replaces the (now invisible) component tree when
+   the filter zeroes everything out. Echoes the query back so the user
+   knows the gallery's still working, just nothing matches. */
+.cg-sidebar__empty-search {
+  padding: var(--cg-space-8) var(--cg-space-4);
+  text-align: center;
+  color: var(--cg-sidebar-muted);
+}
+
+.cg-sidebar__empty-search-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0 auto var(--cg-space-3);
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.cg-sidebar__empty-search-msg {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--cg-sidebar-muted);
+}
+
+.cg-sidebar__empty-search-query {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.0625rem 0.375rem;
+  border-radius: var(--cg-radius-sm);
+  letter-spacing: -0.01em;
+}
+
+/* Autocomplete dropdown — floats below the search input as a typeahead.
+   Tab completes the input with the first match's name; the category tree
+   below keeps its own filter behaviour (this layer is purely additive). */
+.cg-sidebar__suggestions {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 80;
+  max-height: 22rem;
+  overflow-y: auto;
+  background: #0a0d12;
+  border: 1px solid rgba(255, 157, 10, 0.18);
+  border-radius: var(--cg-radius-md);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6),
+              0 4px 8px -2px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(0, 0, 0, 0.5);
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  animation: cg-lang-pop 160ms var(--cg-ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.cg-sidebar__suggestions::-webkit-scrollbar { width: 4px; }
+
+.cg-sidebar__suggestions::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: var(--cg-radius-full); }
+
+.cg-sidebar__suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--cg-radius-md);
+  text-decoration: none;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out),
+              border-color var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-sidebar__suggestion:hover,
+.cg-sidebar__suggestion.cg-highlighted {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.cg-sidebar__suggestion.cg-highlighted {
+  background: rgba(255, 157, 10, 0.10);
+  border-color: rgba(255, 157, 10, 0.25);
+}
+
+.cg-sidebar__suggestion:focus-visible {
+  outline: none;
+  background: rgba(255, 157, 10, 0.10);
+  border-color: rgba(255, 157, 10, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 157, 10, 0.4);
+}
+
+.cg-sidebar__suggestion-head {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+}
+
+.cg-sidebar__suggestion-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #f3f4f6;
+  letter-spacing: -0.01em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cg-sidebar__suggestion-path {
+  font-size: 0.625rem;
+  font-family: var(--cg-font-mono);
+  color: var(--cg-sidebar-muted);
+  letter-spacing: 0.02em;
+  padding: 0.0625rem 0.3125rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--cg-radius-sm);
+  flex-shrink: 0;
+}
+
+.cg-sidebar__suggestion.cg-highlighted .cg-sidebar__suggestion-path {
+  background: rgba(255, 157, 10, 0.14);
+  color: var(--cg-brand-400, #ffb632);
+}
+
+.cg-sidebar__suggestion-desc {
+  font-size: 0.6875rem;
+  color: var(--cg-sidebar-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Match highlighting — mark the matched substring inside the name */
+.cg-sidebar__suggestion-name mark {
+  background: rgba(255, 157, 10, 0.25);
+  color: var(--cg-brand-400, #ffb632);
+  padding: 0;
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.cg-sidebar__nav::-webkit-scrollbar { width: 3px; }
+
+.cg-sidebar__nav::-webkit-scrollbar-track { background: transparent; }
+
+.cg-sidebar__nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--cg-radius-full);
+  transition: background var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__nav:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); }
+
+.cg-cat__toggle, .cg-sub__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-cat__toggle {
+  padding: var(--cg-space-3) var(--cg-space-4);
+  margin-top: var(--cg-space-3);
+}
+
+.cg-cat__toggle:hover { background: rgba(255, 255, 255, 0.02); }
+
+[data-cg-category]:first-child .cg-cat__toggle { margin-top: var(--cg-space-1); }
+
+.cg-cat__toggle:hover .cg-cat__name { color: #f3f4f6; }
+
+.cg-cat__toggle:hover .cg-cat__name::before { transform: translateY(-50%) scale(1.3); box-shadow: 0 0 8px rgba(255, 157, 10, 0.6); }
+
+.cg-cat__name {
+  position: relative;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #d1d5db;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-left: 0.875rem;
+  transition: color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-cat__name::before {
+  /* Tiny brand dot tying every category to the visual identity. Subtle
+     glow, scales up on hover so the toggle feels alive when explored. */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--cg-brand-500);
+  box-shadow: 0 0 6px rgba(255, 157, 10, 0.5);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-cat__count, .cg-sub__count {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: rgba(243, 244, 246, 0.65);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0.125rem 0.4375rem;
+  border-radius: var(--cg-radius-full);
+  margin-left: var(--cg-space-2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.cg-cat__chevron, .cg-sub__chevron {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--cg-sidebar-muted);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out);
+  flex-shrink: 0;
+}
+
+.cg-cat__toggle:hover .cg-cat__chevron,
+.cg-sub__toggle:hover .cg-sub__chevron { color: #f3f4f6; }
+
+.cg-sub__chevron { width: 0.625rem; height: 0.625rem; }
+
+.cg-cat__toggle.cg-collapsed .cg-cat__chevron,
+.cg-sub__toggle.cg-collapsed .cg-sub__chevron {
+  transform: rotate(-90deg);
+}
+
+.cg-sub__toggle {
+  padding: 0.625rem 1rem 0.5rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+[data-cg-subcategory] + [data-cg-subcategory] .cg-sub__toggle { margin-top: 0.75rem; }
+
+.cg-sub__name {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: rgba(113, 118, 128, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cg-sub__name-wrap { display: flex; align-items: center; gap: 0.375rem; }
+
+.cg-sidebar__footer {
+  padding: var(--cg-space-3) var(--cg-space-4);
+  border-top: 1px solid var(--cg-sidebar-border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-2);
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.3));
+}
+
+.cg-sidebar__footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--cg-sidebar-muted);
+}
+
+.cg-sidebar__footer-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  letter-spacing: -0.005em;
+}
+
+.cg-sidebar__footer-meta strong {
+  color: white;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.cg-sidebar__footer-pulse {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: var(--cg-radius-full);
+  background: var(--cg-green-400);
+  animation: cg-pulse 2.4s var(--cg-ease-in-out) infinite;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+  flex-shrink: 0;
+}
+
+.cg-sidebar__footer-actions {
+  display: flex;
+  gap: var(--cg-space-1);
+}
+
+.cg-sidebar__footer-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cg-sidebar-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  cursor: pointer;
+  transition: color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__footer-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cg-sidebar__footer-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.6); }
+
+.cg-sidebar__footer-btn svg { width: 0.875rem; height: 0.875rem; }
+
+/* Language switcher — custom dropdown. Trigger button shows the current
+   code with the globe icon; click opens a panel with all languages and
+   their native names. Menu lives at bottom: 100% so it floats UP from
+   the footer (sidebar's bottom edge) into the available space. */
+.cg-sidebar__lang {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+}
+
+.cg-sidebar__lang-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.3125rem 0.4375rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-sidebar-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__lang-trigger:hover,
+.cg-sidebar__lang-trigger[aria-expanded="true"] {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cg-sidebar__lang-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.6);
+}
+
+.cg-sidebar__lang-trigger svg {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  flex-shrink: 0;
+}
+
+.cg-sidebar__lang-menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 11rem;
+  background: #0a0d12;
+  border: 1px solid rgba(255, 157, 10, 0.18);
+  border-radius: var(--cg-radius-md);
+  padding: 0.25rem;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6),
+              0 4px 8px -2px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  /* Subtle entrance — opacity + tiny rise — when the menu is rendered. */
+  animation: cg-lang-pop 160ms var(--cg-ease-out);
+}
+
+.cg-sidebar__lang-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.4375rem 0.625rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-sidebar-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  transition: color var(--cg-duration-fast) var(--cg-ease-out),
+              background var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-sidebar__lang-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.cg-sidebar__lang-item:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.cg-sidebar__lang-item.cg-active {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+}
+
+.cg-sidebar__lang-code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--cg-sidebar-muted);
+  min-width: 1.625rem;
+  text-align: center;
+  padding: 0.0625rem 0.3125rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--cg-radius-sm);
+}
+
+.cg-sidebar__lang-item.cg-active .cg-sidebar__lang-code {
+  color: var(--cg-brand-400, #ffb632);
+  background: rgba(255, 157, 10, 0.12);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+
+.cg-sidebar__lang-item:hover .cg-sidebar__lang-code {
+  color: white;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.cg-sidebar__lang-name {
+  flex: 1;
+  letter-spacing: -0.005em;
+}
+
+.cg-sidebar__lang-check {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  color: var(--cg-brand-400, #ffb632);
+  flex-shrink: 0;
+}
+
+.cg-sidebar__footer-version {
+  font-family: var(--cg-font-mono);
+  font-size: 0.625rem;
+  color: var(--cg-gray-600);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.cg-sidebar__footer-version-tag {
+  display: inline-block;
+  padding: 0 0.3125rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--cg-radius-sm);
+  margin-right: var(--cg-space-1);
+  color: var(--cg-gray-500);
+}
+
+.cg-sidebar__empty {
+  font-size: 0.75rem;
+  color: var(--cg-sidebar-muted);
+  padding: 1rem;
+  text-align: center;
+}
+
+.cg-sidebar__doclink {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  margin: var(--cg-space-1) var(--cg-space-3) var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  border-radius: var(--cg-radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cg-gray-400);
+  background: var(--cg-sidebar-light);
+  border: 1px solid var(--cg-sidebar-border);
+  letter-spacing: -0.005em;
+  transition: color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              transform var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__doclink:hover {
+  color: #f3f4f6;
+  background: var(--cg-gray-700);
+  border-color: var(--cg-gray-600);
+  transform: translateX(2px);
+}
+
+.cg-sidebar__doclink:hover svg { color: var(--cg-brand-400, #ffb632); }
+
+.cg-sidebar__doclink svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  color: var(--cg-brand-500);
+  transition: color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-sidebar__doclink.cg-active {
+  color: white;
+  background: linear-gradient(135deg, rgba(255, 157, 10, 0.16), rgba(255, 133, 0, 0.08));
+  border-color: rgba(255, 157, 10, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cg-sidebar__doclink.cg-active svg { color: var(--cg-brand-400, #ffb632); }
+
+/* ── Tools dropdown — Compare / Lint / Builder collapsed under one trigger ── */
+.cg-sidebar__tools {
+  position: relative;  /* anchor for the absolute-positioned menu */
+}
+
+/* Trigger reuses .cg-sidebar__doclink for its base look + adds a chevron
+   on the right that rotates when the menu is open. */
+.cg-sidebar__tools-trigger {
+  width: calc(100% - 2 * var(--cg-space-3));
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  /* The doclink rule already supplies bg/border/padding/etc.; we just
+     need to make sure the chevron sits at the end and the label flexes. */
+}
+.cg-sidebar__tools-trigger > span:not([class]) { flex: 1; }
+.cg-sidebar__tools-chevron {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  color: var(--cg-text-muted) !important;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-sidebar__tools--open .cg-sidebar__tools-chevron { transform: rotate(180deg); }
+
+.cg-sidebar__tools-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: var(--cg-space-3);
+  right: var(--cg-space-3);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  padding: 0.25rem;
+  background: #0a0d12;
+  border: 1px solid rgba(255, 157, 10, 0.18);
+  border-radius: var(--cg-radius-md);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6),
+              0 4px 8px -2px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(0, 0, 0, 0.5);
+  /* Subtle entrance — same animation as the lang switcher menu. */
+  animation: cg-lang-pop 160ms var(--cg-ease-out);
+}
+
+.cg-sidebar__tools-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.4375rem 0.625rem;
+  background: transparent;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-sidebar-text);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: color var(--cg-duration-fast) var(--cg-ease-out),
+              background var(--cg-duration-fast) var(--cg-ease-out);
+}
+.cg-sidebar__tools-item svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  color: var(--cg-sidebar-muted);
+}
+.cg-sidebar__tools-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+.cg-sidebar__tools-item:hover svg { color: white; }
+/* Stronger active state — mirrors the doclink's gradient-+-border feel
+   inside the menu so the current page is unmistakable at a glance. */
+.cg-sidebar__tools-item.cg-active {
+  background: linear-gradient(135deg, rgba(255, 157, 10, 0.22), rgba(255, 133, 0, 0.10));
+  color: var(--cg-brand-400, #ffb632);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(255, 157, 10, 0.40);
+}
+.cg-sidebar__tools-item.cg-active svg { color: var(--cg-brand-400, #ffb632); }
+.cg-sidebar__tools-item.cg-active::before {
+  /* Left-edge accent bar — secondary visual cue alongside the bg/text. */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 2px;
+  background: var(--cg-brand-500);
+  border-radius: 0 2px 2px 0;
+}
+/* Make `::before` positioning work — need the item to be a positioning ctx. */
+.cg-sidebar__tools-item { position: relative; }
+
+/* Visual separator between the "learn" pages (Get started, Documentation)
+   and the "tools" pages (Compare, Lint, Builder) inside the menu. */
+.cg-sidebar__tools-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0.25rem 0.375rem;
+}
+
+.cg-subsection__title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1.5rem 0 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cg-subsection__title::before {
+  content: '';
+  display: block;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--cg-brand-500);
+}
+
+@media (min-width: 1024px) {
+  .cg-sidebar {
+    position: sticky;
+    transform: none;
+    z-index: auto;
+    will-change: auto;
+    transition: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cg-sidebar-backdrop { display: none; }
+}
+
+@media (min-width: 1024px) {
+  .cg-mobile-toggle { display: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Collapse-to-rail (desktop only — on mobile the drawer hamburger handles it).
+   When `:root[data-cg-sidebar-collapsed]` is set, the sidebar shrinks to a
+   ~4rem icon rail. Texts hide, the component tree hides entirely (the rail
+   is for navigation actions, not for browsing components — to do that, the
+   user expands again), icons stay vertically centered.
+───────────────────────────────────────────────────────────────────────── */
+
+/* The toggle itself only makes sense on desktop. */
+.cg-sidebar__collapse-toggle { display: none; }
+
+@media (min-width: 1024px) {
+  /* Floating handle on the sidebar's right edge — sits half-in/half-out so
+     it reads as "this thing belongs to the sidebar". Chevron orientation
+     advertises direction: `<` = collapse, `>` = expand.
+
+     Color strategy: the button straddles a dark/light boundary. A white
+     button blends with the main column and clashes with the dark sidebar.
+     We pick a dark slate that visually extends the sidebar, with a subtle
+     brand-tinted ring so the button reads as "tappable", and flip to solid
+     brand on hover. */
+  .cg-sidebar__collapse-toggle {
+    position: absolute;
+    top: 5rem;
+    right: -0.75rem;
+    z-index: 10;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    background: #1a2030;
+    color: #e5e7eb;
+    border: 1px solid rgba(255, 157, 10, 0.35);
+    box-shadow:
+      0 0 0 2px rgba(11, 15, 23, 0.6),
+      0 2px 6px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: transform var(--cg-duration-base) var(--cg-ease-out),
+                background var(--cg-duration-base) var(--cg-ease-out),
+                color var(--cg-duration-base) var(--cg-ease-out),
+                border-color var(--cg-duration-base) var(--cg-ease-out),
+                box-shadow var(--cg-duration-base) var(--cg-ease-out);
+  }
+
+  .cg-sidebar__collapse-toggle svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .cg-sidebar__collapse-toggle:hover {
+    background: var(--cg-brand-500);
+    color: #fff;
+    border-color: var(--cg-brand-500);
+    box-shadow:
+      0 0 0 2px rgba(255, 157, 10, 0.25),
+      0 4px 12px rgba(255, 157, 10, 0.35);
+  }
+
+  .cg-sidebar__collapse-toggle:focus-visible {
+    outline: none;
+    border-color: var(--cg-brand-500);
+    box-shadow:
+      0 0 0 3px rgba(255, 157, 10, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Flip the chevron when collapsed so it points right (= "expand"). */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__collapse-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  :root[data-cg-sidebar-collapsed] .cg-sidebar {
+    width: 4rem;
+    /* Bump above main-column UI (tabs, toolbars all sit at z-index 60).
+       At default width the sidebar lives inside its own stacking context
+       and dropdowns stay inside it; once collapsed, dropdowns spill over
+       the main and need to outrank any content z-index. */
+    z-index: 70;
+    transition: width var(--cg-duration-slow) var(--cg-ease-out);
+  }
+
+  /* Logo: keep the mark, drop the wordmark. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__logo-text { display: none; }
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__logo {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Search bar — out of place at 4rem. Hide the whole block; on expand, it
+     comes back wired and pre-populated with the previous query. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__search { display: none; }
+
+  /* Doclinks: keep only the icon, hide the label. Tooltip via title attr. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__doclink {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__doclink > span:not([class]),
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__doclink > span:last-child {
+    display: none;
+  }
+
+  /* Tools dropdown in rail mode: trigger label + chevron hide; menu
+     anchors to the right of the trigger so it doesn't get clipped. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__tools-trigger > span:not([class]),
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__tools-chevron {
+    display: none;
+  }
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__tools-menu {
+    left: 100%;
+    right: auto;
+    top: 0;
+    margin-left: 0.5rem;
+    min-width: 10rem;
+  }
+
+  /* Component browser is text-only — there's no per-category icon. Hide the
+     whole tree in rail mode rather than showing a wall of meaningless dots. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__toolbar,
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__empty,
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__empty-search,
+  :root[data-cg-sidebar-collapsed] [data-cg-category] {
+    display: none;
+  }
+
+  /* Footer: drop the "X components · live" meta and version line; stack
+     action icons vertically so they fit the 4rem column. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__footer-meta,
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__footer-version {
+    display: none;
+  }
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__footer-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__footer-actions {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  /* Lang switcher: drop the "ES"/"EN" code label, keep the globe icon. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__lang-current { display: none; }
+
+  /* Lang dropdown: at default width (16rem) the menu fits inside the sidebar
+     anchored to the trigger's right edge. At rail width (4rem) that would
+     overflow the sidebar's LEFT side — flip it: anchor the menu's LEFT edge
+     to the trigger's right and let it expand over the main content. */
+  :root[data-cg-sidebar-collapsed] .cg-sidebar__lang-menu {
+    bottom: 0;
+    left: calc(100% + 0.5rem);
+    right: auto;
+  }
+}
+
+/* ── Personal sidebar sections (Recents + Pins) ────────────────────── */
+.cg-sidebar__personal {
+  margin: 0 var(--cg-space-3) var(--cg-space-3);
+  padding: var(--cg-space-2) 0;
+  border-bottom: 1px dashed var(--cg-sidebar-border);
+}
+.cg-sidebar__personal-title {
+  margin: 0 0 var(--cg-space-1);
+  padding: 0 var(--cg-space-1);
+  font-family: var(--cg-font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cg-text-muted);
+}
+.cg-sidebar__personal-row {
+  display: flex;
+  align-items: center;
+  border-radius: var(--cg-radius-sm);
+  transition: background var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-sidebar__personal-row:hover { background: rgba(255, 255, 255, 0.04); }
+.cg-sidebar__personal-link {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3125rem 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--cg-gray-400);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cg-sidebar__personal-link:hover { color: white; }
+.cg-sidebar__personal-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.25rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--cg-duration-base);
+}
+.cg-sidebar__personal-row:hover .cg-sidebar__personal-remove { opacity: 1; }
+.cg-sidebar__personal-remove svg { width: 0.75rem; height: 0.75rem; }
+.cg-sidebar__personal-remove:hover {
+  background: rgba(220, 38, 38, 0.18);
+  color: #fca5a5;
+}

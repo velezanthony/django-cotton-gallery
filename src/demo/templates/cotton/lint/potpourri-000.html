@@ -1,0 +1,12 @@
+{# @description Lint stress-test fixture #}
+{# @prop variant:select['a', 'b'] | default:"WRONG" | description:"x" #}
+{# @prop size:text | default:"md" | required | description:"x" #}
+{# @prop count:number | default:"abc" #}
+{# @prop active:boolean | default:"maybe" | description:"x" #}
+{# @prop ghost:text | default:"g" | description:"x" #}
+{# @prop :items:text | default:"[]" | description:"x" #}
+<c-vars variant="b" size="md" count="abc" active="maybe" items="[]" undocumented="z" />
+<div class="rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3 text-amber-900 text-sm">
+  <strong>potpourri-0</strong>
+  {{ variant }} {{ size }} {{ count }} {{ active }} {{ items }} {{ undocumented }} {{ unknown }}
+</div>

@@ -1,0 +1,26 @@
+{# @description Toast-like notification entry — sender chip, message, dismiss + action #}
+{# @prop sender:text | required | description:"Who triggered the notification (person or system)" #}
+{# @prop kind:select['info', 'success', 'warn', 'danger'] | default:"info" | description:"Severity tone" #}
+{# @prop unread:boolean | default:False | description:"Whether the notification is still unread" #}
+{# @slot Message — Notification body text or rich content #}
+
+<c-vars sender kind="info" unread=False />
+
+<div
+  class="flex items-start gap-3 p-3 rounded-lg border
+         {% if unread %}bg-indigo-50 border-indigo-200{% else %}bg-white border-gray-200{% endif %}"
+  {{ attrs }}
+>
+  <c-molecules.profile-chip :name="sender" size="sm" />
+  <div class="flex-1 flex flex-col gap-2 min-w-0">
+    <div class="flex items-center gap-2 flex-wrap">
+      <c-atoms.badge tone="{{ kind }}">{{ kind }}</c-atoms.badge>
+      {% if unread %}<c-atoms.chip tone="brand">unread</c-atoms.chip>{% endif %}
+    </div>
+    <p class="text-sm text-gray-800 leading-snug">{{ slot }}</p>
+    <div class="flex items-center gap-2">
+      <c-atoms.button variant="primary" size="sm">View</c-atoms.button>
+      <c-atoms.button variant="ghost" size="sm">Dismiss</c-atoms.button>
+    </div>
+  </div>
+</div>

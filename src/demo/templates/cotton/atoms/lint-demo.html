@@ -1,0 +1,45 @@
+{# @description Intentionally-broken component to exercise every lint rule — DELETE ME once you're done playing. #}
+
+{# --- Triggers `default-mismatch`: @prop says 'a' but <c-vars> says 'b' --- #}
+{# @prop variant:select['a', 'b', 'c'] | default:"a" | description:"Visual variant" #}
+
+{# --- Triggers `enum-default-out-of-range`: 'WRONG' is not in the options --- #}
+{# @prop tone:select['info', 'danger'] | default:"WRONG" | description:"Semantic tone" #}
+
+{# --- Triggers `required-with-default`: required + default at the same time --- #}
+{# @prop label:text | required | default:"Click me" | description:"Button label" #}
+
+{# --- Triggers `missing-description`: no `| description:` filter --- #}
+{# @prop count:number | default:0 #}
+
+{# --- Triggers `type-default-mismatch` (number): "abc" is not a number --- #}
+{# @prop weight:number | default:"abc" | description:"Weight" #}
+
+{# --- Triggers `type-default-mismatch` (boolean): "maybe" is silently coerced to False --- #}
+{# @prop active:boolean | default:"maybe" | description:"Whether the component is active" #}
+
+{# --- Triggers `orphan-annotation`: ghost is annotated but missing from <c-vars> --- #}
+{# @prop ghost:text | default:"phantom" | description:"This will never reach the template" #}
+
+{# --- Triggers `dynamic-prefix-mismatch`: @prop has `:` prefix, <c-vars> doesn't --- #}
+{# @prop :items:text | default:"[]" | description:"Should be dynamic on both sides" #}
+
+{# `extra` below has NO @prop — triggers `missing-annotation`. #}
+<c-vars variant="b" tone="info" label="Click me" count=0 items="[]" extra="surprise" />
+
+<div class="rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 p-5 text-amber-900" {{ attrs }}>
+  <p class="font-semibold">⚠ Lint demo component</p>
+  <p class="text-sm opacity-80 mt-1">
+    Every prop annotation here is wrong on purpose. Open the lint panel to see all eight rules firing at once.
+  </p>
+  <ul class="text-xs mt-3 space-y-0.5 font-mono opacity-90">
+    <li>variant = <strong>{{ variant }}</strong></li>
+    <li>tone = <strong>{{ tone }}</strong></li>
+    <li>label = <strong>{{ label }}</strong></li>
+    <li>count = <strong>{{ count }}</strong></li>
+    <li>items = <strong>{{ items }}</strong></li>
+    <li>extra = <strong>{{ extra }}</strong></li>
+    {# This `{{ mystery }}` triggers `undeclared-template-var` — not in <c-vars>, not a Django reserved. #}
+    <li>mystery = <strong>{{ mystery }}</strong></li>
+  </ul>
+</div>
