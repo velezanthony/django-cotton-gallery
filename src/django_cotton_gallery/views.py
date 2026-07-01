@@ -110,7 +110,7 @@ def index(request: HttpRequest) -> HttpResponse:
         cfg = catalog.config
         ctx["onboarding"] = {
             "cotton_subfolder": load().cotton_subfolder,
-            "cotton_dir_abs": str(cfg.cotton_dir),
+            "cotton_dir_abs": cfg.cotton_dir.as_posix(),
             "cotton_dir_exists": cfg.cotton_dir.exists(),
         }
     # Non-blocking warnings (e.g. missing context_processor) — surface
@@ -345,7 +345,7 @@ def insights(request: HttpRequest) -> HttpResponse:
         "has_mismatch": snake_cased and bool(components_with_hyphen),
         # Truthful path the gallery is scanning RIGHT NOW. Mirrors what the
         # empty-state surfaces — the user can copy/paste it to verify.
-        "cotton_dir_abs": str(cfg.cotton_dir),
+        "cotton_dir_abs": cfg.cotton_dir.as_posix(),
         "cotton_subfolder": load().cotton_subfolder,
     }
     return render(
