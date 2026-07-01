@@ -40,11 +40,11 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install 3.12
+        run: uv venv --python 3.12
 
       - name: Install package + typecheck extras
         shell: bash
-        run: uv pip install --system -e ".[typecheck]"
+        run: uv pip install -e ".[typecheck]"
 
       - name: Run mypy
-        run: mypy
+        run: uv run --no-sync mypy

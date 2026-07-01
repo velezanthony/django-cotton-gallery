@@ -58,11 +58,12 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
 
       - name: Set up Python ${{ matrix.python }}
-        run: uv python install ${{ matrix.python }}
+        shell: bash
+        run: uv venv --python ${{ matrix.python }}
 
       - name: Install package + test extras
         shell: bash
-        run: uv pip install --system -e ".[test]"
+        run: uv pip install -e ".[test]"
 
       - name: Pin Django ${{ matrix.django }}
         shell: bash
@@ -70,21 +71,21 @@ jobs:
           MAJOR=$(echo ${{ matrix.django }} | cut -d. -f1)
           MINOR=$(echo ${{ matrix.django }} | cut -d. -f2)
           NEXT_MINOR=$((MINOR + 1))
-          uv pip install --system "Django>=${{ matrix.django }},<${MAJOR}.${NEXT_MINOR}"
+          uv pip install "Django>=${{ matrix.django }},<${MAJOR}.${NEXT_MINOR}"
 
       - name: Show resolved versions
         shell: bash
         run: |
-          python --version
-          python -c "import django; print(f'Django {django.get_version()}')"
+          uv run --no-sync python --version
+          uv run --no-sync python -c "import django; print(f'Django {django.get_version()}')"
 
       - name: Install Playwright browser
         shell: bash
-        run: python -m playwright install --with-deps chromium
+        run: uv run --no-sync python -m playwright install --with-deps chromium
 
       - name: Run tests
         shell: bash
-        run: pytest -v --tb=short --cov --cov-report=xml --cov-report=term
+        run: uv run --no-sync pytest -v --tb=short --cov --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         # Only upload from one matrix combo to avoid 21x duplicate uploads.

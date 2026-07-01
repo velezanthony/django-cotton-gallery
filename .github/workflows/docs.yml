@@ -33,13 +33,13 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install 3.12
+        run: uv venv --python 3.12
 
       - name: Install docs extras
-        run: uv pip install --system -e ".[docs]"
+        run: uv pip install -e ".[docs]"
 
       - name: Build site
-        run: mkdocs build --strict
+        run: uv run --no-sync mkdocs build --strict
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

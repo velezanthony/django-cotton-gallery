@@ -37,16 +37,16 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install 3.12
+        run: uv venv --python 3.12
 
       - name: Install build tools
-        run: uv pip install --system build twine
+        run: uv pip install build twine
 
       - name: Build distributions
-        run: python -m build
+        run: uv run --no-sync python -m build
 
       - name: Verify distributions
-        run: twine check dist/*
+        run: uv run --no-sync twine check dist/*
 
       - name: Verify tag matches pyproject version
         if: startsWith(github.ref, 'refs/tags/v')
