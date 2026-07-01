@@ -1,0 +1,480 @@
+/* Index page — component cards, thumbnails, hero, dependency badges, inline stats. */
+
+/* The landing page runs full-bleed so the component grid can fan out on wide
+   monitors; every other page keeps --cg-content-max. Scoped via :has() to the
+   hero, which only the index renders as a direct child of .cg-main-inner. */
+.cg-main-inner:has(> .cg-hero) {
+  max-width: none;
+}
+
+/* Card preview gradient — strip the light radial / linear gradients and use
+   a flat dark surface so the rendered component sits on its own without a
+   bright halo behind it. */
+[data-theme="dark"] .cg-card__preview {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .cg-card__tag {
+  background: rgba(15, 20, 30, 0.7);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: var(--cg-text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Hero (index) — display heading + dual CTA + inline stats with dividers.
+   Mesh gradient lives behind the hero, bleeds slightly past content edges.
+───────────────────────────────────────────────────────────────────────── */
+.cg-hero {
+  position: relative;
+  margin-bottom: var(--cg-space-12);
+  padding: var(--cg-space-12) 0 var(--cg-space-10);
+  isolation: isolate;
+}
+
+.cg-hero::before {
+  content: '';
+  position: absolute;
+  inset: -2rem -3rem;
+  background:
+    radial-gradient(ellipse 50% 50% at 85% 15%, rgba(255, 157, 10, 0.18), transparent 65%),
+    radial-gradient(ellipse 40% 50% at 5% 90%, rgba(88, 147, 202, 0.10), transparent 65%),
+    radial-gradient(ellipse 30% 40% at 50% 0%, rgba(255, 214, 109, 0.08), transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+  filter: saturate(1.1);
+}
+
+.cg-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-1) var(--cg-space-3);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cg-brand-700);
+  background: rgba(255, 249, 229, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 182, 50, 0.3);
+  border-radius: var(--cg-radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--cg-space-5);
+}
+
+.cg-hero__eyebrow-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--cg-brand-500);
+  box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.25);
+  animation: cg-pulse 2.4s var(--cg-ease-in-out) infinite;
+}
+
+.cg-hero__title {
+  font-size: clamp(2.25rem, 4vw + 1rem, 4rem);
+  font-weight: 800;
+  color: var(--cg-text-strong);
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  max-width: 32ch;
+  margin-bottom: var(--cg-space-5);
+}
+
+.cg-hero__title-accent {
+  background: linear-gradient(135deg, var(--cg-brand-500) 0%, var(--cg-brand-700) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.cg-hero__lead {
+  font-size: 1.0625rem;
+  color: var(--cg-text-muted);
+  line-height: 1.6;
+  max-width: 38rem;
+  margin-bottom: var(--cg-space-8);
+}
+
+.cg-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cg-space-3);
+  margin-bottom: var(--cg-space-10);
+}
+
+.cg-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: 0.625rem 1.125rem;
+  border-radius: var(--cg-radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-hero__cta:focus-visible { outline: none; box-shadow: var(--cg-ring); }
+
+.cg-hero__cta--primary {
+  background: var(--cg-gray-900);
+  color: white;
+  box-shadow: var(--cg-shadow-md);
+}
+
+.cg-hero__cta--primary:hover {
+  background: var(--cg-gray-800);
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-lg);
+}
+
+.cg-hero__cta--secondary {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  color: var(--cg-text-strong);
+  border: 1px solid var(--cg-border-strong);
+  box-shadow: var(--cg-shadow-xs);
+}
+
+.cg-hero__cta--secondary:hover {
+  background: white;
+  border-color: var(--cg-gray-400);
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+.cg-hero__cta-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-hero__cta:hover .cg-hero__cta-icon { transform: translateX(2px); }
+
+/* Inline stats row — divided columns, no chrome. Lets the numbers do the
+   talking instead of stacking up boxy stat-cards next to the title.
+   Flex+wrap so they stay on one line as long as there's room and gracefully
+   wrap when the viewport narrows (sidebar open, mobile, etc.). */
+.cg-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--cg-space-5) 0;
+  padding-top: var(--cg-space-8);
+  border-top: 1px solid var(--cg-border);
+}
+
+.cg-hero__stat {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--cg-space-5);
+  border-left: 1px solid var(--cg-border);
+  min-width: max-content;
+}
+
+.cg-hero__stat:first-child { padding-left: 0; border-left: none; }
+
+.cg-hero__stat-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--cg-text-strong);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: var(--cg-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-hero__stat--accent .cg-hero__stat-value {
+  background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-700));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cg-hero__stat-label {
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.cg-badges { display: flex; flex-wrap: wrap; gap: var(--cg-space-2); margin-top: var(--cg-space-6); }
+
+.cg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--cg-radius-full);
+}
+
+.cg-badge__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
+
+/* Color variants — referenced by `Dependency.color` in dependencies.py */
+.cg-badge--blue   { background: var(--cg-blue-50);   color: var(--cg-blue-700); }
+
+.cg-badge--green  { background: var(--cg-green-50);  color: var(--cg-green-700); }
+
+.cg-badge--cyan   { background: var(--cg-cyan-50);   color: var(--cg-cyan-700); }
+
+.cg-badge--indigo { background: var(--cg-indigo-50); color: var(--cg-indigo-700); }
+
+.cg-badge--purple { background: var(--cg-purple-50); color: var(--cg-purple-700); }
+
+.cg-badge--pink   { background: #fce7f3;             color: #be185d; }
+
+.cg-badge--orange { background: #fff7ed;             color: #c2410c; }
+
+.cg-badge--amber  { background: var(--cg-amber-50);  color: var(--cg-amber-700); }
+
+.cg-badge--gray   { background: var(--cg-gray-100);  color: var(--cg-gray-700); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Empty state (index when categories dict is empty)
+───────────────────────────────────────────────────────────────────────── */
+.cg-empty-state {
+  max-width: 36rem;
+  margin: 1rem auto 4rem;
+  padding: 2rem;
+  text-align: left;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-xl);
+  box-shadow: 0 4px 12px -6px rgba(0,0,0,0.06);
+}
+
+.cg-empty-state__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--cg-brand-500);
+  margin-bottom: 0.75rem;
+}
+
+.cg-empty-state__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--cg-text-strong);
+  letter-spacing: -0.015em;
+  margin-bottom: 0.5rem;
+}
+
+.cg-empty-state__lead {
+  font-size: 0.875rem;
+  color: var(--cg-text-muted);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+/* Long absolute paths in <code> would otherwise overflow the card.
+   `overflow-wrap: anywhere` lets them break at any character so the
+   layout never bursts. */
+.cg-empty-state__lead code,
+.cg-empty-state__hint code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cg-empty-state__hint {
+  background: var(--cg-gray-50);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.cg-empty-state__hint-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.cg-empty-state__tree {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  color: var(--cg-gray-700);
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.cg-empty-state__comment { color: var(--cg-text-subtle); }
+
+.cg-empty-state__footer {
+  font-size: 0.75rem;
+  color: var(--cg-text-subtle);
+  line-height: 1.5;
+}
+
+.cg-empty-state__footer code {
+  font-family: var(--cg-font-mono);
+  background: var(--cg-gray-100);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-gray-700);
+}
+
+.cg-empty-state__link {
+  color: var(--cg-brand-600);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.cg-empty-state__link:hover { color: var(--cg-brand-700); text-decoration: underline; }
+
+.cg-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--cg-surface);
+  border-radius: var(--cg-radius-xl);
+  border: 1px solid var(--cg-border);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--cg-shadow-xs);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-card::after {
+  /* Subtle brand glow that fades in on hover — sits behind the card so the
+     border-radius clips cleanly, no overflow needed. */
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px var(--cg-brand-300), var(--cg-shadow-lg);
+  opacity: 0;
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.cg-card:hover {
+  transform: translateY(-3px);
+  border-color: transparent;
+}
+
+.cg-card:hover::after { opacity: 1; }
+
+.cg-card:focus-visible {
+  outline: none;
+  box-shadow: var(--cg-ring);
+}
+
+.cg-card__preview {
+  position: relative;
+  padding: var(--cg-space-5);
+  height: 160px;                    /* fixed — guarantees uniform card height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 157, 10, 0.05), transparent 60%),
+    linear-gradient(180deg, var(--cg-gray-50), var(--cg-surface));
+  border-bottom: 1px solid var(--cg-gray-100);
+  overflow: hidden;
+}
+
+.cg-card__skeleton {
+  position: absolute;
+  inset: var(--cg-space-4);
+  border-radius: var(--cg-radius-md);
+  background: linear-gradient(90deg, var(--cg-gray-100) 0%, var(--cg-gray-200) 50%, var(--cg-gray-100) 100%);
+  background-size: 200% 100%;
+  animation: cg-shimmer 1.4s ease-in-out infinite;
+  opacity: 0.55;
+}
+
+.cg-card__tag {
+  /* Floating tag-chip top-left over the preview area — backdrop-blur keeps it
+     legible regardless of the rendered component's colours below. */
+  position: absolute;
+  top: var(--cg-space-3);
+  left: var(--cg-space-3);
+  font-size: 0.625rem;
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--cg-radius-sm);
+  border: 1px solid rgba(229, 231, 235, 0.7);
+  z-index: 2;
+  pointer-events: none;
+  letter-spacing: -0.01em;
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-card:hover .cg-card__tag { opacity: 0.6; }
+
+.cg-card__thumb {
+  position: absolute;
+  inset: var(--cg-space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;          /* the card itself is the link */
+  user-select: none;
+  transition: transform var(--cg-duration-slow) var(--cg-ease-out);
+}
+
+.cg-card:hover .cg-card__thumb { transform: scale(1.04); }
+
+.cg-card__thumb > * {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Constrain heavy/auto-sizing components — chart canvases, images, svg gauges */
+.cg-card__thumb canvas { max-width: 100% !important; max-height: 100% !important; height: auto !important; }
+
+.cg-card__thumb img    { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.cg-card__thumb svg    { max-width: 100%; max-height: 100%; }
+
+/* Anything bigger than the slot just gets clipped — never blow up the card */
+.cg-card__thumb > * { max-height: 100%; overflow: hidden; }
+
+.cg-card__info {
+  padding: var(--cg-space-4) var(--cg-space-5) var(--cg-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+  flex: 1;
+}
+
+.cg-card__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--cg-text-strong);
+  letter-spacing: -0.015em;
+  transition: color var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-card:hover .cg-card__name { color: var(--cg-brand-600); }
+
+.cg-card__desc {
+  font-size: 0.8125rem;
+  color: var(--cg-text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cg-card__path { font-size: 0.6875rem; color: var(--cg-text-subtle); }

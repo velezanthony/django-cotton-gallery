@@ -1,0 +1,11 @@
+{# @description Hierarchical navigation trail showing path back to root #}
+{# @prop separator:text | default:"/" | description:"Glyph between segments" #}
+{# @slot Items — One <a> or <span> per crumb, in order from root #}
+
+<c-vars separator="/" />
+
+<nav class="flex items-center gap-2 text-sm text-gray-600" aria-label="Breadcrumb" {{ attrs }}>
+  <ol class="flex items-center gap-2 list-none m-0 p-0">
+    {{ slot }}
+  </ol>
+</nav>

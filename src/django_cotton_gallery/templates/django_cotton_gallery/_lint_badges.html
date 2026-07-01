@@ -1,0 +1,25 @@
+{% load i18n %}
+{% comment %}
+Sidebar lint badges — icon + count, no labels.
+Required context: `counts` = `(errors, warnings, hints)` tuple.
+{% endcomment %}
+<span class="cg-link__lint" aria-hidden="true">
+  {% if counts.0 %}
+    <span class="cg-link__lint-badge cg-link__lint-badge--error" title="{% blocktranslate count n=counts.0 %}{{ n }} error{% plural %}{{ n }} errors{% endblocktranslate %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      <span class="cg-link__lint-badge-num">{{ counts.0 }}</span>
+    </span>
+  {% endif %}
+  {% if counts.1 %}
+    <span class="cg-link__lint-badge cg-link__lint-badge--warning" title="{% blocktranslate count n=counts.1 %}{{ n }} warning{% plural %}{{ n }} warnings{% endblocktranslate %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v4M12 18h.01"/></svg>
+      <span class="cg-link__lint-badge-num">{{ counts.1 }}</span>
+    </span>
+  {% endif %}
+  {% if counts.2 %}
+    <span class="cg-link__lint-badge cg-link__lint-badge--hint" title="{% blocktranslate count n=counts.2 %}{{ n }} hint (heuristic — does not affect health score){% plural %}{{ n }} hints (heuristic — do not affect health score){% endblocktranslate %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <span class="cg-link__lint-badge-num">{{ counts.2 }}</span>
+    </span>
+  {% endif %}
+</span>

@@ -1,0 +1,61 @@
+{% load i18n %}
+{% load catalog_tags %}
+{% comment %}
+Recursive partial — renders a single `DepNode` plus its children.
+
+Required context:
+  - `node`     a `core.component_graph.DepNode`
+  - `is_root`  bool, True only for the very first call from the parent
+               template; controls whether the root is wrapped in <details>
+               (we want it always-visible) vs. each child (collapsed by
+               default for big trees).
+
+`<details>` is the platform's native disclosure widget — keyboard-accessible
+and JS-free. Each branch starts collapsed so the page stays scannable on
+catalogs with deep dependency chains.
+{% endcomment %}
+{% if is_root %}
+  {# Root nodes are not wrapped in <details>; they always render fully open. #}
+  <ul class="cg-deptree">
+    <li class="cg-deptree__item cg-deptree__item--root">
+      <a class="cg-deptree__path" href="{% url 'django_cotton_gallery:component_detail' node.path %}">{{ node.path }}</a>
+      {% if node.children %}
+        <ul class="cg-deptree__children">
+          {% for child in node.children %}
+            {% include "django_cotton_gallery/_dep_tree.html" with node=child is_root=False %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cg-deptree__empty">{% trans "No further dependencies." %}</p>
+      {% endif %}
+    </li>
+  </ul>
+{% else %}
+  <li class="cg-deptree__item">
+    {% if node.is_cycle %}
+      <span class="cg-deptree__leaf cg-deptree__leaf--cycle" title="{% trans 'Cycle — already shown above in this branch' %}">
+        <a class="cg-deptree__path cg-deptree__path--muted" href="{% url 'django_cotton_gallery:component_detail' node.path %}">{{ node.path }}</a>
+        <span class="cg-deptree__tag">{% trans "cycle" %}</span>
+      </span>
+    {% elif node.truncated %}
+      <span class="cg-deptree__leaf cg-deptree__leaf--truncated" title="{% trans 'Depth limit reached — open this component to keep exploring' %}">
+        <a class="cg-deptree__path cg-deptree__path--muted" href="{% url 'django_cotton_gallery:component_detail' node.path %}">{{ node.path }}</a>
+        <span class="cg-deptree__tag">{% trans "depth limit" %}</span>
+      </span>
+    {% elif node.children %}
+      <details class="cg-deptree__details">
+        <summary class="cg-deptree__summary">
+          <a class="cg-deptree__path" href="{% url 'django_cotton_gallery:component_detail' node.path %}">{{ node.path }}</a>
+          <span class="cg-deptree__count">{{ node.children|length }}</span>
+        </summary>
+        <ul class="cg-deptree__children">
+          {% for child in node.children %}
+            {% include "django_cotton_gallery/_dep_tree.html" with node=child is_root=False %}
+          {% endfor %}
+        </ul>
+      </details>
+    {% else %}
+      <a class="cg-deptree__path cg-deptree__leaf" href="{% url 'django_cotton_gallery:component_detail' node.path %}">{{ node.path }}</a>
+    {% endif %}
+  </li>
+{% endif %}

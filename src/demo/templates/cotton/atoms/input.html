@@ -1,0 +1,24 @@
+{# @description Single-line text input with optional label and error state #}
+{# @prop label:text | description:"Field label" #}
+{# @prop placeholder:text | default:"" | description:"Placeholder text" #}
+{# @prop type:select['text', 'email', 'password', 'number', 'tel', 'url'] | default:"text" | description:"Input type" #}
+{# @prop error:text | default:"" | description:"Error message — turns the field red" #}
+
+<c-vars label="" placeholder="" type="text" error="" />
+
+<label class="block">
+  {% if label %}
+    <span class="block text-sm font-medium text-gray-700 mb-1">{{ label }}</span>
+  {% endif %}
+  <input
+    type="{{ type }}"
+    placeholder="{{ placeholder }}"
+    class="block w-full rounded-md px-3 py-2 text-sm shadow-sm
+           {% if error %}border-red-300 focus:border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:border-indigo-500 focus:ring-indigo-500{% endif %}
+           focus:outline-none focus:ring-1"
+    {{ attrs }}
+  />
+  {% if error %}
+    <span class="block mt-1 text-xs text-red-600">{{ error }}</span>
+  {% endif %}
+</label>

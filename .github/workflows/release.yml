@@ -1,0 +1,83 @@
+name: Release to PyPI
+
+# Triggered by pushing a tag like v0.1.0. The version in pyproject.toml MUST
+# match the tag (without the leading "v"), otherwise the build will fail.
+#
+# REQUIRED ONE-TIME SETUP (in PyPI, manual):
+#   1. Create the project on PyPI (or TestPyPI) once with `twine upload` from
+#      a local machine, then DELETE the upload — this reserves the name.
+#   2. Go to https://pypi.org/manage/project/django-cotton-gallery/settings/publishing/
+#      and add a "Trusted Publisher":
+#        - Owner:           velezanthony
+#        - Repository name: django-cotton-gallery
+#        - Workflow name:   release.yml
+#        - Environment:     pypi
+#   3. In GitHub repo settings → Environments, create an environment named
+#      "pypi" with required reviewers if you want a manual approval gate.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build sdist + wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install build tools
+        run: uv pip install --system build twine
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Verify distributions
+        run: twine check dist/*
+
+      - name: Verify tag matches pyproject version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PYPROJECT_VERSION=$(grep -E '^version\s*=' pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          if [[ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]]; then
+            echo "Tag $TAG_VERSION does not match pyproject version $PYPROJECT_VERSION"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/django-cotton-gallery
+    permissions:
+      id-token: write  # required for trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish via trusted publishing
+        uses: pypa/gh-action-pypi-publish@release/v1

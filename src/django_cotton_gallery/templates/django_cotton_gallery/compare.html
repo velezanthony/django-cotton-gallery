@@ -1,0 +1,87 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load catalog_tags i18n %}
+
+{% block title %}{% trans "Compare components" %}{% endblock %}
+
+{% block content %}
+  <header class="cg-compare__header">
+    <h1 class="cg-compare__title">{% trans "Compare" %}</h1>
+    <div class="cg-compare__pickers" data-cg-compare-pickers>
+      {% for side, current in pickers %}
+        <div class="cg-combo cg-compare__combo" data-cg-combo data-cg-compare-combo="{{ side }}" data-cg-combo-value="{% if current %}{{ current.path }}{% endif %}">
+          <button type="button" class="cg-combo__trigger" data-cg-combo-trigger aria-haspopup="listbox" aria-expanded="false">
+            <span class="cg-combo__side">{{ side|upper }}</span>
+            <span class="cg-combo__label{% if not current %} cg-combo__label--placeholder{% endif %}" data-cg-combo-label data-cg-combo-placeholder="{% trans 'Pick a component…' %}">{% if current %}{{ current.path }}{% else %}{% trans "Pick a component…" %}{% endif %}</span>
+            <svg class="cg-combo__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="cg-combo__panel" data-cg-combo-panel hidden role="dialog" aria-label="{% trans 'Pick a component' %}">
+            <div class="cg-combo__search-wrap">
+              <svg class="cg-combo__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+              <input type="text" class="cg-combo__search" data-cg-combo-search placeholder="{% trans 'Filter components…' %}" autocomplete="off">
+            </div>
+            <div class="cg-combo__list" data-cg-combo-list role="listbox" aria-label="{% trans 'Components' %}">
+              <button type="button" class="cg-combo__option cg-combo__option--clear{% if not current %} cg-active{% endif %}" data-cg-combo-option="" role="option">
+                <span class="cg-combo__option-name">{% trans "— None" %}</span>
+              </button>
+              {% for cat_name, subcategories in categories.items %}
+                <div class="cg-combo__group" data-cg-combo-group>
+                  <div class="cg-combo__group-label">{{ cat_name }}</div>
+                  {% for sub_name, components in subcategories.items %}
+                    {% for comp in components %}
+                      <button type="button" class="cg-combo__option{% if current and current.path == comp.path %} cg-active{% endif %}" data-cg-combo-option="{{ comp.path }}" role="option">
+                        <span class="cg-combo__option-name">{{ comp.path }}</span>
+                      </button>
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              <p class="cg-combo__empty" data-cg-combo-empty hidden>{% trans "No matches" %}</p>
+            </div>
+          </div>
+        </div>
+
+        {% if forloop.first %}
+          <button type="button" class="cg-compare__swap" data-cg-compare-swap aria-label="{% trans 'Swap A and B' %}" title="{% trans 'Swap A and B' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16"/>
+            </svg>
+          </button>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% comment %}
+    Shared chrome controls — one viewport switcher and one bg switcher
+    broadcast their state to ALL preview-devices on the page (data-cg-preview-device).
+    {% endcomment %}
+    <div class="cg-compare__chrome">
+      <div class="cg-preview__vp-switcher" role="radiogroup" aria-label="{% trans 'Preview viewport' %}" data-cg-shared-vp>
+        <span class="cg-preview__switcher-label">{% trans "Viewport" %}</span>
+        <button type="button" class="cg-vp-btn" data-cg-viewport="mobile" title="{% trans 'Mobile' %} · 375px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg>
+        </button>
+        <button type="button" class="cg-vp-btn" data-cg-viewport="tablet" title="{% trans 'Tablet' %} · 768px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+        </button>
+        <button type="button" class="cg-vp-btn" data-cg-viewport="desktop" title="{% trans 'Desktop' %} · 1280px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="1.5"/><line x1="8" y1="20.5" x2="16" y2="20.5"/><line x1="12" y1="17" x2="12" y2="20.5"/></svg>
+        </button>
+        <button type="button" class="cg-vp-btn" data-cg-viewport="full" title="{% trans 'Full width' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V5a2 2 0 0 1 2-2h4M21 9V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4M21 15v4a2 2 0 0 1-2 2h-4"/></svg>
+        </button>
+      </div>
+      <div class="cg-preview__bg-switcher" role="radiogroup" aria-label="{% trans 'Preview background' %}" data-cg-shared-bg>
+        <span class="cg-preview__switcher-label">{% trans "Bg" %}</span>
+        <button type="button" class="cg-bg-btn" data-cg-bg="checkered" title="{% trans 'Checkered' %}"></button>
+        <button type="button" class="cg-bg-btn" data-cg-bg="white" title="{% trans 'White' %}"></button>
+        <button type="button" class="cg-bg-btn" data-cg-bg="dark" title="{% trans 'Dark' %}"></button>
+        <button type="button" class="cg-bg-btn" data-cg-bg="brand" title="{% trans 'Brand' %}"></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="cg-compare__split">
+    {% include "django_cotton_gallery/_compare_panel.html" with side="a" comp=a %}
+    {% include "django_cotton_gallery/_compare_panel.html" with side="b" comp=b %}
+  </div>
+{% endblock %}

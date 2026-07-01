@@ -1,0 +1,695 @@
+/*
+ * /django-cotton-gallery/insights/ — catalog health dashboard.
+ *
+ * Card-based grid: each metric lives in its own bordered card and the
+ * grid auto-flows responsively. Stats cards lean on a single big number;
+ * coverage uses inline progress bars; lists scroll inside their card.
+ */
+
+.cg-insights__header {
+  padding: 1.25rem 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cg-insights__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cg-text-strong);
+}
+.cg-insights__intro {
+  margin: 0;
+  color: var(--cg-text-muted);
+  font-size: 0.875rem;
+  max-width: 70ch;
+  line-height: 1.55;
+}
+
+.cg-insights__grid {
+  display: grid;
+  /* auto-fit + minmax(280px, 1fr) gestiona los breakpoints solo: el grid
+     pasa de 1 → 2 → 3 → 4 → 5 columnas según el ancho disponible (que
+     depende del viewport menos el sidebar). NO forzamos un repeat(N, 1fr)
+     en ningún breakpoint — antes lo hacíamos a 1100px, pero como el
+     sidebar consume ~250px, a ese viewport el grid solo tiene ~765px
+     útiles y `repeat(4, 1fr)` colapsaba las cards a 179px (por debajo
+     del mínimo de 280). Dejar que auto-fit decida es más honesto. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding-bottom: 2rem;
+  /* `dense` lets auto-flow back-fill the holes created by cotton-config's
+     explicit placement (last column, 2 rows tall). Without dense, the
+     non-cotton cards keep their source-order slots and we end up with
+     gaps in the middle of earlier rows. */
+  grid-auto-flow: row dense;
+  /* Container query context: el span 2 del cotton-config reacciona al
+     ancho REAL del grid (no del viewport), así sigue siendo correcto
+     cuando el sidebar se muestra/oculta o el shell cambia de chrome. */
+  container-type: inline-size;
+  container-name: insights-grid;
+}
+/* Cotton config rule: SIEMPRE en la última columna con span de 2 filas.
+   Pero el row de inicio cambia según cuántas columnas haya:
+   - 2 columnas: cotton sigue el flow del DOM (orden 4 = cae en col 2
+     rows 2-3, después de stat+health+coverage). Forzar rows 1-2 aquí
+     dejaría toda la col 2 vacía a partir de row 3 — feo.
+   - 3+ columnas: cotton anclado en rows 1-2 de la última col. Sin esto,
+     en 3-col cotton caía a col 1 rows 2-3 (4to en source order) en vez
+     de la esquina superior derecha. */
+@container insights-grid (min-width: 576px) {
+  .cg-insight-card--config { grid-row: span 2; }
+}
+@container insights-grid (min-width: 876px) {
+  .cg-insight-card--config {
+    grid-column: -2 / -1;
+    grid-row: 1 / span 2;
+  }
+}
+.cg-insights__external-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.cg-insight-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.625rem;
+  /* Without min-width:0 the card refuses to shrink below the intrinsic
+     width of its longest child (the absolute path in the Cotton config
+     card), which makes the ellipsis on .cg-insight-card__abs-path
+     useless and pushes the whole grid wider than the viewport. */
+  min-width: 0;
+}
+.cg-insight-card--external {
+  grid-column: 1 / -1;
+  /* Container for the inner two-column external grid: the split into
+     "Most referenced" + "Zombies" reacts to the card's own width, not
+     to the viewport. Useful because this card always spans the full
+     row (1/-1) so its width tracks the grid's, not the viewport. */
+  container-type: inline-size;
+  container-name: external-card;
+}
+@container external-card (min-width: 540px) {
+  .cg-insights__external-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.cg-insight-card__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cg-insight-card__subtitle {
+  margin: 0 0 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.cg-insight-card__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--cg-text-muted);
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.625rem;
+}
+
+.cg-insight-card__big {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cg-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.cg-insight-card__big--good { color: #16a34a; }
+.cg-insight-card__big--warn { color: #ea580c; }
+.cg-insight-card__big--bad { color: #dc2626; }
+.cg-insight-card__suffix {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--cg-text-muted);
+  margin-left: 0.125rem;
+}
+.cg-insight-card__verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.cg-insight-card__verdict--clean {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.14);
+}
+.cg-insight-card__verdict--healthy {
+  color: #166534;
+  background: rgba(34, 197, 94, 0.10);
+}
+.cg-insight-card__verdict--needs-attention {
+  color: #c2410c;
+  background: rgba(234, 88, 12, 0.12);
+}
+.cg-insight-card__verdict--many-issues {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+}
+[data-theme="dark"] .cg-insight-card__verdict--clean,
+[data-theme="dark"] .cg-insight-card__verdict--healthy {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.18);
+}
+[data-theme="dark"] .cg-insight-card__verdict--needs-attention {
+  color: #fb923c;
+  background: rgba(234, 88, 12, 0.18);
+}
+[data-theme="dark"] .cg-insight-card__verdict--many-issues {
+  color: #f87171;
+  background: rgba(220, 38, 38, 0.18);
+}
+
+/* Verdict variants reused by the Cotton-config card. The semantic mapping
+   is: --good → "you're doing it right", --warn → "works but suboptimal",
+   --bad → "this combination silently breaks previews". A subtle border
+   in the same hue gives the pill more definition against the card bg. */
+.cg-insight-card__verdict--good {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+.cg-insight-card__verdict--warn {
+  color: #c2410c;
+  background: rgba(234, 88, 12, 0.14);
+  border: 1px solid rgba(234, 88, 12, 0.35);
+}
+.cg-insight-card__verdict--bad {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+}
+[data-theme="dark"] .cg-insight-card__verdict--good {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.20);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+[data-theme="dark"] .cg-insight-card__verdict--warn {
+  color: #fb923c;
+  background: rgba(234, 88, 12, 0.20);
+  border-color: rgba(234, 88, 12, 0.45);
+}
+[data-theme="dark"] .cg-insight-card__verdict--bad {
+  color: #f87171;
+  background: rgba(220, 38, 38, 0.20);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+/* Status border for ANY card that contains a verdict pill — the border
+   colour matches the verdict severity so the card is glanceable from
+   across the page without reading the text. Uses `:has()` so the same
+   rule covers both vocabularies in use:
+     - Lint health card: --clean / --healthy / --needs-attention / --many-issues
+     - Cotton config card: --good / --warn / --bad
+   Same hue swatches as the pills above for visual consistency. */
+.cg-insight-card:has(.cg-insight-card__verdict--clean),
+.cg-insight-card:has(.cg-insight-card__verdict--healthy),
+.cg-insight-card:has(.cg-insight-card__verdict--good) {
+  border-left: 3px solid rgba(34, 197, 94, 0.6);
+}
+.cg-insight-card:has(.cg-insight-card__verdict--needs-attention),
+.cg-insight-card:has(.cg-insight-card__verdict--warn) {
+  border-left: 3px solid rgba(234, 88, 12, 0.6);
+}
+.cg-insight-card:has(.cg-insight-card__verdict--many-issues),
+.cg-insight-card:has(.cg-insight-card__verdict--bad) {
+  border-left: 3px solid rgba(220, 38, 38, 0.6);
+}
+/* Legacy modifiers — kept for backwards compatibility. The `:has()` rules
+   above cover the same cases; these remain in case a future card sets
+   the modifier without rendering a verdict pill. */
+.cg-insight-card--config-good { border-left: 3px solid rgba(34, 197, 94, 0.6); }
+.cg-insight-card--config-warn { border-left: 3px solid rgba(234, 88, 12, 0.6); }
+.cg-insight-card--config-bad  { border-left: 3px solid rgba(220, 38, 38, 0.6); }
+
+.cg-insight-card__details {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+.cg-insight-card__details summary {
+  cursor: pointer;
+  color: var(--cg-text-muted);
+  user-select: none;
+  padding: 0.25rem 0;
+}
+.cg-insight-card__details summary:hover { color: var(--cg-text); }
+.cg-insight-card__details[open] summary { color: var(--cg-text); margin-bottom: 0.375rem; }
+
+/* Key-value list for the Cotton config card. Each row is one inline
+   <div> with the label-on-left, value-on-right (mono pill). Compact
+   one-line-per-setting layout — much denser than stacked dt/dd and
+   reads like a settings.py snippet. */
+.cg-insight-card__kv {
+  display: block;
+  margin: 0 0 0.875rem;
+  padding: 0;
+}
+.cg-insight-card__kv-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+  /* min-width: 0 lets the row's value (especially the long abs path)
+     shrink and ellipsis instead of forcing the card wider. */
+  min-width: 0;
+}
+.cg-insight-card__kv-row:last-child { margin-bottom: 0; }
+.cg-insight-card__kv-row dt {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cg-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cg-insight-card__kv-row dt code {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.6875rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+.cg-insight-card__kv-row dd {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  text-align: right;
+  /* The inline ellipsis only kicks in for plain text values; for the
+     special abs-path code element below, .cg-insight-card__abs-path
+     already handles its own RTL truncation. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cg-insight-card__kv-row dd code {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  background: var(--cg-canvas-low);
+  border-radius: 4px;
+  border: 1px solid var(--cg-border);
+}
+
+/* When the card is in a healthy state (good/warn) it has no affected
+   list at the bottom, so the verdict block is short and the card
+   leaves a big visual gap (it row-spans 2 to align with the BAD
+   case). To fill that space without inventing filler content, we
+   restack the kv rows vertically: label on top, value full-width
+   below. The path then has all the horizontal room and the card
+   feels balanced instead of empty. */
+.cg-insight-card--config-good .cg-insight-card__kv-row,
+.cg-insight-card--config-warn .cg-insight-card__kv-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 0.875rem;
+}
+.cg-insight-card--config-good .cg-insight-card__kv-row dd,
+.cg-insight-card--config-warn .cg-insight-card__kv-row dd {
+  /* The base rule sets `flex: 1 1 0` for the row-mode (label-left,
+     value-right) layout. In column mode that collapses the dd to
+     height: 0 — main axis is now vertical, basis: 0 + no parent
+     height = nothing to distribute. Force intrinsic height instead. */
+  flex: 0 0 auto;
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+  /* Drop the row-mode horizontal ellipsis — the abs-path child handles
+     its own RTL truncation, and short values just render at full width. */
+  overflow: visible;
+  white-space: normal;
+}
+.cg-insight-card--config-good .cg-insight-card__kv-row .cg-insight-card__abs-path,
+.cg-insight-card--config-warn .cg-insight-card__kv-row .cg-insight-card__abs-path {
+  /* Full-width path with start-side ellipsis — uses the available
+     room better than the inline-right alignment of the BAD layout. */
+  display: block;
+  width: 100%;
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.625rem;
+}
+
+/* Long absolute paths get hidden-leading-side ellipsis. The "RTL" trick:
+   set direction: rtl + text-align: left so the END of the string stays
+   visible (the meaningful tail of the path) and the truncation happens
+   at the start. The ::before override flips the leading "..." to render
+   correctly. Hover reveals the full path via the title attribute, which
+   is the native browser tooltip. */
+.cg-insight-card__abs-path {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--cg-canvas-low);
+  border: 1px solid var(--cg-border);
+  border-radius: 4px;
+  cursor: help;
+  user-select: all;
+}
+.cg-insight-card__abs-path:focus-visible {
+  outline: 2px solid var(--cg-brand-500);
+  outline-offset: 1px;
+}
+
+.cg-insight-card__sub {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--cg-text-muted);
+}
+.cg-insight-card__sub strong {
+  color: var(--cg-text);
+  font-variant-numeric: tabular-nums;
+}
+.cg-insight-card__formula {
+  margin: 0;
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+  letter-spacing: 0.01em;
+}
+.cg-insight-card__title .cg-info {
+  display: inline-flex;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cg-text-muted);
+  cursor: help;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.cg-insight-card__title .cg-info svg { width: 100%; height: 100%; }
+.cg-insight-card__title .cg-info:hover,
+.cg-insight-card__title .cg-info:focus { color: var(--cg-text); }
+
+/* When the ⓘ lives inside a verdict pill (good/warn/bad), inherit the
+   pill's tint instead of the muted gray — keeps the icon visually
+   bound to its container so a red pill doesn't show a gray icon. */
+.cg-insight-card__verdict .cg-info {
+  display: inline-flex;
+  width: 0.8125rem;
+  height: 0.8125rem;
+  color: currentColor;
+  opacity: 0.85;
+  cursor: help;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.cg-insight-card__verdict .cg-info svg { width: 100%; height: 100%; }
+.cg-insight-card__verdict .cg-info:hover,
+.cg-insight-card__verdict .cg-info:focus { opacity: 1; }
+
+.cg-insight-card__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  line-height: 1.5;
+}
+
+.cg-insight-card__breakdown {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.cg-insight-card__breakdown li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+}
+.cg-insight-card__breakdown-label { color: var(--cg-text); }
+.cg-insight-card__breakdown-count {
+  color: var(--cg-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-insight-card__bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cg-insight-card__bars li {
+  display: grid;
+  grid-template-columns: 8rem 1fr 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+.cg-insight-card__bar-label { color: var(--cg-text-muted); }
+.cg-insight-card__bar {
+  height: 6px;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.cg-insight-card__bar-fill {
+  height: 100%;
+  background: var(--cg-brand-500, #ff9d0a);
+  transition: width 0.3s ease;
+}
+.cg-insight-card__bar-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--cg-text);
+  font-weight: 600;
+}
+
+.cg-insight-card__paths {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+/* Cap the height when the list is potentially very long (the affected
+   components on the Cotton config card). The default max-height is
+   already 14rem which is fine for most but explicit here for clarity. */
+.cg-insight-card__paths--scrollable {
+  max-height: 16rem;
+  margin-top: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  background: var(--cg-canvas-low);
+  border: 1px solid var(--cg-border);
+  border-radius: 6px;
+}
+
+.cg-insight-card__list-label {
+  margin: 0.5rem 0 0.125rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cg-text-muted);
+}
+
+/* Positive empty-state message — replaces the affected-list when the
+   Cotton config is healthy. Uses the same green palette as the verdict
+   pill but as inline text, not a pill, so it reads as a confirmation
+   sentence rather than a label. */
+.cg-insight-card__all-clean {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  background: var(--cg-canvas-low);
+  border-left: 3px solid rgba(34, 197, 94, 0.6);
+  border-radius: 4px;
+}
+.cg-insight-card__all-clean strong {
+  color: var(--cg-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-insight-card__paths--ranked {
+  list-style: decimal inside;
+  padding-left: 0.25rem;
+}
+.cg-insight-card__paths--ranked li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.cg-insight-card__path {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  color: var(--cg-text);
+  text-decoration: none;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+.cg-insight-card__path:hover {
+  color: var(--cg-brand-700);
+  background: var(--cg-brand-50);
+}
+.cg-insight-card__rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-insight-card__empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--cg-text-muted);
+}
+
+.cg-insight-card__link {
+  align-self: flex-start;
+  margin-top: auto;
+  font-size: 0.8125rem;
+  color: var(--cg-brand-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+.cg-insight-card__link:hover { text-decoration: underline; }
+
+.cg-insight-card__badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.125rem;
+  padding: 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+.cg-insight-card__badge--on {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.12);
+}
+.cg-insight-card__badge--off {
+  color: var(--cg-text-muted);
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+}
+
+.cg-insight-card__lock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--cg-bg);
+  border: 1px dashed var(--cg-border);
+  border-radius: 0.5rem;
+}
+.cg-insight-card__lock svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+}
+.cg-insight-card__lock-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--cg-text);
+}
+.cg-insight-card__lock-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  line-height: 1.55;
+}
+.cg-insight-card__lock-hint code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.25rem;
+}
+
+[data-theme="dark"] .cg-insight-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-insight-card__count,
+[data-theme="dark"] .cg-insight-card__rank,
+[data-theme="dark"] .cg-insight-card__bar,
+[data-theme="dark"] .cg-insight-card__lock-hint code {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-insight-card__path:hover {
+  color: var(--cg-brand-400, #ffb632);
+  background: rgba(255, 157, 10, 0.12);
+}
+[data-theme="dark"] .cg-insight-card__big--good { color: #4ade80; }
+[data-theme="dark"] .cg-insight-card__big--warn { color: #fb923c; }
+[data-theme="dark"] .cg-insight-card__big--bad { color: #f87171; }
+[data-theme="dark"] .cg-insight-card__lock {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .cg-insight-card__badge--on {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.18);
+}

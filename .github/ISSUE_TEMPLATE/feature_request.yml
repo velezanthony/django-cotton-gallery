@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest a new capability or an improvement.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: |
+        Describe the use case first, not the solution. "I want to ..." is more useful than "Add ...".
+      placeholder: I'm building a design system with 50+ components and I need to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work? Include syntax / API sketches if relevant.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What did you try / look at before opening this?
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      description: Help us understand if this fits the library's mission.
+      options:
+        - label: This affects the **gallery surface**, not the components themselves.
+        - label: I understand this library is complementary to django-cotton, not a replacement.

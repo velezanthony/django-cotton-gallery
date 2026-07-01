@@ -1,0 +1,17 @@
+{# @description Compact label for status, counts, or categorization #}
+{# @prop tone:select['neutral', 'info', 'success', 'warn', 'danger'] | default:"neutral" | description:"Semantic tone" #}
+{# @prop pill:boolean | default:False | description:"Fully rounded pill shape" #}
+{# @slot Label — Badge content #}
+
+<c-vars tone="neutral" pill=False />
+
+<span
+  class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium
+         {% if pill %}rounded-full{% else %}rounded{% endif %}
+         {% if tone == 'neutral' %}bg-gray-100 text-gray-800{% endif %}
+         {% if tone == 'info' %}bg-blue-100 text-blue-800{% endif %}
+         {% if tone == 'success' %}bg-green-100 text-green-800{% endif %}
+         {% if tone == 'warn' %}bg-yellow-100 text-yellow-800{% endif %}
+         {% if tone == 'danger' %}bg-red-100 text-red-800{% endif %}"
+  {{ attrs }}
+>{{ slot }}</span>

@@ -1,0 +1,34 @@
+{# @description Alert with manual dismiss button — uses Alpine for state #}
+{# @prop tone:select['info', 'success', 'warn', 'danger'] | default:"info" | description:"Semantic tone" #}
+{# @prop title:text | default:"" | description:"Optional bold heading on the first line" #}
+{# @slot Default body — Alert content #}
+
+<c-vars tone="info" title="" />
+
+<div
+  x-data="{ open: true }"
+  x-show="open"
+  x-transition.opacity.duration.200ms
+  role="alert"
+  class="flex items-start gap-3 rounded-xl border p-4
+         {% if tone == 'info' %}border-blue-200 bg-blue-50 text-blue-900{% endif %}
+         {% if tone == 'success' %}border-green-200 bg-green-50 text-green-900{% endif %}
+         {% if tone == 'warn' %}border-yellow-200 bg-yellow-50 text-yellow-900{% endif %}
+         {% if tone == 'danger' %}border-red-200 bg-red-50 text-red-900{% endif %}"
+  {{ attrs }}
+>
+  <div class="flex-1 text-sm leading-relaxed">
+    {% if title %}<p class="font-semibold mb-0.5">{{ title }}</p>{% endif %}
+    {{ slot }}
+  </div>
+  <button
+    type="button"
+    @click="open = false"
+    aria-label="Dismiss"
+    class="-m-1 rounded-md p-1 text-current opacity-60 transition hover:bg-black/5 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current/40"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+    </svg>
+  </button>
+</div>

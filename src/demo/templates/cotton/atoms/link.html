@@ -1,0 +1,17 @@
+{# @description Styled anchor — replaces raw <a> for consistent typography #}
+{# @prop href:text | default:"#" | description:"URL to link to" #}
+{# @prop tone:select['default', 'subtle', 'danger'] | default:"default" | description:"Color treatment" #}
+{# @prop external:boolean | default:False | description:"Open in a new tab and add rel=noopener" #}
+{# @slot Label — Link text #}
+
+<c-vars href="#" tone="default" external=False />
+
+<a
+  href="{{ href }}"
+  {% if external %}target="_blank" rel="noopener noreferrer"{% endif %}
+  class="underline-offset-2 hover:underline
+         {% if tone == 'default' %}text-indigo-600 hover:text-indigo-800{% endif %}
+         {% if tone == 'subtle' %}text-gray-700 hover:text-gray-900{% endif %}
+         {% if tone == 'danger' %}text-rose-600 hover:text-rose-800{% endif %}"
+  {{ attrs }}
+>{{ slot }}</a>

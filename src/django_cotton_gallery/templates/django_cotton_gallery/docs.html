@@ -1,0 +1,341 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load catalog_tags i18n %}
+
+{% block title %}{% trans "Documentation" %}{% endblock %}
+
+{% block content %}
+  {% url 'django_cotton_gallery:get_started' as get_started_url %}
+  <article class="cg-docs">
+    <header class="cg-docs__header">
+      <p class="cg-docs__eyebrow">{% trans "Reference" %}</p>
+      <h1 class="cg-docs__title">{% trans "Documentation" %}</h1>
+      <p class="cg-docs__lead">{% blocktranslate with url=get_started_url %}Everything that's configurable. <strong>Configuration</strong> covers the consumer settings you put in <code>settings.py</code> — file location, ordering, asset injection. <strong>Annotations</strong> covers the <code>&#123;# @prop ... #&#125;</code> grammar the gallery's parser reads to build interactive controls. New here? Start with <a href="{{ url }}">Get started</a>.{% endblocktranslate %}</p>
+    </header>
+
+    <nav class="cg-docs__toc" aria-label="{% trans 'Table of contents' %}">
+      <p class="cg-docs__toc-label">{% trans "On this page" %}</p>
+      <ul>
+        <li><a href="#configuration">{% trans "Configuration" %}</a></li>
+        <li><a href="#annotations">{% trans "Annotations" %}</a></li>
+        <li><a href="#anatomy">— {% trans "Anatomy" %}</a></li>
+        <li><a href="#types">— {% trans "Prop types" %}</a></li>
+        <li><a href="#filters">— {% trans "Filters" %}</a></li>
+        <li><a href="#dynamic">— {% trans "Dynamic props" %}</a></li>
+        <li><a href="#slots">— {% trans "Slots &amp; triggers" %}</a></li>
+        <li><a href="#rules">— {% trans "Rules &amp; gotchas" %}</a></li>
+        <li><a href="#playground">{% trans "Playground features" %}</a></li>
+      </ul>
+    </nav>
+
+    <section id="configuration" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Configuration" %}</h2>
+      <p>{% blocktranslate %}Every setting below is read from your project's <code>settings.py</code>. None of them are required — the gallery boots with sensible defaults. Override only what you need.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Cotton &amp; component paths" %}</h3>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Setting" %}</th><th>{% trans "Type" %}</th><th>{% trans "Default" %}</th><th>{% trans "Description" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>COTTON_SNAKE_CASED_NAMES</code></td>
+            <td><code>bool</code></td>
+            <td><code>True</code></td>
+            <td>{% blocktranslate %}Cotton's own setting. The gallery indexes both styles transparently — the Insights page surfaces a warning if you have hyphens in filenames AND <code>True</code> (the one combo cotton can't resolve, since it would look up <code>foo_bar.html</code> for <code>&lt;c-foo-bar /&gt;</code>).{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>COTTON_DIR</code></td>
+            <td><code>str</code></td>
+            <td><code>"cotton"</code></td>
+            <td>{% blocktranslate %}Cotton's own setting. Subfolder under each <code>templates/</code> root that holds the components — the gallery just reads it.{% endblocktranslate %}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="cg-docs__h3">{% trans "Catalog ordering &amp; filtering" %}</h3>
+      <p>{% blocktranslate %}Top-level folders inside <code>COTTON_DIR</code> become <em>categories</em> (atoms, molecules, etc.). One level deeper become <em>subcategories</em> (atoms/ui, atoms/form, etc.).{% endblocktranslate %}</p>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Setting" %}</th><th>{% trans "Type" %}</th><th>{% trans "Default" %}</th><th>{% trans "Description" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_EXCLUDED_CATEGORIES</code></td>
+            <td><code>list[str]</code></td>
+            <td><code>()</code></td>
+            <td>{% blocktranslate %}Top-level folders to hide from the index entirely. Folders whose name starts with <code>_</code> are excluded automatically.{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_CATEGORY_ORDER</code></td>
+            <td><code>list[str]</code></td>
+            <td><code>()</code></td>
+            <td>{% blocktranslate %}Categories pinned to the top of the sidebar in this exact order. Anything not listed sorts by <code>DJANGO_COTTON_GALLERY_CATEGORY_SORT</code>.{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_CATEGORY_SORT</code></td>
+            <td><code>"asc"</code> &#124; <code>"desc"</code></td>
+            <td><code>"asc"</code></td>
+            <td>{% blocktranslate %}Sort direction for categories not listed in <code>DJANGO_COTTON_GALLERY_CATEGORY_ORDER</code>.{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_SUBCATEGORY_ORDER</code></td>
+            <td><code>dict[str, list[str]]</code></td>
+            <td><code>{}</code></td>
+            <td>{% blocktranslate %}Per-category mapping of subcategory names pinned to the top. Example: <code>{'atoms': ['ui', 'form']}</code>.{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_SUBCATEGORY_SORT</code></td>
+            <td><code>"asc"</code> &#124; <code>"desc"</code></td>
+            <td><code>"asc"</code></td>
+            <td>{% blocktranslate %}Sort direction for subcategories not listed in <code>DJANGO_COTTON_GALLERY_SUBCATEGORY_ORDER</code>.{% endblocktranslate %}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="cg-docs__h3">{% trans "Asset injection — external URLs" %}</h3>
+      <p>{% blocktranslate %}For external stylesheets and scripts (Leaflet, HTMX, Alpine, your compiled bundle), pass URLs as lists. The gallery auto-detects known libraries from these URLs to render the dependency badges in the hero.{% endblocktranslate %}</p>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Setting" %}</th><th>{% trans "Type" %}</th><th>{% trans "Default" %}</th><th>{% trans "Description" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_EXTRA_CSS</code></td>
+            <td><code>list[str]</code></td>
+            <td><code>()</code></td>
+            <td>{% blocktranslate %}URLs (static or absolute) loaded in the <code>&lt;head&gt;</code>.{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>DJANGO_COTTON_GALLERY_EXTRA_JS</code></td>
+            <td><code>list[str]</code></td>
+            <td><code>()</code></td>
+            <td>{% blocktranslate %}URLs loaded before <code>&lt;/body&gt;</code>.{% endblocktranslate %}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="cg-docs__h3">{% trans "Asset injection — inline HTML via partials" %}</h3>
+      <p>{% blocktranslate %}For <strong>inline</strong> HTML/JS (Tailwind play-CDN config, preconnect hints, HTMX/Alpine bridges, env keys), drop a template partial in your project's templates directory. The gallery picks it up automatically — no settings change.{% endblocktranslate %}</p>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Path" %}</th><th>{% trans "Where it renders" %}</th><th>{% trans "Use it for" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>templates/django_cotton_gallery/_extra_head.html</code></td>
+            <td>{% blocktranslate %}End of <code>&lt;head&gt;</code>{% endblocktranslate %}</td>
+            <td>{% blocktranslate %}Preconnects, Tailwind config, design-token CSS variables, env-driven <code>window.*</code> globals (API keys, feature flags).{% endblocktranslate %}</td>
+          </tr>
+          <tr>
+            <td><code>templates/django_cotton_gallery/_extra_body.html</code></td>
+            <td>{% blocktranslate %}Just before <code>&lt;/body&gt;</code>{% endblocktranslate %}</td>
+            <td>{% blocktranslate %}HTMX/Alpine bridges, post-mount config, anything that has to run after the components mount.{% endblocktranslate %}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="cg-docs__callout">{% blocktranslate %}<strong>Recommended:</strong> use the partials approach for inline HTML — it keeps your <code>settings.py</code> minimal and lets your editor syntax-highlight the markup. The settings-based <code>EXTRA_CSS</code>/<code>EXTRA_JS</code> approach still works and is the way to go when you want each URL to surface as a dependency badge in the hero.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}Both partials are <strong>optional</strong>. Drop the file in to add the inject, delete it to remove it. The gallery uses a custom <code>&#123;% maybe_include %&#125;</code> templatetag so missing files are silently skipped.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% blocktranslate %}Example: <code>_extra_head.html</code>{% endblocktranslate %}</h3>
+      <p>{% trans "A typical head partial for a project that runs Tailwind via the play-CDN and exposes an API key to the components:" %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# templates/django_cotton_gallery/_extra_head.html #}
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<script>window.__MY_API_KEY = '{{ MY_API_KEY }}';</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { 500: '#ff9d0a', 600: '#ff8500' },
+        }
+      }
+    }
+  };
+</script>{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+
+      <h3 class="cg-docs__h3">{% blocktranslate %}Example: a working <code>settings.py</code>{% endblocktranslate %}</h3>
+      <p>{% blocktranslate %}Only the gallery's own settings are shown — cotton's settings (<code>COTTON_SNAKE_CASED_NAMES</code>, <code>COTTON_DIR</code>) belong to django-cotton, not to this gallery, and are documented in cotton's docs.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py — django-cotton-gallery configuration
+
+DJANGO_COTTON_GALLERY_CATEGORY_ORDER = ["atoms", "molecules", "icons"]
+DJANGO_COTTON_GALLERY_SUBCATEGORY_ORDER = {
+    "atoms": ["ui", "form", "feedback", "display", "table"],
+    "molecules": ["navigation", "form", "display", "overlay"],
+}
+
+DJANGO_COTTON_GALLERY_EXTRA_CSS = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+]
+DJANGO_COTTON_GALLERY_EXTRA_JS = [
+    "https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js",
+    "https://unpkg.com/alpinejs@3.15.11/dist/cdn.min.js",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+]{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+
+      <h3 class="cg-docs__h3">{% trans "Language switcher" %}</h3>
+      <p>{% blocktranslate %}The gallery ships with translations for English, Spanish, Basque, and French. The dropdown in the sidebar footer only appears when your project has Django's i18n URL and middleware wired — without them, Django can't persist the chosen language, so the gallery hides the control to avoid a dead button.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+from django.urls import include, path
+
+urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
+    # ... your real app URLs
+]
+
+# settings.py
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    # ... rest as you had it
+]{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Order matters: <code>LocaleMiddleware</code> must come <strong>after</strong> <code>SessionMiddleware</code> and <strong>before</strong> <code>CommonMiddleware</code>. To expose more or fewer locales, set <code>LANGUAGES</code> in your <code>settings.py</code> — the gallery picks up whatever is configured.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Lint in CI" %}</h3>
+      <p>{% blocktranslate %}The same lint engine that powers the in-app Lint report ships as a Django management command. Wire it into CI to fail builds on annotation regressions:{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}python manage.py cotton_lint                        # exit 1 if any errors
+python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on warnings{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Same rules and severities as the web report. The CLI's exit-code logic considers <strong>errors</strong> and (with the flag) <strong>warnings</strong>; hints are surfaced in the web report but don't affect CI exit codes.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="annotations" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Annotations" %}</h2>
+      <p>{% blocktranslate %}The gallery reads <code>&#123;# @prop ... #&#125;</code> comments at the top of each Cotton template to build the props table and the controls panel. The grammar below covers every annotation feature.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="anatomy" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Anatomy" %}</h2>
+      <p>{% blocktranslate %}One <code>@prop</code> comment per piece of API, then <code>&lt;c-vars&gt;</code> with defaults, then your markup. The shape is always <code>&#123;# @prop name:type | filter | ... #&#125;</code>.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @prop name:text | default:"World" | description:"Who to greet" #}
+<c-vars name="World" />
+
+<p>Hello, {{ name }}!</p>{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+    </section>
+
+    <section id="types" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Prop types" %}</h2>
+      <p>{% trans "The type after the colon decides which control the gallery renders." %}</p>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Type" %}</th><th>{% trans "Renders" %}</th><th>{% trans "Example" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>text</code></td><td>{% trans "Text input" %}</td><td><code>label:text | default:"Hello"</code></td></tr>
+          <tr><td><code>number</code></td><td>{% trans "Number input" %}</td><td><code>:count:number | default:5</code></td></tr>
+          <tr><td><code>boolean</code></td><td>{% trans "Toggle" %}</td><td><code>loading:boolean | default:False</code></td></tr>
+          <tr><td><code>select[…]</code></td><td>{% trans "Dropdown" %}</td><td><code>variant:select['sm','md'] | default:"md"</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="filters" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Filters" %}</h2>
+      <p>{% trans "Pipe-separated modifiers. Order doesn't matter." %}</p>
+      <table class="cg-docs__table">
+        <thead>
+          <tr><th>{% trans "Filter" %}</th><th>{% trans "Example" %}</th><th>{% trans "What it does" %}</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>default</code></td><td><code>| default:"primary"</code></td><td>{% trans "Default value. Strings quoted, numbers and booleans bare." %}</td></tr>
+          <tr><td><code>description</code></td><td><code>| description:"Helper text"</code></td><td>{% trans "Shown next to the control." %}</td></tr>
+          <tr><td><code>required</code></td><td><code>| required</code></td><td>{% blocktranslate %}Marks the prop as mandatory. Only kicks in when there's no <code>default</code>.{% endblocktranslate %}</td></tr>
+          <tr><td><code>deprecated</code></td><td><code>| deprecated:"Use new-api"</code></td><td>{% trans "Strikes the prop through and shows the migration note." %}</td></tr>
+          <tr><td><code>hidden</code></td><td><code>| hidden</code></td><td>{% trans "Removes the prop from the controls panel." %}</td></tr>
+          <tr><td><code>example</code></td><td><code>| example:"bg-brand-500"</code></td><td>{% trans "Sample value shown next to the control." %}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="dynamic" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% blocktranslate %}Dynamic props (the <code>:</code> prefix){% endblocktranslate %}</h2>
+      <p>{% blocktranslate %}Cotton evaluates the value as a Python expression when the attribute name starts with <code>:</code>. Use it for numbers, booleans, lists — anything that isn't a plain string.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @prop :count:number | default:0 #}
+<c-vars :count="0" />{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+    </section>
+
+    <section id="slots" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Slots &amp; triggers" %}</h2>
+      <p>{% blocktranslate %}Use <code>@slot</code> to describe the default slot. For components that open something (modal, drawer), use <code>@trigger</code> instead.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @slot Click me — Default content for gallery preview #}
+{# @trigger <button>Open</button> — Element that opens the dialog #}{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+    </section>
+
+    <section id="playground" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Playground features" %}</h2>
+      <p>{% trans "Every component detail page is a live playground. Beyond the props panel, several features make iteration faster:" %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Variants matrix" %}</h3>
+      <p>{% blocktranslate %}Switch the preview into a grid that renders <strong>every combination</strong> of the component's discrete props at once. The first two enum or boolean props become the Y/X axes; everything else stays consistent across cells. Useful for QA, visual regression, and seeing the whole API at a glance.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}Toggle via the <strong>View</strong> switcher in the preview toolbar (single-frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense matrices don't fire 30 fetches at once.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Shareable URL state" %}</h3>
+      <p>{% blocktranslate %}Every change in the controls panel writes the non-default values to the URL via <code>history.replaceState</code>. Copy the URL, send it, and the recipient lands on the same component with the exact same configuration — no description needed for bug reports or design reviews.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# Bug report URL — variant=danger, size=lg, loading=true
+/django-cotton-gallery/atoms/ui/button/?variant=danger&size=lg&loading=true{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+
+      <h3 class="cg-docs__h3">{% trans "Pass-through attrs control" %}</h3>
+      <p>{% blocktranslate %}Components whose body uses <code>&#123;&#123; attrs &#125;&#125;</code> or <code>:attrs="attrs"</code> accept arbitrary HTML attributes that aren't declared as <code>&lt;c-vars&gt;</code> props — <code>disabled</code>, <code>id</code>, <code>data-*</code>, <code>aria-*</code>, <code>style</code>, Alpine <code>x-*</code> directives, HTMX <code>hx-*</code> attributes, etc. The gallery auto-detects this and shows an <strong>Extra attributes</strong> input below the declared props.{% endblocktranslate %}</p>
+      <p>{% blocktranslate %}Type to filter the suggestion popover. <kbd>↓</kbd>/<kbd>↑</kbd> to navigate, <kbd>Tab</kbd> or <kbd>Enter</kbd> to insert the highlighted token. Tokens with <code>=""</code> park the caret inside the quotes so you can type the value immediately. Whatever you type lands literally on the rendered HTML.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}<strong>Heads up</strong>: <code>class</code> may duplicate when the component's root element already declares one — HTML5 keeps the first <code>class</code> attribute and ignores the rest. Use <code>style</code>, <code>data-*</code>, or any non-conflicting attribute for visual overrides.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Sidebar typeahead" %}</h3>
+      <p>{% blocktranslate %}Press <kbd>/</kbd> from anywhere to focus the search. Start typing — a dropdown appears with name + path + description for every match. Hit <kbd>Tab</kbd> to autocomplete the input with the first match (or with whatever suggestion you've focused via <kbd>↓</kbd>). <kbd>Enter</kbd> activates the first match; <kbd>Esc</kbd> clears.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Live syntax highlighting" %}</h3>
+      <p>{% blocktranslate %}Both the slot textarea and the extra-attrs editor render token colors AS you type — HTML tags, Cotton component names, attribute names, strings, Django <code>&#123;%&nbsp;%&#125;</code> blocks, and CSS properties inside <code>style="…"</code> all get their own color. The slot editor uses an overlay technique; the attrs field is a <code>contenteditable</code> div so the cursor sits on top of the colored text directly.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "CSS autocomplete inside style attributes" %}</h3>
+      <p>{% blocktranslate %}When the caret enters a <code>style="…"</code> attribute, the popover switches from HTML-attribute suggestions to CSS-aware ones. It detects three contexts:{% endblocktranslate %}</p>
+      <ul class="cg-docs__rules">
+        <li>{% blocktranslate %}<strong>Property name</strong> after <code>;</code> or at the start — suggests <code>display</code>, <code>padding</code>, <code>color</code>, etc.{% endblocktranslate %}</li>
+        <li>{% blocktranslate %}<strong>Property value</strong> after <code>:</code> — suggests keyword values for the current property (<code>flex</code>, <code>none</code>…), color names, or shorthand pieces (e.g. <code>border: 1px solid red</code> classifies tokens as you type so it only offers what's missing).{% endblocktranslate %}</li>
+        <li>{% blocktranslate %}<strong>Length unit</strong> after a number — typing <code>2</code> offers <code>px</code>/<code>rem</code>/<code>vh</code>/<code>dvh</code>/etc; typing <code>2d</code> filters to <code>2dvh</code>/<code>2dvw</code> (matching prefix).{% endblocktranslate %}</li>
+      </ul>
+
+      <h3 class="cg-docs__h3">{% trans "Maximize editor modal" %}</h3>
+      <p>{% blocktranslate %}Both the slot textarea and the extra-attrs field have a maximize button (the diagonal-arrows icon) that opens the editor in a full-screen modal. The modal preserves the editor's contents, caret position, and bindings — autocomplete, syntax highlight, formatter, all keep working. The header has Format and Reset buttons; the footer shows live char/line counts and keyboard shortcuts. Press <kbd>Esc</kbd> or click the backdrop to close.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Sidebar collapse to rail" %}</h3>
+      <p>{% blocktranslate %}On desktop, a small toggle on the sidebar's right edge collapses it to a 4rem icon rail (logo + Empezar + Documentación + theme/lang/github). The component tree hides — to navigate components, expand again. The state persists across sessions via <code>localStorage</code>, applied before first paint to avoid a layout flash.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="rules" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "Rules &amp; gotchas" %}</h2>
+      <ul class="cg-docs__rules">
+        <li>{% blocktranslate %}Strings in filter values are quoted (<code>default:"primary"</code>). Numbers and booleans are bare (<code>default:5</code>, <code>default:False</code>).{% endblocktranslate %}</li>
+        <li>{% blocktranslate %}If <code>&lt;c-vars&gt;</code> uses <code>:prop</code> (dynamic), the matching <code>@prop</code> MUST also start with <code>:</code>.{% endblocktranslate %}</li>
+        <li>{% blocktranslate %}<code>| required</code> only takes effect when there's no <code>| default:</code>. If both are present, default wins.{% endblocktranslate %}</li>
+        <li>{% trans "Annotations are plain Django comments — Cotton and Django ignore them at render time. Only the gallery's parser reads them." %}</li>
+      </ul>
+    </section>
+  </article>
+{% endblock %}

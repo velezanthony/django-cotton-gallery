@@ -1,0 +1,34 @@
+{# @description Tile showcasing a feature: icon + title + description #}
+{# @prop title:text | required | description:"Tile heading" #}
+{# @prop description:text | default:"" | description:"Body copy below the title" #}
+{# @prop icon:select['sparkle', 'shield', 'bolt', 'puzzle', 'check'] | default:"sparkle" | description:"Inline SVG icon" #}
+{# @prop tone:select['brand', 'success', 'warn', 'danger', 'neutral'] | default:"brand" | description:"Icon background tone" #}
+{# @prop interactive:boolean | default:False | description:"Show hover lift" #}
+
+<c-vars title description="" icon="sparkle" tone="brand" interactive=False />
+
+<article
+  class="rounded-2xl border border-gray-200 bg-white p-6 transition
+         {% if interactive %}hover:-translate-y-0.5 hover:shadow-md cursor-pointer{% endif %}"
+  {{ attrs }}
+>
+  <div
+    class="flex h-11 w-11 items-center justify-center rounded-xl mb-4
+           {% if tone == 'brand' %}bg-indigo-100 text-indigo-600{% endif %}
+           {% if tone == 'success' %}bg-green-100 text-green-600{% endif %}
+           {% if tone == 'warn' %}bg-yellow-100 text-yellow-700{% endif %}
+           {% if tone == 'danger' %}bg-red-100 text-red-600{% endif %}
+           {% if tone == 'neutral' %}bg-gray-100 text-gray-600{% endif %}"
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+      {% if icon == 'sparkle' %}<path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />{% endif %}
+      {% if icon == 'shield' %}<path d="M12 3l8 3v6c0 4-3.5 7.5-8 9-4.5-1.5-8-5-8-9V6z" />{% endif %}
+      {% if icon == 'bolt' %}<path d="M13 3L4 14h7l-1 7 9-11h-7z" />{% endif %}
+      {% if icon == 'puzzle' %}<path d="M9 3a2 2 0 1 1 4 0v2h3a2 2 0 0 1 2 2v3h2a2 2 0 1 1 0 4h-2v3a2 2 0 0 1-2 2h-3v-2a2 2 0 1 0-4 0v2H6a2 2 0 0 1-2-2v-3H2a2 2 0 1 1 0-4h2V7a2 2 0 0 1 2-2h3z" />{% endif %}
+      {% if icon == 'check' %}<path d="M5 12l4 4L19 7" />{% endif %}
+    </svg>
+  </div>
+  <h3 class="text-base font-semibold text-gray-900 mb-1">{{ title }}</h3>
+  {% if description %}<p class="text-sm leading-relaxed text-gray-600">{{ description }}</p>{% endif %}
+</article>

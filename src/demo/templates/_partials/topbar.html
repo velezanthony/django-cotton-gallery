@@ -1,0 +1,12 @@
+{% load i18n %}
+<c-organisms.navbar brand="My App" sticky="true">
+  <c-slot name="links">
+    <c-atoms.link href="/dashboard">Dashboard</c-atoms.link>
+    <c-atoms.link href="/profile">Profile</c-atoms.link>
+    <c-atoms.link href="/settings">Settings</c-atoms.link>
+  </c-slot>
+  <c-slot name="actions">
+    <c-atoms.avatar src="/static/me.png" name="A" size="sm" />
+    <c-atoms.button variant="ghost" size="sm">Sign out</c-atoms.button>
+  </c-slot>
+</c-organisms.navbar>

@@ -1,0 +1,547 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ component_name }}{% endblock %}
+
+{% block content %}
+  <header class="cg-detail">
+    <nav class="cg-breadcrumb" aria-label="{% trans 'Breadcrumb' %}">
+      <a href="{% url 'django_cotton_gallery:index' %}">{% trans "Gallery" %}</a>
+      <svg class="cg-breadcrumb__sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+      <a href="{% url 'django_cotton_gallery:index' %}#{{ category }}" class="cg-breadcrumb__capitalize">{{ category }}</a>
+      {% if subcategory %}
+        <svg class="cg-breadcrumb__sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+        <span class="cg-breadcrumb__current">{{ subcategory }}</span>
+      {% endif %}
+      <svg class="cg-breadcrumb__sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+      <span class="cg-breadcrumb__current">{{ component_name }}</span>
+    </nav>
+
+    <h1 class="cg-detail__title">{{ component_name }}</h1>
+    {% if description %}<p class="cg-detail__desc">{{ description }}</p>{% endif %}
+
+    {% if snake_case_mismatch %}
+      {% comment %}
+      Friendly explanation when the preview will fail because the
+      filename has hyphens but Cotton is in snake_case mode. Pre-empts
+      the cryptic "TemplateDoesNotExist" / "cannot unpack NoneType"
+      errors and points the user at the Insights page where the full
+      diagnosis lives.
+      {% endcomment %}
+      <a href="{% url 'django_cotton_gallery:insights' %}#cotton-config" class="cg-detail__naming-alert" data-cg-doclink>
+        <svg class="cg-detail__naming-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+        </svg>
+        <span class="cg-detail__naming-alert-body">
+          <strong>{% trans "Naming mismatch — this preview will fail." %}</strong>
+          {% blocktranslate %}This component's filename has a hyphen, but <code>COTTON_SNAKE_CASED_NAMES = True</code> in your settings — Cotton looks for the underscored version and can't find it.{% endblocktranslate %}
+        </span>
+        <span class="cg-detail__naming-alert-cta">
+          {% trans "See full report" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+    {% endif %}
+
+    <div class="cg-detail__tag-row">
+      <code class="cg-detail__tag" id="cg-detail-tag">&lt;c-{{ tag_path }} /&gt;</code>
+      <button type="button" class="cg-detail__tag-copy"
+              data-cg-copy-target="#cg-detail-tag"
+              aria-label="{% trans 'Copy component tag' %}">{% trans "Copy tag" %}</button>
+      <a href="./raw/" target="_blank" rel="noreferrer" class="cg-detail__raw-link" data-cg-raw-link aria-label="{% trans 'Open in raw view' %}" title="{% trans 'Open in raw view (no gallery chrome)' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
+        </svg>
+        <span>{% trans "Raw" %}</span>
+      </a>
+      <a href="{% url 'django_cotton_gallery:compare' %}?a={{ component_path }}" class="cg-detail__raw-link" aria-label="{% trans 'Compare with another component' %}" title="{% trans 'Compare with another component' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3M12 2v20"/>
+        </svg>
+        <span>{% trans "Compare" %}</span>
+      </a>
+
+      {% comment %}
+      Share — copies the live URL (preview.js keeps it in sync with the
+      form via history.replaceState) so a teammate can jump straight into
+      the same playground state. The cotton tag itself is already
+      copyable via the button on the preview's code panel below.
+      {% endcomment %}
+      <button type="button" class="cg-detail__raw-link cg-detail__pin" data-cg-pin-toggle data-cg-pin-path="{{ component_path }}" aria-pressed="false" aria-label="{% trans 'Pin this component to the sidebar' %}" title="{% trans 'Pin to sidebar' %}">
+        <svg class="cg-detail__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
+        </svg>
+        <span>{% trans "Pin" %}</span>
+      </button>
+      <button type="button" class="cg-detail__raw-link" data-cg-copy-permalink aria-label="{% trans 'Copy a share link to the current configuration' %}" title="{% trans 'Copy share link' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"/>
+        </svg>
+        <span>{% trans "Share" %}</span>
+      </button>
+
+      {% comment %}
+      Lint badge — clickable summary of @prop / <c-vars> consistency for this
+      component. Click toggles the inline issues panel below; if the component
+      is already clean, the badge is informational and the panel is empty.
+      {% endcomment %}
+      {% if lint.errors %}
+        <button type="button" class="cg-detail__lint-badge cg-detail__lint-badge--error" data-cg-lint-toggle aria-expanded="false" aria-controls="cg-lint-panel" title="{% trans 'Annotation issues' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <span>{{ lint.errors|length }} {% blocktranslate count counter=lint.errors|length %}error{% plural %}errors{% endblocktranslate %}</span>
+          {% if lint.warnings %}<span class="cg-detail__lint-extra">+ {{ lint.warnings|length }} {% blocktranslate count counter=lint.warnings|length %}warn{% plural %}warn{% endblocktranslate %}</span>{% endif %}
+          {% if lint.hints %}<span class="cg-detail__lint-extra">+ {{ lint.hints|length }} {% blocktranslate count counter=lint.hints|length %}hint{% plural %}hints{% endblocktranslate %}</span>{% endif %}
+        </button>
+      {% elif lint.warnings %}
+        <button type="button" class="cg-detail__lint-badge cg-detail__lint-badge--warning" data-cg-lint-toggle aria-expanded="false" aria-controls="cg-lint-panel" title="{% trans 'Annotation issues' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3 2 21h20L12 3z"/><path d="M12 10v4M12 18h.01"/>
+          </svg>
+          <span>{{ lint.warnings|length }} {% blocktranslate count counter=lint.warnings|length %}warning{% plural %}warnings{% endblocktranslate %}</span>
+          {% if lint.hints %}<span class="cg-detail__lint-extra">+ {{ lint.hints|length }} {% blocktranslate count counter=lint.hints|length %}hint{% plural %}hints{% endblocktranslate %}</span>{% endif %}
+        </button>
+      {% elif lint.hints %}
+        <button type="button" class="cg-detail__lint-badge cg-detail__lint-badge--clean" data-cg-lint-toggle aria-expanded="false" aria-controls="cg-lint-panel" title="{% trans 'No errors or warnings' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12l4 4 10-10"/>
+          </svg>
+          <span>{% trans "Lint clean" %}</span>
+          <span class="cg-detail__lint-extra">+ {{ lint.hints|length }} {% blocktranslate count counter=lint.hints|length %}hint{% plural %}hints{% endblocktranslate %}</span>
+        </button>
+      {% else %}
+        <span class="cg-detail__lint-badge cg-detail__lint-badge--clean" title="{% trans 'No annotation issues' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12l4 4 10-10"/>
+          </svg>
+          <span>{% trans "Lint clean" %}</span>
+        </span>
+      {% endif %}
+    </div>
+
+    {% if lint.issues %}
+      <div class="cg-detail__lint-panel" id="cg-lint-panel" data-cg-lint-panel hidden>
+        {% include "django_cotton_gallery/_lint_issues.html" with issues=lint.issues error_count=lint.errors|length warning_count=lint.warnings|length hint_count=lint.hints|length %}
+        <p class="cg-detail__lint-help">
+          {% url 'django_cotton_gallery:lint' as lint_url %}
+          {% blocktranslate %}Open the full <a href="{{ lint_url }}">Lint report</a> to see issues across the whole catalog.{% endblocktranslate %}
+        </p>
+      </div>
+    {% endif %}
+  </header>
+
+  <section class="cg-preview-card">
+    <div class="cg-preview-row">
+      <div class="cg-preview"
+           data-cg-preview="{% url 'django_cotton_gallery:component_preview' component_path %}"
+           data-cg-props-url-template="{% url 'django_cotton_gallery:component_props' '__PATH__' %}">
+        <div class="cg-preview__toolbar">
+          <div class="cg-preview__vp-switcher" role="radiogroup" aria-label="{% trans 'Preview viewport' %}">
+            <span class="cg-preview__switcher-label">{% trans "Viewport" %}</span>
+            <button type="button" class="cg-vp-btn" data-cg-viewport="mobile" aria-label="{% trans 'Mobile (375px)' %}" title="{% trans 'Mobile' %} · 375px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg>
+            </button>
+            <button type="button" class="cg-vp-btn" data-cg-viewport="tablet" aria-label="{% trans 'Tablet (768px)' %}" title="{% trans 'Tablet' %} · 768px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+            </button>
+            <button type="button" class="cg-vp-btn" data-cg-viewport="desktop" aria-label="{% trans 'Desktop (1280px)' %}" title="{% trans 'Desktop' %} · 1280px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="1.5"/><line x1="8" y1="20.5" x2="16" y2="20.5"/><line x1="12" y1="17" x2="12" y2="20.5"/></svg>
+            </button>
+            <button type="button" class="cg-vp-btn cg-vp-btn--action" data-cg-preview-fullscreen aria-label="{% trans 'Open in fullscreen — real browser viewport' %}" title="{% trans 'Open in fullscreen' %} · {% trans 'real viewport for media queries' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V5a2 2 0 0 1 2-2h4M21 9V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4M21 15v4a2 2 0 0 1-2 2h-4"/></svg>
+            </button>
+          </div>
+          <div class="cg-preview__bg-switcher" role="radiogroup" aria-label="{% trans 'Preview background' %}">
+            <span class="cg-preview__switcher-label">{% trans "Bg" %}</span>
+            <button type="button" class="cg-bg-btn" data-cg-bg="checkered" aria-label="{% trans 'Checkered background' %}" title="{% trans 'Checkered' %}"></button>
+            <button type="button" class="cg-bg-btn" data-cg-bg="white" aria-label="{% trans 'White background' %}" title="{% trans 'White' %}"></button>
+            <button type="button" class="cg-bg-btn" data-cg-bg="dark" aria-label="{% trans 'Dark background' %}" title="{% trans 'Dark' %}"></button>
+            <button type="button" class="cg-bg-btn" data-cg-bg="brand" aria-label="{% trans 'Brand background' %}" title="{% trans 'Brand' %}"></button>
+          </div>
+          <div class="cg-preview__view-switcher" role="radiogroup" aria-label="{% trans 'Preview view' %}" data-cg-view-switcher hidden>
+            <span class="cg-preview__switcher-label">{% trans "View" %}</span>
+            <button type="button" class="cg-view-btn cg-active" data-cg-view="preview" aria-pressed="true" title="{% trans 'Single preview' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+              </svg>
+            </button>
+            <button type="button" class="cg-view-btn" data-cg-view="matrix" aria-pressed="false" title="{% trans 'Variants matrix' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="cg-preview__matrix" data-cg-preview-matrix hidden></div>
+        <div class="cg-preview__rendered" data-cg-preview-rendered>
+          <div class="cg-preview__device" data-cg-preview-device>
+            <div class="cg-preview__chrome" aria-hidden="true">
+              <span class="cg-preview__chrome-dot cg-preview__chrome-dot--red"></span>
+              <span class="cg-preview__chrome-dot cg-preview__chrome-dot--yellow"></span>
+              <span class="cg-preview__chrome-dot cg-preview__chrome-dot--green"></span>
+            </div>
+            <div class="cg-preview__stage" data-cg-preview-stage>
+              <div class="cg-preview-loading">
+                <div class="cg-spinner" aria-hidden="true"></div>
+                <span>{% trans "Loading preview…" %}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cg-preview__code">
+          <div class="cg-preview__code-header">
+            <span class="cg-preview__code-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"/></svg>
+              Cotton
+            </span>
+            <button type="button" class="cg-preview__code-copy" data-cg-copy-target="#cg-preview-code" aria-label="{% trans 'Copy Cotton tag' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
+              <span>{% trans "Copy" %}</span>
+            </button>
+          </div>
+          <pre class="language-markup"><code id="cg-preview-code" class="language-markup" data-cg-preview-tag></code></pre>
+        </div>
+      </div>
+
+      {% if auto_props or has_slots or accepts_attrs %}
+        <aside class="cg-controls" aria-label="{% trans 'Component controls' %}">
+          <header class="cg-controls__header">
+            <h3 class="cg-controls__title">{% trans "Controls" %}</h3>
+            <span class="cg-controls__count">{% blocktranslate count counter=auto_props|length %}{{ counter }} prop{% plural %}{{ counter }} props{% endblocktranslate %}</span>
+          </header>
+          <form data-cg-controls class="cg-controls__form">
+            {% for prop in auto_props %}
+              {% if not prop.hidden %}
+                <div class="cg-control">
+                  <div class="cg-control__head">
+                    <span class="cg-control__label{% if prop.deprecated != None %} cg-deprecated{% endif %}">{{ prop.clean_name }}{% if prop.required %}<span class="cg-control__required">*</span>{% endif %}</span>
+                    <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                      {% if prop.deprecated != None %}<span class="cg-tag cg-tag--dep">dep</span>{% endif %}
+                      {% if prop.type == 'boolean' %}<span class="cg-tag cg-tag--bool">bool</span>
+                      {% elif prop.type == 'select' %}<span class="cg-tag cg-tag--enum">enum</span>
+                      {% elif prop.type == 'number' %}<span class="cg-tag cg-tag--num">num</span>
+                      {% else %}<span class="cg-tag cg-tag--str">str</span>{% endif %}
+                    </span>
+                  </div>
+                  {% if prop.description %}<p class="cg-control__hint">{{ prop.description }}</p>{% endif %}
+                  {% if prop.deprecated %}<p class="cg-control__deprecated">{{ prop.deprecated }}</p>{% endif %}
+
+                  {% if prop.type == 'select' %}
+                    <div class="cg-dropdown" data-cg-dropdown>
+                      <input type="hidden" name="{{ prop.clean_name }}" value="{{ prop.default }}" data-cg-instant data-cg-dropdown-input>
+                      <button type="button" class="cg-dropdown__trigger" data-cg-dropdown-trigger aria-haspopup="listbox" aria-expanded="false">
+                        <span class="cg-dropdown__trigger-value" data-cg-dropdown-value>{{ prop.default }}</span>
+                        <svg class="cg-dropdown__trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      <div class="cg-dropdown__menu" data-cg-dropdown-menu hidden>
+                        <div class="cg-dropdown__search-wrap">
+                          <svg class="cg-dropdown__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                          </svg>
+                          <input type="text" class="cg-dropdown__search" data-cg-dropdown-search placeholder="{% trans 'Search…' %}" autocomplete="off">
+                        </div>
+                        <div class="cg-dropdown__list" data-cg-dropdown-list role="listbox">
+                          {% for opt in prop.options %}
+                            <button type="button" class="cg-dropdown__item" data-cg-dropdown-option="{{ opt }}" role="option" aria-selected="{% if opt == prop.default %}true{% else %}false{% endif %}">
+                              <span>{{ opt }}</span>
+                              {% if opt == prop.default %}
+                                <svg class="cg-dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                              {% endif %}
+                            </button>
+                          {% endfor %}
+                          <p class="cg-dropdown__empty" data-cg-dropdown-empty hidden>{% trans "No matches" %}</p>
+                        </div>
+                      </div>
+                    </div>
+                  {% elif prop.type == 'boolean' %}
+                    <label class="cg-toggle">
+                      <input type="checkbox" name="{{ prop.clean_name }}" value="true" class="cg-toggle__input"{% if prop.default %} checked{% endif %}>
+                      <span class="cg-toggle__track"></span>
+                    </label>
+                  {% elif prop.type == 'number' %}
+                    <input type="number" name="{{ prop.clean_name }}" value="{{ prop.default }}" class="cg-input">
+                  {% else %}
+                    <input type="text" name="{{ prop.clean_name }}" value="{{ prop.default }}" class="cg-input">
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            {% if accepts_attrs %}
+              <div class="cg-control cg-control--attrs">
+                <div class="cg-control__head">
+                  <span class="cg-control__label">{% trans "Extra attributes" %}</span>
+                  <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                    <span class="cg-tag cg-tag--attrs">attrs</span>
+                    <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Show details' %}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 8h.01M11 12h1v4h1"/>
+                      </svg>
+                      <span class="cg-info__bubble" role="tooltip">
+                        {% blocktranslate %}<code>&#123;&#123; attrs &#125;&#125;</code> pass-through — anything you type lands on the rendered HTML. Try <code>disabled</code>, <code>id="…"</code>, <code>data-*</code>, <code>aria-*</code>, <code>style="…"</code>… <em>Heads up</em>: <code>class</code> may duplicate if the component already declares one (HTML keeps the first).{% endblocktranslate %}
+                      </span>
+                    </span>
+                    <button type="button" class="cg-textarea__expand" data-cg-attrs-expand title="{% trans 'Expand editor' %}" aria-label="{% trans 'Toggle editor height' %}" aria-pressed="false">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="cg-textarea__expand" data-cg-editor-maximize data-cg-editor-target=".cg-control--attrs" data-cg-editor-title="{% trans 'Extra attributes' %}" title="{% trans 'Open in modal' %}" aria-label="{% trans 'Open editor in modal' %}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/>
+                      </svg>
+                    </button>
+                  </span>
+                </div>
+                <div class="cg-attrs" data-cg-attrs data-cg-attrs-editor>
+                  {% comment %}
+                  A `<div contenteditable>` so syntax highlighting renders live AS you type
+                  (instead of an overlay technique). The hidden input mirrors textContent
+                  so Django form processing still receives `__extra_attrs`.
+                  {% endcomment %}
+                  <input type="hidden" name="__extra_attrs" value="" data-cg-attrs-hidden>
+                  <div
+                    class="cg-input cg-attrs__input"
+                    role="textbox"
+                    contenteditable="true"
+                    spellcheck="false"
+                    data-cg-attrs-input
+                    data-cg-placeholder='class="" disabled placeholder=""'
+                  ></div>
+                  <div class="cg-attrs__menu" data-cg-attrs-menu hidden role="listbox" aria-label="{% trans 'Attribute suggestions' %}"></div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% for slot in slots %}
+              <div class="cg-control cg-control--slot">
+                <div class="cg-control__head">
+                  <span class="cg-control__label">{{ slot.name|default:"slot" }}</span>
+                  <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                    <span class="cg-tag cg-tag--slot">slot</span>
+                    <button type="button" class="cg-textarea__expand" data-cg-textarea-format title="{% trans 'Format HTML (Shift+Alt+F)' %}" aria-label="{% trans 'Format HTML' %}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18M7 12h14M11 18h10"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="cg-textarea__expand" data-cg-textarea-minify title="{% trans 'Minify HTML (Shift+Alt+M)' %}" aria-label="{% trans 'Minify HTML' %}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 12h18M5 8h14M5 16h14"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="cg-textarea__expand" data-cg-textarea-expand title="{% trans 'Expand editor' %}" aria-label="{% trans 'Toggle editor height' %}" aria-pressed="false">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="cg-textarea__expand" data-cg-editor-maximize data-cg-editor-target=".cg-control--slot" data-cg-editor-title="{{ slot.name|default:'slot' }}" title="{% trans 'Open in modal' %}" aria-label="{% trans 'Open editor in modal' %}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/>
+                      </svg>
+                    </button>
+                  </span>
+                </div>
+                {% if slot.description %}<p class="cg-control__hint">{{ slot.description }}</p>{% endif %}
+                <div class="cg-slot-editor" data-cg-slot-editor>
+                  <textarea name="{% if slot.name %}_slot__{{ slot.name }}{% else %}_slot{% endif %}" rows="4" class="cg-textarea" data-cg-slot-textarea spellcheck="false">{{ slot.content }}</textarea>
+                  <div class="cg-intellisense" data-cg-intellisense hidden role="listbox" aria-label="{% trans 'Tag suggestions' %}"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </form>
+        </aside>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="cg-tabs" data-cg-tabs>
+    <div class="cg-tabs__list" role="tablist">
+      <button type="button" class="cg-tabs__btn cg-active" data-cg-tab="props" role="tab">
+        {% trans "Props" %} <span class="cg-tabs__count">{{ auto_props|length }}</span>
+      </button>
+      <button type="button" class="cg-tabs__btn" data-cg-tab="slots" role="tab">
+        {% trans "Slots" %} <span class="cg-tabs__count">{{ slots|length }}</span>
+      </button>
+      <button type="button" class="cg-tabs__btn" data-cg-tab="deps" role="tab">
+        {% trans "Dependencies" %} <span class="cg-tabs__count">{{ deps_total }}</span>
+      </button>
+      <button type="button" class="cg-tabs__btn" data-cg-tab="source" role="tab">{% trans "Source" %}</button>
+    </div>
+
+    <div class="cg-tabs__panel" data-cg-panel="props" role="tabpanel">
+      {% if not auto_props %}
+        <div class="cg-empty">
+          <svg class="cg-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+          <p class="cg-empty__text">{% trans "This component doesn't define any props." %}</p>
+        </div>
+      {% else %}
+        <table class="cg-table">
+          <thead><tr><th>{% trans "Prop" %}</th><th>{% trans "Type" %}</th><th>{% trans "Default" %}</th><th>{% trans "Description" %}</th></tr></thead>
+          <tbody>
+            {% for prop in auto_props %}
+              <tr{% if prop.deprecated != None %} class="cg-row-deprecated"{% elif prop.hidden %} class="cg-row-hidden"{% endif %}>
+                <td>
+                  <code class="cg-code-pill{% if prop.deprecated != None %} cg-deprecated{% endif %}">{{ prop.name }}</code>
+                  {% if prop.required %}<span class="cg-tag cg-tag--required-pill" style="margin-left:0.25rem;">required</span>{% endif %}
+                  {% if prop.deprecated != None %}<span class="cg-tag cg-tag--dep" style="margin-left:0.25rem;">deprecated</span>{% endif %}
+                  {% if prop.hidden %}<span class="cg-tag cg-tag--hidden" style="margin-left:0.25rem;">hidden</span>{% endif %}
+                </td>
+                <td>
+                  {% if prop.type == 'boolean' %}<span class="cg-tag cg-tag--bool">boolean</span>
+                  {% elif prop.type == 'select' %}<span class="cg-tag cg-tag--enum">{{ prop.options|join:" | " }}</span>
+                  {% elif prop.type == 'number' %}<span class="cg-tag cg-tag--num">number</span>
+                  {% else %}<span class="cg-tag cg-tag--str">string</span>{% endif %}
+                </td>
+                <td><code class="cg-code-pill">{% if prop.has_default %}{{ prop.default|default:'""' }}{% else %}—{% endif %}</code></td>
+                <td>
+                  {{ prop.description|default:"—" }}
+                  {% if prop.deprecated %}<br><span style="color:var(--cg-red-400);">{{ prop.deprecated }}</span>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+    <div class="cg-tabs__panel" data-cg-panel="slots" role="tabpanel" hidden>
+      {% if not slots %}
+        <div class="cg-empty">
+          <svg class="cg-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+          <p class="cg-empty__text">{% trans "This component doesn't define any slots." %}</p>
+        </div>
+      {% else %}
+        <table class="cg-table">
+          <thead><tr><th>{% trans "Slot" %}</th><th>{% trans "Type" %}</th><th>{% trans "Default content" %}</th><th>{% trans "Description" %}</th></tr></thead>
+          <tbody>
+            {% for slot in slots %}
+              <tr>
+                <td><code class="cg-code-pill">{{ slot.name|default:"slot" }}</code></td>
+                <td>{% if slot.name %}<span class="cg-tag cg-tag--named">named</span>{% else %}<span class="cg-tag cg-tag--default">default</span>{% endif %}</td>
+                <td>{% if slot.content %}<code class="cg-code-pill cg-truncate" title="{{ slot.content }}">{{ slot.content }}</code>{% else %}<span style="color:var(--cg-text-subtle);">—</span>{% endif %}</td>
+                <td>{{ slot.description|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+    <div class="cg-tabs__panel" data-cg-panel="deps" role="tabpanel" hidden>
+      {% comment %}
+        Always render the 3-column layout — each column carries its own
+        empty-state copy ("Standalone…", "Nothing in the catalog…", "No
+        template outside the catalog…"). A single catch-all empty state
+        hid those distinctions and oversimplified for components like
+        sidebar-nav that may still have External-usage information.
+      {% endcomment %}
+      <div class="cg-deps">
+          <div class="cg-deps__col">
+            <h3 class="cg-deps__title">
+              {% trans "Uses" %}
+              <span class="cg-deps__count">{{ deps_uses|length }}</span>
+            </h3>
+            <p class="cg-deps__hint">{% blocktranslate %}<strong>What this component needs.</strong> Each item is another catalog component referenced via <code>&lt;c-X.Y&gt;</code> inside this template — delete one and this template stops rendering.{% endblocktranslate %}</p>
+            {% if deps_uses %}
+              <ul class="cg-deps__list">
+                {% for path in deps_uses %}
+                  <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-deps__link">{{ path }}</a></li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="cg-deps__empty">{% trans "Standalone — this template doesn't reference any other catalog component." %}</p>
+            {% endif %}
+          </div>
+          <div class="cg-deps__col">
+            <h3 class="cg-deps__title">
+              {% trans "Used by" %}
+              <span class="cg-deps__count">{{ deps_used_by|length }}</span>
+            </h3>
+            <p class="cg-deps__hint">{% blocktranslate %}<strong>Where this is rendered from</strong> (inside the catalog). Editing this component impacts every entry below — re-check each one before merging.{% endblocktranslate %}</p>
+            {% if deps_used_by %}
+              <ul class="cg-deps__list">
+                {% for path in deps_used_by %}
+                  <li><a href="{% url 'django_cotton_gallery:component_detail' path %}" class="cg-deps__link">{{ path }}</a></li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="cg-deps__empty">{% trans "Nothing in the catalog renders this component." %}</p>
+            {% endif %}
+          </div>
+          <div class="cg-deps__col cg-deps__col--full">
+            <h3 class="cg-deps__title">
+              {% trans "External usage" %}
+              {% if external_scan_enabled %}<span class="cg-deps__count">{{ deps_external|length }}</span>{% endif %}
+            </h3>
+            <p class="cg-deps__hint">{% blocktranslate %}<strong>Consumer-side renderers.</strong> Templates in your project's <code>templates/</code> (outside the catalog) that include this component. Catches usage the gallery alone can't see and helps spot zombies.{% endblocktranslate %}</p>
+            {% if external_scan_enabled %}
+              {% if deps_external %}
+                <ul class="cg-deps__list cg-deps__list--external">
+                  {% for tpl in deps_external %}
+                    <li><code class="cg-deps__path">{{ tpl }}</code></li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="cg-deps__empty">{% trans "No template outside the catalog references this component." %}</p>
+              {% endif %}
+            {% else %}
+              <div class="cg-deps__locked">
+                <svg class="cg-deps__locked-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <p class="cg-deps__locked-text">{% trans "External-templates scanning is disabled by default — the gallery never reads consumer code without explicit consent." %}</p>
+                <p class="cg-deps__locked-hint">{% blocktrans %}Set <code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> in your Django settings to enable. Read-only, dev-only, only template paths are exposed.{% endblocktrans %}</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+      {% if deps_uses or deps_used_by %}
+        <details class="cg-deptree-section">
+          <summary class="cg-deptree-section__summary">
+            <svg class="cg-deptree-section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h7l2 2h9v11H3z"/>
+            </svg>
+            <span>{% trans "Full impact tree" %}</span>
+            <span class="cg-deptree-section__hint">{% trans "The cards above show direct neighbours — this expands the chain recursively. Click any branch to drill in." %}</span>
+          </summary>
+          <div class="cg-deptree-section__body">
+            {% if deps_used_by_tree.children %}
+              <div class="cg-deptree-section__col">
+                <h3 class="cg-deptree-section__title">{% trans "Reverse impact (Used by, recursive)" %}</h3>
+                <p class="cg-deptree-section__hint-line">{% blocktranslate %}<strong>Walks backwards.</strong> Every component listed (at any depth) consumes this one transitively — touch this template and each of them must be re-tested.{% endblocktranslate %}</p>
+                {% include "django_cotton_gallery/_dep_tree.html" with node=deps_used_by_tree is_root=True %}
+              </div>
+            {% endif %}
+            {% if deps_uses_tree.children %}
+              <div class="cg-deptree-section__col">
+                <h3 class="cg-deptree-section__title">{% trans "Forward needs (Uses, recursive)" %}</h3>
+                <p class="cg-deptree-section__hint-line">{% blocktranslate %}<strong>Walks forwards.</strong> The complete chain of catalog components this template needs to render successfully — every leaf is a base dependency.{% endblocktranslate %}</p>
+                {% include "django_cotton_gallery/_dep_tree.html" with node=deps_uses_tree is_root=True %}
+              </div>
+            {% endif %}
+          </div>
+        </details>
+      {% endif %}
+    </div>
+
+    <div class="cg-tabs__panel" data-cg-panel="source" role="tabpanel" hidden>
+      <div class="cg-source">
+        <button type="button" class="cg-source__copy" data-cg-copy-target="#cg-source-code" aria-label="{% trans 'Copy source' %}">
+          <svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.927 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
+          <span>{% trans "Copy" %}</span>
+        </button>
+        <pre><code id="cg-source-code" class="language-django">{{ source }}</code></pre>
+      </div>
+    </div>
+  </section>
+{% endblock %}

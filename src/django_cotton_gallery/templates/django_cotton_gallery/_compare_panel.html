@@ -1,0 +1,190 @@
+{% load i18n %}
+{# One side of the compare view (A or B). `side` is "a" or "b" (used to disambiguate ids); `comp` is the dict from views.compare or None. #}
+<section class="cg-compare__panel" data-cg-compare-side="{{ side }}">
+  {% if not comp %}
+    <div class="cg-compare__empty">
+      <p>{% blocktranslate %}Pick a component on the <strong>{{ side|upper }}</strong> dropdown above to start comparing.{% endblocktranslate %}</p>
+    </div>
+  {% else %}
+    <header class="cg-compare__panel-header">
+      <span class="cg-compare__panel-side">{{ side|upper }}</span>
+      <h2 class="cg-compare__panel-title">{{ comp.path }}</h2>
+      <div class="cg-preview__view-switcher cg-compare__view-switcher" role="radiogroup" aria-label="{% trans 'Preview view' %}" data-cg-view-switcher hidden>
+        <button type="button" class="cg-view-btn cg-active" data-cg-view="preview" aria-pressed="true" title="{% trans 'Single preview' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+        </button>
+        <button type="button" class="cg-view-btn" data-cg-view="matrix" aria-pressed="false" title="{% trans 'Variants matrix' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+      </div>
+      <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}" class="cg-compare__panel-link" title="{% trans 'Open detail page' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 4h6v6M10 14 21 3M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>
+        </svg>
+      </a>
+    </header>
+
+    <div class="cg-preview-card">
+      <div class="cg-preview-row">
+        <div class="cg-preview"
+             data-cg-preview="{% url 'django_cotton_gallery:component_preview' comp.path %}"
+             data-cg-props-url-template="{% url 'django_cotton_gallery:component_props' '__PATH__' %}">
+          <div class="cg-preview__matrix" data-cg-preview-matrix hidden></div>
+          <div class="cg-preview__rendered" data-cg-preview-rendered>
+            <div class="cg-preview__device" data-cg-preview-device>
+              <div class="cg-preview__chrome" aria-hidden="true">
+                <span class="cg-preview__chrome-dot cg-preview__chrome-dot--red"></span>
+                <span class="cg-preview__chrome-dot cg-preview__chrome-dot--yellow"></span>
+                <span class="cg-preview__chrome-dot cg-preview__chrome-dot--green"></span>
+              </div>
+              <div class="cg-preview__stage" data-cg-preview-stage>
+                <div class="cg-preview-loading">
+                  <div class="cg-spinner" aria-hidden="true"></div>
+                  <span>{% trans "Loading preview…" %}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cg-preview__code">
+            <div class="cg-preview__code-header">
+              <span class="cg-preview__code-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"/></svg>
+                Cotton
+              </span>
+              <button type="button" class="cg-preview__code-copy" data-cg-copy-target="#cg-preview-code-{{ side }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
+                <span>{% trans "Copy" %}</span>
+              </button>
+            </div>
+            <pre class="language-markup"><code id="cg-preview-code-{{ side }}" class="language-markup" data-cg-preview-tag></code></pre>
+          </div>
+        </div>
+
+        {% if comp.auto_props or comp.has_slots or comp.accepts_attrs %}
+          <aside class="cg-controls" aria-label="{% trans 'Component controls' %}">
+            <header class="cg-controls__header">
+              <h3 class="cg-controls__title">{% trans "Controls" %}</h3>
+              <span class="cg-controls__count">{% blocktranslate count counter=comp.auto_props|length %}{{ counter }} prop{% plural %}{{ counter }} props{% endblocktranslate %}</span>
+            </header>
+            <form data-cg-controls class="cg-controls__form">
+              {% for prop in comp.auto_props %}
+                {% if not prop.hidden %}
+                  <div class="cg-control">
+                    <div class="cg-control__head">
+                      <span class="cg-control__label">{{ prop.clean_name }}</span>
+                      <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                        {% if prop.type == 'boolean' %}<span class="cg-tag cg-tag--bool">bool</span>
+                        {% elif prop.type == 'select' %}<span class="cg-tag cg-tag--enum">enum</span>
+                        {% elif prop.type == 'number' %}<span class="cg-tag cg-tag--num">num</span>
+                        {% else %}<span class="cg-tag cg-tag--str">str</span>{% endif %}
+                      </span>
+                    </div>
+                    {% if prop.description %}<p class="cg-control__hint">{{ prop.description }}</p>{% endif %}
+
+                    {% if prop.type == 'select' %}
+                      <select name="{{ prop.clean_name }}" class="cg-select" data-cg-instant>
+                        {% for opt in prop.options %}
+                          <option value="{{ opt }}"{% if opt == prop.default %} selected{% endif %}>{{ opt }}</option>
+                        {% endfor %}
+                      </select>
+                    {% elif prop.type == 'boolean' %}
+                      <label class="cg-toggle">
+                        <input type="checkbox" name="{{ prop.clean_name }}" value="true" class="cg-toggle__input"{% if prop.default %} checked{% endif %}>
+                        <span class="cg-toggle__track"></span>
+                      </label>
+                    {% elif prop.type == 'number' %}
+                      <input type="number" name="{{ prop.clean_name }}" value="{{ prop.default }}" class="cg-input">
+                    {% else %}
+                      <input type="text" name="{{ prop.clean_name }}" value="{{ prop.default }}" class="cg-input">
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% if comp.accepts_attrs %}
+                <div class="cg-control cg-control--attrs">
+                  <div class="cg-control__head">
+                    <span class="cg-control__label">{% trans "Extra attributes" %}</span>
+                    <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                      <span class="cg-tag cg-tag--attrs">attrs</span>
+                      <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Show details' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="9"/>
+                          <path d="M12 8h.01M11 12h1v4h1"/>
+                        </svg>
+                        <span class="cg-info__bubble" role="tooltip">
+                          {% blocktranslate %}<code>&#123;&#123; attrs &#125;&#125;</code> pass-through — anything you type lands on the rendered HTML. Try <code>disabled</code>, <code>id="…"</code>, <code>data-*</code>, <code>aria-*</code>, <code>style="…"</code>… <em>Heads up</em>: <code>class</code> may duplicate if the component already declares one (HTML keeps the first).{% endblocktranslate %}
+                        </span>
+                      </span>
+                      <button type="button" class="cg-textarea__expand" data-cg-attrs-expand title="{% trans 'Expand editor' %}" aria-label="{% trans 'Toggle editor height' %}" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="cg-textarea__expand" data-cg-editor-maximize data-cg-editor-target=".cg-control--attrs" data-cg-editor-title="{% trans 'Extra attributes' %}" title="{% trans 'Open in modal' %}" aria-label="{% trans 'Open editor in modal' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/>
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                  <div class="cg-attrs" data-cg-attrs data-cg-attrs-editor>
+                    <input type="hidden" name="__extra_attrs" value="" data-cg-attrs-hidden>
+                    <div class="cg-input cg-attrs__input"
+                         role="textbox" contenteditable="true" spellcheck="false"
+                         data-cg-attrs-input
+                         data-cg-placeholder='class="" disabled placeholder=""'></div>
+                    <div class="cg-attrs__menu" data-cg-attrs-menu hidden role="listbox" aria-label="{% trans 'Attribute suggestions' %}"></div>
+                  </div>
+                </div>
+              {% endif %}
+
+              {% for slot in comp.slots %}
+                <div class="cg-control cg-control--slot">
+                  <div class="cg-control__head">
+                    <span class="cg-control__label">{{ slot.name|default:"slot" }}</span>
+                    <span style="display:inline-flex;gap:0.25rem;align-items:center;">
+                      <span class="cg-tag cg-tag--slot">slot</span>
+                      <button type="button" class="cg-textarea__expand" data-cg-textarea-format title="{% trans 'Format HTML (Shift+Alt+F)' %}" aria-label="{% trans 'Format HTML' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M3 6h18M7 12h14M11 18h10"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="cg-textarea__expand" data-cg-textarea-minify title="{% trans 'Minify HTML (Shift+Alt+M)' %}" aria-label="{% trans 'Minify HTML' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M3 12h18M5 8h14M5 16h14"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="cg-textarea__expand" data-cg-textarea-expand title="{% trans 'Expand editor' %}" aria-label="{% trans 'Toggle editor height' %}" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="cg-textarea__expand" data-cg-editor-maximize data-cg-editor-target=".cg-control--slot" data-cg-editor-title="{{ slot.name|default:'slot' }}" title="{% trans 'Open in modal' %}" aria-label="{% trans 'Open editor in modal' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/>
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                  {% if slot.description %}<p class="cg-control__hint">{{ slot.description }}</p>{% endif %}
+                  <div class="cg-slot-editor" data-cg-slot-editor>
+                    <textarea name="{% if slot.name %}_slot__{{ slot.name }}{% else %}_slot{% endif %}" rows="4" class="cg-textarea" data-cg-slot-textarea spellcheck="false">{{ slot.content }}</textarea>
+                    <div class="cg-intellisense" data-cg-intellisense hidden role="listbox" aria-label="{% trans 'Tag suggestions' %}"></div>
+                  </div>
+                </div>
+              {% endfor %}
+            </form>
+          </aside>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</section>

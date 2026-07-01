@@ -1,0 +1,29 @@
+{# @description Threaded comment — author chip, body, and inline actions #}
+{# @prop author:text | required | description:"Display name of the comment author" #}
+{# @prop role:text | default:"" | description:"Author secondary line (job title, team…)" #}
+{# @prop timestamp:text | default:"now" | description:"Relative or absolute time label" #}
+{# @prop pinned:boolean | default:False | description:"Highlight as a pinned/staff comment" #}
+{# @slot Body — Comment body content (rich text or plain) #}
+
+<c-vars author role="" timestamp="now" pinned=False />
+
+<article
+  class="flex flex-col gap-3 p-4 rounded-xl border bg-white
+         {% if pinned %}border-amber-300 bg-amber-50{% else %}border-gray-200{% endif %}"
+  {{ attrs }}
+>
+  <header class="flex items-center justify-between gap-3">
+    <c-molecules.profile-chip :name="author" :role="role" {% if pinned %}status="pinned"{% endif %} />
+    <span class="text-xs text-gray-500 tabular-nums">{{ timestamp }}</span>
+  </header>
+
+  <div class="text-sm text-gray-800 leading-relaxed">{{ slot }}</div>
+
+  <c-atoms.divider />
+
+  <footer class="flex items-center gap-2">
+    <c-atoms.button variant="ghost" size="sm">Reply</c-atoms.button>
+    <c-atoms.button variant="ghost" size="sm">Like</c-atoms.button>
+    <c-atoms.button variant="ghost" size="sm">Share</c-atoms.button>
+  </footer>
+</article>

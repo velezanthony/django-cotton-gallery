@@ -1,0 +1,12 @@
+/* Cotton Gallery — entry stylesheet.
+   Plain @import order: tokens first (vars), reset/base scaffolding next,
+   then feature components, then page-specific styles. Later @imports
+   override earlier ones — same cascade as a single concatenated file. */
+
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./sidebar.css");
+@import url("./preview.css");
+@import url("./index.css");
+@import url("./docs.css");
+@import url("./insights.css");

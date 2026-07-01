@@ -1,0 +1,13 @@
+{# @description Keyboard shortcut chip — renders a single keystroke or chord #}
+{# @prop size:select['sm', 'md', 'lg'] | default:"md" | description:"Visual size" #}
+{# @slot Key — Key label, e.g. "Ctrl" or "/" #}
+
+<c-vars size="md" />
+
+<kbd
+  class="inline-flex items-center font-mono font-semibold rounded border border-gray-300 bg-gray-50 text-gray-700 shadow-[0_1px_0_rgba(0,0,0,0.06)]
+         {% if size == 'sm' %}px-1.5 py-0.5 text-[11px]{% endif %}
+         {% if size == 'md' %}px-2 py-0.5 text-xs{% endif %}
+         {% if size == 'lg' %}px-2.5 py-1 text-sm{% endif %}"
+  {{ attrs }}
+>{{ slot }}</kbd>

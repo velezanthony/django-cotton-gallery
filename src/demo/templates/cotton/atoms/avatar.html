@@ -1,0 +1,20 @@
+{# @description Circular avatar with initials or single character #}
+{# @prop initials:text | default:"?" | description:"Up to 2 characters shown" #}
+{# @prop tone:select['neutral', 'brand', 'success', 'warn', 'danger'] | default:"neutral" | description:"Color tone" #}
+{# @prop size:select['sm', 'md', 'lg', 'xl'] | default:"md" | description:"Size scale" #}
+
+<c-vars initials="?" tone="neutral" size="md" />
+
+<span
+  class="inline-flex items-center justify-center rounded-full font-semibold uppercase tracking-tight
+         {% if size == 'sm' %}h-7 w-7 text-xs{% endif %}
+         {% if size == 'md' %}h-10 w-10 text-sm{% endif %}
+         {% if size == 'lg' %}h-14 w-14 text-base{% endif %}
+         {% if size == 'xl' %}h-20 w-20 text-xl{% endif %}
+         {% if tone == 'neutral' %}bg-gray-200 text-gray-700{% endif %}
+         {% if tone == 'brand' %}bg-indigo-100 text-indigo-700{% endif %}
+         {% if tone == 'success' %}bg-green-100 text-green-700{% endif %}
+         {% if tone == 'warn' %}bg-yellow-100 text-yellow-800{% endif %}
+         {% if tone == 'danger' %}bg-red-100 text-red-700{% endif %}"
+  {{ attrs }}
+>{{ initials|slice:":2" }}</span>

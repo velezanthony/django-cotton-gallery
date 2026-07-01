@@ -1,0 +1,29 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Settings</title>
+</head>
+<body>
+  {% include "_partials/topbar.html" %}
+
+  <main class="settings">
+    <h1>Settings</h1>
+
+    <c-atoms.alert variant="info">
+      <p>Changes are saved automatically.</p>
+    </c-atoms.alert>
+
+    <form method="post" class="settings__form">
+      {% csrf_token %}
+      <c-atoms.input name="display_name" label="Display name" value="Jane Doe" />
+      <c-atoms.input name="email" type="email" label="Email" value="jane.doe@example.com" />
+      <c-atoms.input name="company" label="Company" value="Acme Corp" />
+
+      <c-atoms.button variant="primary" type="submit">Save</c-atoms.button>
+      <c-atoms.button variant="ghost" type="button">Cancel</c-atoms.button>
+    </form>
+  </main>
+</body>
+</html>

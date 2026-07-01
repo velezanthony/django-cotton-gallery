@@ -1,0 +1,39 @@
+{% load catalog_tags static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ component_path }}</title>
+
+  {# Inline favicon (no /favicon.ico 404). #}
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23ff9d0a'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white'>C</text></svg>">
+
+  {% comment %}
+  Consumer-injected assets — same contract as base.html. The gallery
+  itself ships no CSS/JS dependency; bring your own stack (Tailwind,
+  HTMX, Alpine, your bundle, …) via:
+    1. DJANGO_COTTON_GALLERY_EXTRA_CSS / _EXTRA_JS — URL lists in settings.py.
+    2. django_cotton_gallery/_extra_head.html — partial for inline
+       HTML/JS (Tailwind play-CDN + tailwind.config, env keys, design
+       tokens).
+  {% endcomment %}
+  {% for url in cotton_gallery.extra_css %}<link rel="stylesheet" href="{{ url }}">
+  {% endfor %}{% maybe_include "django_cotton_gallery/_extra_head.html" %}
+
+  <style>
+    {# Alpine cloak — hide x-cloak elements until Alpine initializes. #}
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body>
+{{ component_html|safe }}
+
+{% comment %}
+Consumer-configured scripts:
+  1. DJANGO_COTTON_GALLERY_EXTRA_JS — list of script URLs (settings.py).
+  2. django_cotton_gallery/_extra_body.html — partial for inline JS.
+{% endcomment %}
+{% for url in cotton_gallery.extra_js %}<script src="{{ url }}"></script>
+{% endfor %}{% maybe_include "django_cotton_gallery/_extra_body.html" %}
+</body>
+</html>

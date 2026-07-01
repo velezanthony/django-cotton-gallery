@@ -1,0 +1,585 @@
+{% load catalog_tags i18n static %}{% get_current_language as CURRENT_LANG %}<!DOCTYPE html>
+<html lang="{{ CURRENT_LANG|default:'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% trans "Component Gallery" %}{% endblock %} | Cotton Gallery</title>
+
+  {% comment %}
+  Apply the theme attribute BEFORE the rest of <head> renders so the first
+  paint already has dark colors — no flash of light theme. Reads from the
+  same localStorage key the toggle button writes to.
+  {% endcomment %}
+  <script>(function(){try{var t=localStorage.getItem('cg-theme');if(t==='dark')document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
+  {# Same FOUC-prevention pattern for the sidebar collapse state — apply the data-attr on <html> before the body paints, then sidebar.js wires the toggle button to flip it at runtime. #}
+  <script>(function(){try{if(localStorage.getItem('cg-sidebar-collapsed')==='1')document.documentElement.dataset.cgSidebarCollapsed='';}catch(e){}})();</script>
+
+  {# Inline SVG favicon — brand orange tile with a "C" mark. No extra request. #}
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23ff9d0a'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white'>C</text></svg>">
+
+  {# Self-contained gallery chrome — no third-party CDNs, no global pollution. #}
+  <link rel="stylesheet" href="{% static 'django_cotton_gallery/css/main.css' %}">
+  {% comment %}
+  i18n bridge for JS-only strings. The few user-visible labels that live
+  inside JS (switcher headers, ui-bits toggles) read from window.cgI18n.
+  Keep keys SHORT and identifier-style; values come through {% trans %}
+  so they participate in the normal PO/MO pipeline.
+  {% endcomment %}
+  <script>window.cgI18n={
+    collapseAll:"{% trans 'Collapse all' %}",
+    expandAll:"{% trans 'Expand all' %}",
+    availableProps:"{% trans 'Available props' %}",
+    availableNamedSlots:"{% trans 'Available named slots' %}",
+    availableValuesForProp:"{% trans 'Available values for prop' %}",
+    matching:"{% trans 'matching' %}",
+    noMatches:"{% trans 'No matches' %}",
+    noCssPropsMatch:"{% trans 'No CSS properties match' %}",
+    noHtmlAttrsMatch:"{% trans 'No HTML attributes match' %}",
+    noPropsOn:"{% trans 'No props on' %}",
+    noMatchingProps:"{% trans 'No matching props' %}"
+  };</script>
+  {# type="module" implies defer; main.js imports every feature module from ./js/ #}
+  <script src="{% static 'django_cotton_gallery/js/main.js' %}" type="module"></script>
+
+  {% comment %}
+  Opt-in dropdown timeline recorder. Append `?cgdebug=1` to any URL to enable.
+  Captures clicks, [hidden] toggles on menus, and SPA swaps; exposed as
+  `window.__d`. Use `__d.dump()` in console to print the timeline.
+  {% endcomment %}
+  {% if request.GET.cgdebug %}
+  <script src="{% static 'django_cotton_gallery/js/_debug_dropdowns.js' %}" defer></script>
+  {% endif %}
+
+  {% comment %}
+  Prism.js for source-code syntax highlighting in the detail page's
+  Source tab. `markup-templating` is the dependency Django needs;
+  `django` adds the {% verbatim %}{% ... %}{% endverbatim %} / {% verbatim %}{{ ... }}{% endverbatim %} tag rules. All defer so they
+  don't block first paint, and gallery.js re-runs Prism on SPA swaps
+  via Prism.highlightAllUnder on bindContent.
+  {% endcomment %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-django.min.js" defer></script>
+
+  {% comment %}
+  Consumer-injected assets — the gallery is stack-agnostic, so any
+  CSS/JS dependency your components need (Tailwind, HTMX, Alpine, your
+  compiled bundle, design tokens, env keys, …) lives in YOUR project,
+  not the gallery. Two layers:
+    1. DJANGO_COTTON_GALLERY_EXTRA_CSS / _EXTRA_JS — lists of URLs in
+       settings.py for external stylesheets and scripts.
+    2. django_cotton_gallery/_extra_head.html — drop a partial in your
+       templates dir for inline HTML/JS that needs editor support
+       (Tailwind play-CDN + tailwind.config, preconnects, design
+       tokens). Optional.
+  {% endcomment %}
+  {% for url in cotton_gallery.extra_css %}<link rel="stylesheet" href="{{ url }}">
+  {% endfor %}{% maybe_include "django_cotton_gallery/_extra_head.html" %}
+  {# Per-page injection point — extras for the document head. #}
+  {% block extra_head %}{% endblock %}
+</head>
+<body{% if component_path %} data-cg-component-path="{{ component_path }}"{% endif %}>
+<div class="cg-app" data-cg-app>
+  <button type="button" class="cg-mobile-toggle" data-cg-mobile-toggle aria-label="{% trans 'Toggle navigation' %}" aria-expanded="false">
+    <svg class="cg-mobile-toggle__icon cg-mobile-toggle__icon--open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 12h18M3 6h18M3 18h18"/>
+    </svg>
+    <svg class="cg-mobile-toggle__icon cg-mobile-toggle__icon--close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 18 18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="cg-sidebar-backdrop" data-cg-sidebar-backdrop aria-hidden="true"></div>
+  <aside
+    class="cg-sidebar"
+    data-cg-sidebar
+    data-cg-active-category="{{ category|default:'' }}"
+    data-cg-active-subcategory-key="{% if subcategory %}{{ category }}/{{ subcategory }}{% endif %}"
+  >
+    <div class="cg-sidebar__logo">
+      <a href="{% url 'django_cotton_gallery:index' %}" class="cg-sidebar__logo">
+        <span class="cg-sidebar__logo-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L12 12.75 6.429 9.75m11.142 0 4.179 2.25-9.75 5.25-9.75-5.25 4.179-2.25"/>
+          </svg>
+        </span>
+        <span class="cg-sidebar__logo-text">
+          <span class="cg-sidebar__logo-title">Django Cotton Gallery</span>
+          <span class="cg-sidebar__logo-sub">{% trans "Component playground" %}</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="cg-sidebar__search">
+      <div class="cg-sidebar__search-wrap">
+        <svg class="cg-sidebar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+        </svg>
+        <input type="search" id="cg-search" name="cg-search" class="cg-sidebar__search-input" placeholder="{% trans 'Search components…' %}" data-cg-search aria-label="{% trans 'Search components' %}" autocomplete="off">
+        <kbd class="cg-sidebar__search-kbd" aria-hidden="true">/</kbd>
+        <button type="button" class="cg-sidebar__search-clear" data-cg-search-clear hidden aria-label="{% trans 'Clear search' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        {% comment %}
+        Autocomplete dropdown — floats below the search input as a typeahead.
+        Tab completes the input with the first match's name, ↓↑ navigate,
+        Enter activates. The category tree below stays filtered as before
+        so the user keeps spatial context.
+        {% endcomment %}
+        <div class="cg-sidebar__suggestions" data-cg-suggestions hidden role="listbox" aria-label="{% trans 'Search suggestions' %}"></div>
+      </div>
+      <p class="cg-sidebar__search-count"
+         data-cg-search-count
+         data-cg-count-template="{% blocktranslate %}{visible} of {total} components{% endblocktranslate %}"
+         hidden aria-live="polite"></p>
+    </div>
+
+    <nav class="cg-sidebar__nav">
+      {% comment %}
+      Single Menu dropdown — collapses every non-catalog page (Get started,
+      Documentation, Compare, Lint, Builder) under one trigger. Saves four
+      sidebar rows. Pattern mirrors the footer's lang switcher: dark
+      overlay with brand-tinted border, animation, click-outside / Esc.
+      {% endcomment %}
+      {% with url_name=request.resolver_match.url_name %}
+        <div class="cg-sidebar__tools" data-cg-tools>
+          <button type="button" class="cg-sidebar__doclink cg-sidebar__tools-trigger{% if url_name == 'get_started' or url_name == 'docs' or url_name == 'compare' or url_name == 'lint' or url_name == 'insights' or url_name == 'builder' %} cg-active{% endif %}" data-cg-tools-trigger aria-haspopup="menu" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18M3 12h18M3 18h18"/>
+            </svg>
+            <span>{% trans "Menu" %}</span>
+            <svg class="cg-sidebar__tools-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </button>
+          <div class="cg-sidebar__tools-menu" data-cg-tools-menu hidden role="menu" aria-label="{% trans 'Gallery menu' %}">
+            <a href="{% url 'django_cotton_gallery:get_started' %}" class="cg-sidebar__tools-item{% if url_name == 'get_started' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
+              </svg>
+              <span>{% trans "Get started" %}</span>
+            </a>
+            <a href="{% url 'django_cotton_gallery:docs' %}" class="cg-sidebar__tools-item{% if url_name == 'docs' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+              </svg>
+              <span>{% trans "Documentation" %}</span>
+            </a>
+            <div class="cg-sidebar__tools-sep" role="separator" aria-hidden="true"></div>
+            <a href="{% url 'django_cotton_gallery:compare' %}" class="cg-sidebar__tools-item{% if url_name == 'compare' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3M12 2v20"/>
+              </svg>
+              <span>{% trans "Compare" %}</span>
+            </a>
+            <a href="{% url 'django_cotton_gallery:lint' %}" class="cg-sidebar__tools-item{% if url_name == 'lint' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+              </svg>
+              <span>{% trans "Lint" %}</span>
+            </a>
+            <a href="{% url 'django_cotton_gallery:insights' %}" class="cg-sidebar__tools-item{% if url_name == 'insights' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 3v18h18M7 14l4-4 4 4 5-5"/>
+              </svg>
+              <span>{% trans "Insights" %}</span>
+            </a>
+            <a href="{% url 'django_cotton_gallery:builder' %}" class="cg-sidebar__tools-item{% if url_name == 'builder' %} cg-active{% endif %}" role="menuitem" data-cg-doclink>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75"/>
+              </svg>
+              <span>{% trans "Builder" %}</span>
+            </a>
+          </div>
+        </div>
+      {% endwith %}
+
+      {% if categories %}
+        <div class="cg-sidebar__toolbar">
+          <span class="cg-sidebar__toolbar-label">{% trans "Components" %}</span>
+          <span class="cg-sidebar__toolbar-actions" data-cg-personal-filter>
+            <button type="button" class="cg-sidebar__toolbar-btn" data-cg-filter="pins" aria-pressed="false" title="{% trans 'Show only pinned' %}" aria-label="{% trans 'Show only pinned components' %}">
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
+              </svg>
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--on" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
+              </svg>
+            </button>
+            <button type="button" class="cg-sidebar__toolbar-btn" data-cg-filter="recents" aria-pressed="false" title="{% trans 'Show only recent' %}" aria-label="{% trans 'Show only recent components' %}">
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 2"/>
+              </svg>
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--on" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 2" stroke="white" fill="none" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button type="button" class="cg-sidebar__toolbar-btn" data-cg-toggle-issues aria-pressed="false" title="{% trans 'Toggle issue badges' %}" aria-label="{% trans 'Toggle issue badges' %}">
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+              </svg>
+              <svg class="cg-sidebar__toolbar-icon cg-sidebar__toolbar-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.244 7.244 3.087 3.087m-3.087-3.087-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/>
+              </svg>
+            </button>
+            <button type="button" class="cg-sidebar__toolbar-btn" data-cg-toggle-all data-cg-state="expand" title="{% trans 'Expand or collapse all' %}" aria-label="{% trans 'Expand or collapse all categories' %}">
+              <svg class="cg-sidebar__toolbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+              </svg>
+            </button>
+          </span>
+        </div>
+      {% else %}
+        <p class="cg-sidebar__empty">{% trans "No components found" %}</p>
+      {% endif %}
+
+      <div class="cg-sidebar__empty-search" data-cg-empty-search hidden role="status">
+        <svg class="cg-sidebar__empty-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+          <path d="M9 9.75h6"/>
+        </svg>
+        <p class="cg-sidebar__empty-search-msg">{% trans "No matches for" %} <code class="cg-sidebar__empty-search-query" data-cg-empty-search-query></code></p>
+      </div>
+
+      {% for cat_name, subcategories in categories.items %}
+        <div data-cg-category>
+          <button type="button" class="cg-cat__toggle" data-cg-toggle="{{ cat_name|default:'_uncategorized' }}">
+            <span style="display:flex;align-items:center;gap:0.5rem;">
+              <span class="cg-cat__name">{% if cat_name %}{{ cat_name }}{% else %}{% trans "Components" %}{% endif %}</span>
+              <span class="cg-cat__count">{{ subcategories|component_count }}</span>
+            </span>
+            <svg class="cg-cat__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+            </svg>
+          </button>
+          <div data-cg-collapse="{{ cat_name|default:'_uncategorized' }}">
+            {% for sub_name, components in subcategories.items %}
+              {% if sub_name %}
+                <div data-cg-subcategory>
+                  <button type="button" class="cg-sub__toggle" data-cg-toggle="{{ cat_name }}/{{ sub_name }}">
+                    <span class="cg-sub__name-wrap">
+                      <span class="cg-sub__name">{{ sub_name }}</span>
+                      <span class="cg-sub__count">{{ components|length }}</span>
+                    </span>
+                    <svg class="cg-sub__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                  </button>
+                  <div data-cg-collapse="{{ cat_name }}/{{ sub_name }}">
+                    {% for comp in components %}
+                      {% with counts=lint_summary|lint_counts:comp.path %}
+                        <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
+                           class="cg-link cg-link--nested"
+                           data-cg-component="{{ comp.name }}"
+                           title="{{ comp.description }}">
+                          <span class="cg-link__name">{{ comp.name }}</span>
+                          {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
+                        </a>
+                      {% endwith %}
+                    {% endfor %}
+                  </div>
+                </div>
+              {% else %}
+                {% for comp in components %}
+                  {% with counts=lint_summary|lint_counts:comp.path %}
+                    <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
+                       class="cg-link"
+                       data-cg-component="{{ comp.name }}"
+                       title="{{ comp.description }}">
+                      <span class="cg-link__name">{{ comp.name }}</span>
+                      {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
+                    </a>
+                  {% endwith %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </nav>
+
+    <div class="cg-sidebar__footer">
+      <div class="cg-sidebar__footer-row">
+        <span class="cg-sidebar__footer-meta">
+          <span class="cg-sidebar__footer-pulse" aria-hidden="true"></span>
+          <span>{% blocktranslate count counter=categories|total_components %}<strong>{{ counter }}</strong> component · live{% plural %}<strong>{{ counter }}</strong> components · live{% endblocktranslate %}</span>
+        </span>
+        <span class="cg-sidebar__footer-actions">
+          {% comment %}
+            The language switcher needs two things from the consumer:
+            (1) `set_language` URL mounted (django.conf.urls.i18n), and
+            (2) at least one shared locale between their LANGUAGES and
+            the package's translated locales (gallery_languages —
+            populated by the gallery_assets context processor).
+            Hide the dropdown otherwise — without (1) the form would
+            500 on submit, without (2) the dropdown would be empty.
+          {% endcomment %}
+          {% url 'set_language' as set_lang_url %}
+          {% gallery_languages as gallery_langs %}
+          {% if set_lang_url %}
+          {% get_current_language as CURRENT %}
+          <form action="{{ set_lang_url }}" method="post" class="cg-sidebar__lang" data-cg-lang>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <input type="hidden" name="language" value="{{ LANGUAGE_CODE }}" data-cg-lang-input>
+            <button type="button" class="cg-sidebar__lang-trigger" data-cg-lang-trigger aria-haspopup="menu" aria-expanded="false" aria-label="{% trans 'Change language' %}" title="{% trans 'Change language' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+              </svg>
+              <span class="cg-sidebar__lang-current">{{ CURRENT|upper }}</span>
+            </button>
+            <div class="cg-sidebar__lang-menu" data-cg-lang-menu hidden role="menu">
+              {% for code, name_local in gallery_langs %}
+                <button type="button" class="cg-sidebar__lang-item{% if code == CURRENT %} cg-active{% endif %}" data-cg-lang-option="{{ code }}" role="menuitem">
+                  <span class="cg-sidebar__lang-code">{{ code|upper }}</span>
+                  <span class="cg-sidebar__lang-name">{{ name_local }}</span>
+                  {% if code == CURRENT %}
+                    <svg class="cg-sidebar__lang-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                  {% endif %}
+                </button>
+              {% endfor %}
+            </div>
+          </form>
+          {% endif %}
+          <button type="button" class="cg-sidebar__footer-btn" data-cg-theme-toggle aria-label="{% trans 'Toggle theme' %}" title="{% trans 'Toggle dark/light theme' %}">
+            <svg class="cg-theme-icon cg-theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+            <svg class="cg-theme-icon cg-theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
+            </svg>
+          </button>
+          <a href="https://github.com/velezanthony/django-cotton-gallery" class="cg-sidebar__footer-btn" target="_blank" rel="noreferrer" aria-label="{% trans 'GitHub repository' %}" title="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/>
+            </svg>
+          </a>
+        </span>
+      </div>
+      <p class="cg-sidebar__footer-version">
+        <span class="cg-sidebar__footer-version-tag">v0.1.0</span>
+        Django Cotton Gallery
+      </p>
+    </div>
+
+    {% comment %}
+    Floating collapse handle — sits half-in/half-out on the sidebar's right edge.
+    Chevron points left (collapse) when sidebar is open, flips to right (expand) when collapsed.
+    {% endcomment %}
+    <button type="button" class="cg-sidebar__collapse-toggle" data-cg-collapse-toggle aria-label="{% trans 'Collapse sidebar' %}" title="{% trans 'Collapse sidebar' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+    </button>
+  </aside>
+
+  <main class="cg-main">
+    <div class="cg-main-inner">
+      {% block content %}{% endblock %}
+    </div>
+    {% comment %}
+    Slim help footer — pinned at the bottom of every page. Whole row is a
+    single button that opens the cheatsheet, so a click is enough; the `?`
+    hint just teaches the shortcut. Inline shortcut chips on the right
+    fill space when the viewport is wide enough; CSS hides them on mobile.
+    {% endcomment %}
+    <footer class="cg-help-footer" role="contentinfo">
+      <button type="button" class="cg-help-footer__btn" data-cg-cheatsheet-open aria-label="{% trans 'Open keyboard shortcuts' %}">
+        <svg class="cg-help-footer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7v.5"/>
+          <circle cx="12" cy="17" r="0.5" fill="currentColor"/>
+        </svg>
+        <span class="cg-help-footer__msg">
+          {% trans "Need help?" %}
+          <span class="cg-help-footer__cta">{% trans "Press" %} <kbd>?</kbd> {% trans "or click here" %} —</span>
+          <span class="cg-help-footer__sub">{% trans "keyboard shortcuts &amp; tips" %}</span>
+        </span>
+        <span class="cg-help-footer__shortcuts" aria-hidden="true">
+          <span class="cg-help-footer__chip"><kbd>/</kbd> {% trans "search" %}</span>
+          <span class="cg-help-footer__chip"><kbd>Ctrl</kbd>+<kbd>K</kbd> {% trans "switch" %}</span>
+          <span class="cg-help-footer__chip"><kbd>Esc</kbd> {% trans "close" %}</span>
+        </span>
+      </button>
+    </footer>
+  </main>
+</div>
+
+{% comment %}
+Editor maximize modal — single shared instance. The editor that asked to
+maximize gets moved into `.cg-editor-modal__slot` (preserving its DOM node,
+listeners and state); on close, JS moves it back to its original placeholder.
+This keeps a single source of truth for the editor's value.
+{% endcomment %}
+<div class="cg-editor-modal" data-cg-editor-modal hidden role="dialog" aria-modal="true" aria-label="{% trans 'Expanded editor' %}">
+  <div class="cg-editor-modal__backdrop" data-cg-editor-modal-close></div>
+  <div class="cg-editor-modal__panel">
+    <header class="cg-editor-modal__header">
+      <h2 class="cg-editor-modal__title" data-cg-editor-modal-title>{% trans "Editor" %}</h2>
+      <div class="cg-editor-modal__actions">
+        <button type="button" class="cg-editor-modal__action" data-cg-editor-modal-format>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18M7 12h14M11 18h10"/>
+          </svg>
+          <span>{% trans "Format" %}</span>
+        </button>
+        <button type="button" class="cg-editor-modal__action" data-cg-editor-modal-minify>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12h18M5 8h14M5 16h14"/>
+          </svg>
+          <span>{% trans "Minify" %}</span>
+        </button>
+        <button type="button" class="cg-editor-modal__action" data-cg-editor-modal-reset>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/>
+          </svg>
+          <span>{% trans "Reset" %}</span>
+        </button>
+        <span class="cg-editor-modal__sep" aria-hidden="true"></span>
+        <button type="button" class="cg-editor-modal__close" data-cg-editor-modal-close aria-label="{% trans 'Close' %}" title="{% trans 'Close (Esc)' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div class="cg-editor-modal__slot" data-cg-editor-modal-slot></div>
+    <footer class="cg-editor-modal__footer">
+      <span class="cg-editor-modal__stats" data-cg-editor-modal-stats>
+        <span data-cg-editor-modal-chars>0</span> {% trans "chars" %}
+        <span class="cg-editor-modal__stats-sep">·</span>
+        <span data-cg-editor-modal-lines>1</span> {% trans "lines" %}
+      </span>
+      <span class="cg-editor-modal__shortcuts">
+        <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> {% trans "format" %}
+        <span class="cg-editor-modal__stats-sep">·</span>
+        <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd> {% trans "minify" %}
+        <span class="cg-editor-modal__stats-sep">·</span>
+        <kbd>Tab</kbd>/<kbd>Shift</kbd>+<kbd>Tab</kbd> {% trans "indent" %}
+        <span class="cg-editor-modal__stats-sep">·</span>
+        <kbd>Esc</kbd> {% trans "close" %}
+      </span>
+    </footer>
+  </div>
+</div>
+
+{% comment %}
+Fullscreen preview modal — single shared instance. Same DOM-move trick the
+editor-modal uses: clicking the fullscreen button MOVES the
+`[data-cg-preview-device]` element (chrome + stage with rendered HTML) into
+the slot below; on close, it's moved back to its original placeholder. The
+form's preview-fetch loop keeps writing to `[data-cg-preview-stage]` (which
+is inside the moved device), so live updates work uninterrupted.
+{% endcomment %}
+{% comment %}
+Keyboard shortcut cheatsheet — press `?` anywhere (outside form fields) to
+bring it up. One shared modal, single source of truth for every shortcut
+the gallery supports.
+{% endcomment %}
+{% comment %}
+Quick switcher — `Ctrl+K` / `Cmd+K` opens a centered modal with a search
+input and a fuzzy-matched list of every component in the catalog. No
+backend round-trip; the JS reads the names from the sidebar links and
+filters in-memory.
+{% endcomment %}
+<div class="cg-switcher" data-cg-switcher hidden role="dialog" aria-modal="true" aria-label="{% trans 'Quick switcher' %}">
+  <div class="cg-switcher__backdrop" data-cg-switcher-close></div>
+  <div class="cg-switcher__panel">
+    <div class="cg-switcher__input-wrap">
+      <svg class="cg-switcher__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+      <input type="text" class="cg-switcher__input" data-cg-switcher-input placeholder="{% trans 'Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, deprecated' %}" autocomplete="off" spellcheck="false">
+      <kbd class="cg-switcher__kbd" aria-hidden="true">Esc</kbd>
+    </div>
+    <ul class="cg-switcher__list" data-cg-switcher-list role="listbox" aria-label="{% trans 'Components' %}"></ul>
+    <p class="cg-switcher__empty" data-cg-switcher-empty hidden>{% trans "No matches." %}</p>
+    <p class="cg-switcher__loading" data-cg-switcher-loading hidden>{% trans "Loading prop index…" %}</p>
+    <div class="cg-switcher__hints" data-cg-switcher-hints>
+      {% comment %}
+        `data-cg-hint-insert` is the literal text appended on click.
+        Placeholder chips (NAME, VALUE) insert just the prefix so the user
+        can keep typing — the autocomplete suggestions handle the rest.
+        Complete tokens (accepts-attrs, has-slots…) insert as-is + space.
+      {% endcomment %}
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="prop:" title="{% trans 'Click to insert prefix' %}">prop:NAME</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="prop:" title="{% trans 'Click to insert prefix' %}">prop:NAME=VALUE</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="slot:" title="{% trans 'Click to insert prefix' %}">slot:NAME</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="accepts-attrs ">accepts-attrs</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-slots ">has-slots</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-named-slots ">has-named-slots</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-default-slot ">has-default-slot</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="deprecated ">deprecated</button>
+    </div>
+  </div>
+</div>
+
+<div class="cg-cheatsheet" data-cg-cheatsheet hidden role="dialog" aria-modal="true" aria-label="{% trans 'Keyboard shortcuts' %}">
+  <div class="cg-cheatsheet__backdrop" data-cg-cheatsheet-close></div>
+  <div class="cg-cheatsheet__panel">
+    <header class="cg-cheatsheet__header">
+      <h2 class="cg-cheatsheet__title">{% trans "Keyboard shortcuts" %}</h2>
+      <button type="button" class="cg-cheatsheet__close" data-cg-cheatsheet-close aria-label="{% trans 'Close' %}" title="{% trans 'Close (Esc)' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>
+      </button>
+    </header>
+    <div class="cg-cheatsheet__body">
+      <section class="cg-cheatsheet__group">
+        <h3 class="cg-cheatsheet__group-title">{% trans "Navigation" %}</h3>
+        <dl class="cg-cheatsheet__list">
+          <dt><kbd>/</kbd></dt><dd>{% trans "Focus catalog search" %}</dd>
+          <dt><kbd>Ctrl</kbd>+<kbd>K</kbd> <span class="cg-cheatsheet__or">·</span> <kbd>⌘</kbd>+<kbd>K</kbd></dt><dd>{% trans "Quick switcher — fuzzy-find any component" %}</dd>
+          <dt><kbd>?</kbd></dt><dd>{% trans "Open this cheatsheet" %}</dd>
+          <dt><kbd>Esc</kbd></dt><dd>{% trans "Close any open modal / dropdown" %}</dd>
+        </dl>
+      </section>
+      <section class="cg-cheatsheet__group">
+        <h3 class="cg-cheatsheet__group-title">{% trans "Slot editor" %}</h3>
+        <dl class="cg-cheatsheet__list">
+          <dt><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd></dt><dd>{% trans "Format HTML (multi-line, indented)" %}</dd>
+          <dt><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></dt><dd>{% trans "Minify HTML (single line)" %}</dd>
+          <dt><kbd>Tab</kbd> <span class="cg-cheatsheet__or">·</span> <kbd>Shift</kbd>+<kbd>Tab</kbd></dt><dd>{% trans "Indent / outdent the current line or selection" %}</dd>
+        </dl>
+      </section>
+      <section class="cg-cheatsheet__group">
+        <h3 class="cg-cheatsheet__group-title">{% trans "Lists & dropdowns" %}</h3>
+        <dl class="cg-cheatsheet__list">
+          <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>{% trans "Move highlight in any popover (search, mini-select, intellisense)" %}</dd>
+          <dt><kbd>Enter</kbd></dt><dd>{% trans "Accept the highlighted suggestion" %}</dd>
+          <dt><kbd>Tab</kbd></dt><dd>{% trans "Autocomplete in catalog search / accept intellisense" %}</dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="cg-fs-preview" data-cg-fs-preview hidden role="dialog" aria-modal="true" aria-label="{% trans 'Fullscreen preview' %}">
+  <header class="cg-fs-preview__header">
+    <span class="cg-fs-preview__title" data-cg-fs-preview-title>{% trans "Fullscreen preview" %}</span>
+    <span class="cg-fs-preview__hint">{% trans "Resize the browser window — media queries fire on the real viewport." %}</span>
+    <button type="button" class="cg-fs-preview__close" data-cg-fs-preview-close aria-label="{% trans 'Close (Esc)' %}" title="{% trans 'Close (Esc)' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>
+    </button>
+  </header>
+  <div class="cg-fs-preview__slot" data-cg-fs-preview-slot></div>
+</div>
+
+{% comment %}
+Consumer-configured scripts. Two layers — same priority order as <head>:
+  1. DJANGO_COTTON_GALLERY_EXTRA_JS — list of script URLs (settings.py).
+  2. django_cotton_gallery/_extra_body.html — partial for inline JS
+     (Alpine bridges, HTMX hooks, custom config). Optional.
+{% endcomment %}
+{% for url in cotton_gallery.extra_js %}<script src="{{ url }}"></script>
+{% endfor %}{% maybe_include "django_cotton_gallery/_extra_body.html" %}
+{# Per-page injection point — extras at end of body. #}
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>
