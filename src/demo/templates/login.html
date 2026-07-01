@@ -1,0 +1,31 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sign in</title>
+</head>
+<body>
+  <main class="auth">
+    <h1>Sign in</h1>
+
+    {% if error %}
+      <c-atoms.alert variant="danger">
+        <p>{{ error }}</p>
+      </c-atoms.alert>
+    {% endif %}
+
+    <form method="post" class="auth__form">
+      {% csrf_token %}
+      <c-atoms.input name="email" type="email" label="Email" required />
+      <c-atoms.input name="password" type="password" label="Password" required />
+      <c-atoms.button variant="primary" type="submit">Sign in</c-atoms.button>
+      <c-atoms.divider label="or" />
+      <c-atoms.button variant="ghost" type="button">Forgot password?</c-atoms.button>
+      <p class="auth__signup">
+        New here? <c-atoms.link href="/signup">Create an account</c-atoms.link>
+      </p>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load catalog_tags i18n %}
+
+{% block title %}{% trans "Get started" %}{% endblock %}
+
+{% block content %}
+  {% url 'django_cotton_gallery:docs' as docs_url %}
+  <article class="cg-docs">
+    <header class="cg-docs__header">
+      <p class="cg-docs__eyebrow">{% trans "Get started" %}</p>
+      <h1 class="cg-docs__title">{% trans "From zero to your first component" %}</h1>
+      <p class="cg-docs__lead">
+        {% blocktranslate with url=docs_url %}Drop the components into a Django project in 90 seconds. Three steps, three copy-and-pasteable snippets. Once you're up and running, head to <a href="{{ url }}">Documentation</a> for the full configuration and annotation reference.{% endblocktranslate %}
+      </p>
+    </header>
+
+    <nav class="cg-docs__toc" aria-label="{% trans 'Table of contents' %}">
+      <p class="cg-docs__toc-label">{% trans "On this page" %}</p>
+      <ul>
+        <li><a href="#install">{% trans "1. Install" %}</a></li>
+        <li><a href="#use">{% trans "2. Use a component" %}</a></li>
+        <li><a href="#make">{% trans "3. Make your own" %}</a></li>
+        <li><a href="#i18n">{% trans "4. Enable language switching (optional)" %}</a></li>
+      </ul>
+    </nav>
+
+    <section id="install" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "1. Install" %}</h2>
+      <p>{% blocktranslate %}Install both apps with pip, register them in <code>settings.py</code>, then mount the gallery URLs behind a <code>DEBUG</code> guard. Plug and play — no other configuration needed for first run.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py
+INSTALLED_APPS = [
+    # ...
+    "django_cotton",
+    "django_cotton_gallery",
+]
+
+COTTON_SNAKE_CASED_NAMES = False  # cotton's setting; both styles work, see Documentation{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Then mount the gallery URLs in your project's <code>urls.py</code> — gated by <code>DEBUG</code> so the routes never reach production:{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+from django.conf import settings
+from django.urls import include, path
+
+urlpatterns = [...]
+
+if settings.DEBUG:
+    urlpatterns += [path("gallery/", include("django_cotton_gallery.urls"))]{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Visit <code>/gallery/</code> in your browser. The gallery is a development tool — leaving the include guarded by <code>DEBUG</code> keeps it off in production by construction.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}Django Cotton's regex compiler runs before Django's template engine and converts <code>&lt;c-foo /&gt;</code> tags into <code>&#123;% include %&#125;</code> calls. The <code>COTTON_SNAKE_CASED_NAMES = False</code> setting keeps tag names kebab-case so file paths like <code>atoms/ui/button.html</code> map to <code>&lt;c-atoms.ui.button /&gt;</code> directly.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="use" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "2. Use a component" %}</h2>
+      <p>{% blocktranslate %}Render any component by its kebab-case path. The folder structure becomes the dotted tag name — that's the whole convention.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}<c-atoms.ui.button variant="primary">Save</c-atoms.ui.button>
+
+<c-atoms.ui.alert variant="success">
+  Your changes were saved.
+</c-atoms.ui.alert>{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}That's it — your components are live in the gallery. Whatever stack they need (Tailwind, HTMX, Alpine, your own bundle…) hooks in through <code>DJANGO_COTTON_GALLERY_EXTRA_CSS</code> / <code>_EXTRA_JS</code> in settings, or the <code>_extra_head.html</code> partial in your templates dir. Browse the sidebar to see your components live, with their props panels.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="make" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "3. Make your own" %}</h2>
+      <p>{% blocktranslate %}Drop a new file under <code>templates/cotton/</code>. The gallery picks it up automatically — no registration, no rebuild. Add an <code>@prop</code> annotation comment and the controls panel builds itself.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# templates/cotton/atoms/hello.html #}
+{# @prop name:text | default:"World" | description:"Who to greet" #}
+<c-vars name="World" />
+
+<p>Hello, {{ name }}!</p>{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Save the file, restart the server (Cotton caches templates), and your component shows up in the gallery's sidebar with a live preview, an editable <code>name</code> control, and a generated props table.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}<strong>Folder layout is flexible.</strong> Components can live at any depth — <code>cotton/button.html</code>, <code>cotton/button/index.html</code>, <code>cotton/atoms/button.html</code>, or <code>cotton/atoms/button/index.html</code> all work. The first folder under <code>cotton/</code> becomes the sidebar category; loose files at the root group under "Components". When both <code>&lt;dir&gt;.html</code> and <code>&lt;dir&gt;/index.html</code> exist, the sibling wins (cotton's resolution order).{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate with url=docs_url %}Annotation grammar (types, filters, dynamic props, slots, triggers) is covered in <a href="{{ url }}#annotations">Documentation → Annotations</a>. The full list of consumer settings is in <a href="{{ url }}#configuration">Documentation → Configuration</a>.{% endblocktranslate %}</p>
+    </section>
+
+    <section id="i18n" class="cg-docs__section">
+      <h2 class="cg-docs__h2">{% trans "4. Enable language switching (optional)" %}</h2>
+      <p>{% blocktranslate %}The gallery ships with translations for English, Spanish, Basque, and French. The dropdown in the sidebar footer only appears when your project has Django's i18n URL and middleware wired — without them, Django can't persist the chosen language, so the gallery hides the control to avoid a dead button.{% endblocktranslate %}</p>
+      <p>{% blocktranslate %}Two changes in your project to enable it. First, mount the i18n URLs:{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+from django.urls import include, path
+
+urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
+    # ... your real app URLs
+]{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Second, add <code>LocaleMiddleware</code> to the middleware stack. Order matters: it must come <strong>after</strong> <code>SessionMiddleware</code> and <strong>before</strong> <code>CommonMiddleware</code>:{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    # ... rest as you had it
+]{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+      <p>{% blocktranslate %}Refresh the page and the dropdown shows up in the sidebar with the four supported locales. To expose more or fewer locales, set <code>LANGUAGES</code> in your <code>settings.py</code> — the gallery picks up whatever is configured.{% endblocktranslate %}</p>
+    </section>
+  </article>
+{% endblock %}

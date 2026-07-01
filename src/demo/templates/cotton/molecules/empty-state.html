@@ -1,0 +1,14 @@
+{# @description Friendly placeholder when a list / view has no items yet #}
+{# @prop title:text | default:"Nothing here yet" | description:"Headline shown above the message" #}
+{# @prop message:text | default:"" | description:"Supporting copy under the title" #}
+{# @slot:icon — Optional SVG / icon shown above the title #}
+{# @slot:action — Optional CTA (button or link) shown below the message #}
+
+<c-vars title="Nothing here yet" message="" />
+
+<div class="flex flex-col items-center text-center py-12 px-6 max-w-md mx-auto" {{ attrs }}>
+  {% if icon %}<div class="mb-3 text-gray-400">{{ icon }}</div>{% endif %}
+  <h3 class="text-base font-semibold text-gray-900">{{ title }}</h3>
+  {% if message %}<p class="mt-1 text-sm text-gray-600">{{ message }}</p>{% endif %}
+  {% if action %}<div class="mt-4">{{ action }}</div>{% endif %}
+</div>

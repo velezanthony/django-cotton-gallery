@@ -1,0 +1,160 @@
+/* Design tokens — colors, typography, spacing, shadows.
+   Light theme on :root; dark theme overrides below redefine the same vars. */
+
+/*!
+ * Cotton Gallery — vanilla, self-contained chrome styles
+ * All selectors prefixed `cg-` to avoid colliding with the consumer's CSS.
+ * Theming via CSS custom properties — override `--cg-*` in your own stylesheet.
+ */
+/* ─────────────────────────────────────────────────────────────────────────
+   Tokens
+   Override any of these in your own CSS or in `_extra_head.html`.
+───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --cg-brand-50:  #fff9e5;
+  --cg-brand-300: #ffd46d;
+  --cg-brand-500: #ff9d0a;
+  --cg-brand-600: #ff8500;
+  --cg-brand-700: #cc6102;
+
+  /* Grays */
+  --cg-gray-50:  #fafafa;
+  --cg-gray-100: #f5f5f5;
+  --cg-gray-200: #e9eaeb;
+  --cg-gray-300: #d5d7da;
+  --cg-gray-400: #a4a7ae;
+  --cg-gray-500: #717680;
+  --cg-gray-600: #535862;
+  --cg-gray-700: #414651;
+  --cg-gray-800: #252b37;
+  --cg-gray-900: #181d27;
+  --cg-gray-950: #0a0d12;
+
+  /* Semantic accents */
+  --cg-blue-50:    #eff6ff;
+  --cg-blue-100:   #dbeafe;
+  --cg-blue-500:   #3b82f6;
+  --cg-blue-600:   #2563eb;
+  --cg-blue-700:   #1d4ed8;
+  --cg-red-50:     #fef2f2;
+  --cg-red-400:    #f87171;
+  --cg-red-500:    #ef4444;
+  --cg-red-600:    #dc2626;
+  --cg-red-700:    #b91c1c;
+  --cg-amber-50:   #fffbeb;
+  --cg-amber-600:  #d97706;
+  --cg-amber-700:  #b45309;
+  --cg-green-50:   #f0fdf4;
+  --cg-green-400:  #4ade80;
+  --cg-green-600:  #16a34a;
+  --cg-green-700:  #15803d;
+  --cg-purple-50:  #faf5ff;
+  --cg-purple-600: #9333ea;
+  --cg-purple-700: #7e22ce;
+  --cg-cyan-50:    #ecfeff;
+  --cg-cyan-700:   #0e7490;
+  --cg-indigo-50:  #eef2ff;
+  --cg-indigo-700: #4338ca;
+
+  /* Roles */
+  --cg-bg:              var(--cg-gray-50);
+  --cg-surface:         #ffffff;
+  --cg-text:            var(--cg-gray-900);
+  --cg-text-strong:     var(--cg-gray-900);
+  --cg-text-muted:      var(--cg-gray-500);
+  --cg-text-subtle:     var(--cg-gray-400);
+  --cg-border:          #e5e7eb;
+  --cg-border-strong:   var(--cg-gray-300);
+
+  /* Sidebar */
+  --cg-sidebar:         #0b0f17;
+  --cg-sidebar-light:   rgba(255, 255, 255, 0.05);
+  --cg-sidebar-muted:   #717680;
+  --cg-sidebar-border:  rgba(255, 255, 255, 0.06);
+  --cg-sidebar-accent:  var(--cg-brand-500);
+  --cg-sidebar-text:    #d1d5db;
+
+  /* Typography */
+  --cg-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --cg-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  /* Shape */
+  --cg-radius-sm:   0.25rem;
+  --cg-radius-md:   0.5rem;
+  --cg-radius-lg:   0.75rem;
+  --cg-radius-xl:   1rem;
+  --cg-radius-full: 9999px;
+
+  /* Sizing */
+  --cg-sidebar-width: 16rem;
+  --cg-content-max:   90rem;
+
+  /* Spacing scale — 4/8px rhythm. Multiples chosen to compose cleanly. */
+  --cg-space-1:  0.25rem;   /*  4px */
+  --cg-space-2:  0.5rem;    /*  8px */
+  --cg-space-3:  0.75rem;   /* 12px */
+  --cg-space-4:  1rem;      /* 16px */
+  --cg-space-5:  1.25rem;   /* 20px */
+  --cg-space-6:  1.5rem;    /* 24px */
+  --cg-space-8:  2rem;      /* 32px */
+  --cg-space-10: 2.5rem;    /* 40px */
+  --cg-space-12: 3rem;      /* 48px */
+  --cg-space-16: 4rem;      /* 64px */
+  --cg-space-20: 5rem;      /* 80px */
+
+  /* Shadow stack — Linear-style two-layer drops for body, subtle for chrome.
+     Each layer narrows the falloff so the highlight stays sharp under the
+     widening soft layer. */
+  --cg-shadow-xs:    0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --cg-shadow-sm:    0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.06);
+  --cg-shadow-md:    0 4px 8px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --cg-shadow-lg:    0 12px 24px -8px rgba(15, 23, 42, 0.10), 0 4px 8px -2px rgba(15, 23, 42, 0.06);
+  --cg-shadow-xl:    0 24px 48px -12px rgba(15, 23, 42, 0.16), 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+  --cg-shadow-brand: 0 12px 28px -8px rgba(255, 133, 0, 0.32), 0 4px 8px -2px rgba(255, 133, 0, 0.16);
+
+  /* Motion — same easing across the chrome so transitions read as one system. */
+  --cg-ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --cg-ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  --cg-duration-fast: 120ms;
+  --cg-duration-base: 200ms;
+  --cg-duration-slow: 320ms;
+
+  /* Focus ring — used on every interactive control via :focus-visible. */
+  --cg-ring-offset: var(--cg-bg);
+  --cg-ring-color:  var(--cg-brand-500);
+  --cg-ring:        0 0 0 2px var(--cg-ring-offset), 0 0 0 4px var(--cg-ring-color);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dark theme — overrides only the role tokens. Brand / semantic palettes
+   stay the same so accents stay on-brand across themes. The chrome reads
+   role tokens (--cg-bg, --cg-surface, --cg-text, --cg-border) so most of
+   the surface flips automatically. A few hardcoded gray-* references in
+   hero gradients and card previews stay light by design — those zones use
+   their own tokens for the mesh background.
+───────────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --cg-bg:              #0a0d12;
+  --cg-surface:         #11161f;
+  --cg-text:            #f3f4f6;
+  --cg-text-strong:     #ffffff;
+  --cg-text-muted:      #9ca3af;
+  --cg-text-subtle:     #6b7280;
+  --cg-border:          rgba(255, 255, 255, 0.08);
+  --cg-border-strong:   rgba(255, 255, 255, 0.16);
+
+  /* Gray base tokens are kept as-is on purpose. They're used both as
+     backgrounds AND as text colors across the chrome (e.g. the detail
+     tag-row uses gray-200 for the code text on a gray-900 gradient).
+     Overriding them globally would invert text on already-dark surfaces.
+     The role tokens above cover body / surface / text / border contrast;
+     pockets that read gray-50 directly stay light by design. */
+}
+
+/* color-scheme on the root — tells the browser to paint native form
+   controls (select dropdowns, scrollbars) in dark variants. Without this
+   the <select> options pop open with white background and faint text. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}

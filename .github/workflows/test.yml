@@ -1,0 +1,111 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} • py${{ matrix.python }} × django${{ matrix.django }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        django: ["4.2", "5.0", "5.1", "5.2", "6.0"]
+        exclude:
+          # Django 6.0 requires Python 3.12+
+          - python: "3.10"
+            django: "6.0"
+          - python: "3.11"
+            django: "6.0"
+          # Django 4.2 / 5.0 do not officially support Python 3.13
+          - python: "3.13"
+            django: "4.2"
+          - python: "3.13"
+            django: "5.0"
+        include:
+          # Cross-OS smoke tests: only Python 3.12 × Django LTS pairs.
+          # Detects path-separator, encoding, and case-sensitivity bugs
+          # without ballooning the matrix to 51 jobs.
+          - os: windows-latest
+            python: "3.12"
+            django: "4.2"
+          - os: windows-latest
+            python: "3.12"
+            django: "5.2"
+          - os: macos-latest
+            python: "3.12"
+            django: "4.2"
+          - os: macos-latest
+            python: "3.12"
+            django: "5.2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+
+      - name: Set up Python ${{ matrix.python }}
+        shell: bash
+        run: uv venv --python ${{ matrix.python }}
+
+      - name: Install package + test extras
+        shell: bash
+        run: uv pip install -e ".[test]"
+
+      - name: Pin Django ${{ matrix.django }}
+        shell: bash
+        run: |
+          MAJOR=$(echo ${{ matrix.django }} | cut -d. -f1)
+          MINOR=$(echo ${{ matrix.django }} | cut -d. -f2)
+          NEXT_MINOR=$((MINOR + 1))
+          uv pip install "Django>=${{ matrix.django }},<${MAJOR}.${NEXT_MINOR}"
+
+      - name: Show resolved versions
+        shell: bash
+        run: |
+          uv run --no-sync python --version
+          uv run --no-sync python -c "import django; print(f'Django {django.get_version()}')"
+
+      - name: Install Playwright browser
+        shell: bash
+        run: uv run --no-sync python -m playwright install --with-deps chromium
+
+      - name: Run tests
+        shell: bash
+        run: uv run --no-sync pytest -v --tb=short --cov --cov-report=xml --cov-report=term
+
+      - name: Upload coverage to Codecov
+        # Only upload from one matrix combo to avoid 21x duplicate uploads.
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12' && matrix.django == '5.2'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  matrix-summary:
+    name: All tests passed
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Verify all matrix jobs succeeded
+        run: |
+          if [[ "${{ needs.test.result }}" != "success" ]]; then
+            echo "Matrix has failures"
+            exit 1
+          fi
+          echo "All matrix jobs passed"

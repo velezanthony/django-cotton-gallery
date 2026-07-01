@@ -1,0 +1,19 @@
+{# @description Visual separator — horizontal rule with optional centered label #}
+{# @prop orientation:select['horizontal', 'vertical'] | default:"horizontal" | description:"Layout direction" #}
+{# @prop label:text | default:"" | description:"Optional centered label" #}
+
+<c-vars orientation="horizontal" label="" />
+
+{% if orientation == 'vertical' %}
+  <div class="inline-block w-px h-full bg-gray-200" {{ attrs }} aria-hidden="true"></div>
+{% else %}
+  {% if label %}
+    <div class="flex items-center gap-3 text-xs text-gray-500" {{ attrs }}>
+      <span class="flex-1 h-px bg-gray-200"></span>
+      <span class="uppercase tracking-wide">{{ label }}</span>
+      <span class="flex-1 h-px bg-gray-200"></span>
+    </div>
+  {% else %}
+    <hr class="border-0 h-px bg-gray-200" {{ attrs }}>
+  {% endif %}
+{% endif %}

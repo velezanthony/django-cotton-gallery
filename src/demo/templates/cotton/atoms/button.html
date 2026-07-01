@@ -1,0 +1,26 @@
+{# @description Primary action button with variants and loading state #}
+{# @prop variant:select['primary', 'secondary', 'danger', 'ghost'] | default:"primary" | description:"Visual style" #}
+{# @prop size:select['sm', 'md', 'lg'] | default:"md" | description:"Size scale" #}
+{# @prop loading:boolean | default:False | description:"Show loading spinner" #}
+{# @slot Click me — Button label #}
+
+<c-vars variant="primary" size="md" loading=False />
+
+<button
+  class="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition
+         {% if size == 'sm' %}px-3 py-1.5 text-sm{% elif size == 'lg' %}px-6 py-3 text-base{% else %}px-4 py-2 text-sm{% endif %}
+         {% if variant == 'primary' %}bg-indigo-600 text-white hover:bg-indigo-700{% endif %}
+         {% if variant == 'secondary' %}bg-gray-100 text-gray-900 hover:bg-gray-200{% endif %}
+         {% if variant == 'danger' %}bg-red-600 text-white hover:bg-red-700{% endif %}
+         {% if variant == 'ghost' %}bg-transparent text-gray-700 hover:bg-gray-100{% endif %}"
+  {% if loading %}disabled{% endif %}
+  {{ attrs }}
+>
+  {% if loading %}
+    <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+    </svg>
+  {% endif %}
+  {{ slot }}
+</button>

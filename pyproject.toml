@@ -1,0 +1,176 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-cotton-gallery"
+version = "0.1.0"
+description = "Drop-in playground for Django Cotton component libraries — annotated, copy-and-pasteable, themable."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Anthony Velez Tapia", email = "velezanthony2000@gmail.com" },
+]
+keywords = ["django", "cotton", "components", "gallery", "playground", "tailwind"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "django>=4.2,<7.0",
+    "django-cotton>=2.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.0",
+    "pytest-playwright>=0.5",
+]
+typecheck = [
+    "mypy>=1.13",
+    "django-stubs>=5.1",
+]
+dev = [
+    "django-cotton-gallery[test,docs]",
+    "tox>=4.0",
+    "build>=1.0",
+    "twine>=5.0",
+    "ruff>=0.15",
+    "pre-commit>=3.0",
+    "polib>=1.2.0",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "pymdown-extensions>=10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/velezanthony/django-cotton-gallery"
+Documentation = "https://velezanthony.github.io/django-cotton-gallery/"
+Issues = "https://github.com/velezanthony/django-cotton-gallery/issues"
+Changelog = "https://github.com/velezanthony/django-cotton-gallery/blob/main/CHANGELOG.md"
+
+[tool.hatch.build]
+# The dropdown timeline recorder is an internal dev aid for people working ON
+# the gallery. It stays in the repo (base.html loads it only with ?cgdebug=1)
+# but is excluded from the published wheel/sdist — end users never need it.
+exclude = [
+    "**/_debug_dropdowns.js",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/django_cotton_gallery"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/django_cotton_gallery",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+python_files = ["test_*.py"]
+testpaths = ["src/tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["src/django_cotton_gallery"]
+branch = true
+omit = [
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+precision = 1
+show_missing = true
+skip_covered = false
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "pragma: no cover",
+    "@(abc\\.)?abstractmethod",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+plugins = ["mypy_django_plugin.main"]
+files = ["src/django_cotton_gallery"]
+# Django-stubs typings aren't perfect; relax the most painful rules.
+disallow_any_explicit = false
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = "django_cotton.*"
+ignore_missing_imports = true
+
+# Django templatetag callbacks receive an opaque parser/token from Django's
+# template engine — typing them strictly is more friction than value.
+[[tool.mypy.overrides]]
+module = "django_cotton_gallery.templatetags.*"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+[tool.django-stubs]
+django_settings_module = "tests.settings"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src"]
+extend-exclude = ["src/demo"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "UP",     # pyupgrade
+    "SIM",    # flake8-simplify
+    "C4",     # flake8-comprehensions
+    "DJ",     # flake8-django
+    "RUF",    # ruff-specific
+]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "B008",   # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/tests/**" = [
+    "S101",   # use of assert
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["django_cotton_gallery"]

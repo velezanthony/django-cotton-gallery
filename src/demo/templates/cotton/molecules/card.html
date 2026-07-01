@@ -1,0 +1,26 @@
+{# @description Content card with title, body slot, and optional actions #}
+{# @prop title:text | required | description:"Card heading" #}
+{# @prop subtitle:text | default:"" | description:"Optional subtitle below the title" #}
+{# @slot Card body — Main content area #}
+{# @slot:actions — Top-right action buttons #}
+{# @slot:footer — Optional footer content (separated by a divider) #}
+
+<c-vars title subtitle="" />
+
+<article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" {{ attrs }}>
+  <header class="flex items-start justify-between gap-4 p-6 border-b border-gray-100">
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+      {% if subtitle %}
+        <p class="mt-1 text-sm text-gray-500">{{ subtitle }}</p>
+      {% endif %}
+    </div>
+    <div class="flex items-center gap-2">{{ actions }}</div>
+  </header>
+  <div class="p-6">{{ slot }}</div>
+  {% if footer %}
+    <footer class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-sm text-gray-600">
+      {{ footer }}
+    </footer>
+  {% endif %}
+</article>

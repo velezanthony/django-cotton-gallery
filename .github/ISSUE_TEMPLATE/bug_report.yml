@@ -1,0 +1,85 @@
+name: Bug report
+description: Something doesn't work as expected.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+        Please fill in as much detail as you can — the more specific, the faster it gets fixed.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of what's wrong.
+      placeholder: When I do X, I see Y, but I expected Z.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: |
+        Steps to reproduce. Include a minimal component / setting that triggers the bug if relevant.
+      placeholder: |
+        1. Create a component with `{# @prop variant:select['a','b'] | default:"a" #}`
+        2. Visit /gallery/cotton/atoms/foo/
+        3. Notice that …
+    validations:
+      required: true
+
+  - type: input
+    id: package-version
+    attributes:
+      label: django-cotton-gallery version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: django-version
+    attributes:
+      label: Django version
+      placeholder: "5.2"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.12"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback / console output
+      description: Paste any relevant error message or stack trace.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight checks
+      options:
+        - label: I've searched existing issues and confirmed this is not a duplicate.
+          required: true
+        - label: I've reproduced this on the latest released version.
+          required: true

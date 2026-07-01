@@ -1,0 +1,4106 @@
+/* Preview surface — stage, viewport / background switchers, controls panel,
+   tabs, dropdowns, autocomplete, intellisense popover, variants matrix,
+   slot editor textarea + overlay. */
+
+/* Style the <option> rows inside .cg-select so the dropdown matches
+   the surrounding panel even on browsers that ignore color-scheme. */
+[data-theme="dark"] .cg-select option {
+  background: #11161f;
+  color: var(--cg-text);
+}
+
+/* Controls panel + tabs */
+[data-theme="dark"] .cg-controls { background: rgba(255, 255, 255, 0.02); }
+
+[data-theme="dark"] .cg-controls__header { background: var(--cg-surface); }
+
+[data-theme="dark"] .cg-tabs__list { border-bottom-color: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-tabs__btn:hover { background: rgba(255, 255, 255, 0.04); }
+
+[data-theme="dark"] .cg-tabs__count { background: rgba(255, 255, 255, 0.10); color: rgba(255, 255, 255, 0.78); }
+
+[data-theme="dark"] .cg-tabs__btn.cg-active .cg-tabs__count { background: rgba(255, 157, 10, 0.28); color: #ffd28a; }
+
+[data-theme="dark"] .cg-tabs__panel { background: var(--cg-surface); border-color: rgba(255, 255, 255, 0.06); }
+
+/* Form controls — keep inputs readable with native bg overrides */
+[data-theme="dark"] .cg-input,
+[data-theme="dark"] .cg-select,
+[data-theme="dark"] .cg-textarea {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--cg-text);
+}
+
+[data-theme="dark"] .cg-input::placeholder,
+[data-theme="dark"] .cg-textarea::placeholder { color: var(--cg-text-subtle); }
+
+[data-theme="dark"] .cg-input:focus,
+[data-theme="dark"] .cg-select:focus,
+[data-theme="dark"] .cg-textarea:focus {
+  border-color: var(--cg-brand-500);
+  box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Preview + Controls
+───────────────────────────────────────────────────────────────────────── */
+.cg-preview-card {
+  background: var(--cg-surface);
+  border-radius: var(--cg-radius-xl);
+  border: 1px solid var(--cg-border);
+  box-shadow: var(--cg-shadow-lg);
+  /* `clip` instead of `hidden` so the rounded corners still mask children
+     without creating a scroll context — sticky on .cg-controls relies on
+     this card NOT being a scroll container to stay anchored to the viewport
+     while the user scrolls past the preview. */
+  overflow: clip;
+  margin-bottom: var(--cg-space-8);
+}
+
+.cg-preview-row { display: flex; flex-direction: column; }
+
+/* Desktop split — preview and controls side-by-side. The breakpoint matches
+   the one used for the sidebar layout in base.css so they switch in lockstep. */
+@media (min-width: 1024px) {
+  .cg-preview-row { flex-direction: row; }
+}
+
+.cg-preview {
+  flex: 1;
+  min-width: 0;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cg-preview__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--cg-surface);
+  border-bottom: 1px solid var(--cg-gray-100);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.cg-preview__vp-switcher,
+.cg-preview__bg-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1875rem;
+  background: var(--cg-gray-50);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+}
+
+.cg-preview__switcher-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--cg-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 0.25rem 0 0.375rem;
+}
+
+/* Background swatches */
+.cg-bg-btn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--cg-radius-sm);
+  border: 1px solid var(--cg-border-strong);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.cg-bg-btn:hover { transform: scale(1.08); }
+
+.cg-bg-btn.cg-active {
+  box-shadow: 0 0 0 2px var(--cg-brand-500);
+  border-color: var(--cg-brand-500);
+}
+
+.cg-bg-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--cg-brand-500), 0 0 0 4px rgba(255, 157, 10, 0.25);
+}
+
+.cg-bg-btn[data-cg-bg="checkered"] {
+  background-color: white;
+  background-image:
+    linear-gradient(45deg, var(--cg-gray-300) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--cg-gray-300) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--cg-gray-300) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--cg-gray-300) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.cg-bg-btn[data-cg-bg="white"] { background: white; }
+
+.cg-bg-btn[data-cg-bg="dark"]  { background: var(--cg-gray-900); }
+
+.cg-bg-btn[data-cg-bg="brand"] { background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600)); }
+
+/* Viewport size buttons */
+.cg-vp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.375rem;
+  border-radius: var(--cg-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cg-vp-btn svg { width: 0.875rem; height: 0.875rem; pointer-events: none; }
+
+.cg-vp-btn:hover { background: var(--cg-surface); color: var(--cg-text-strong); }
+
+.cg-vp-btn.cg-active {
+  background: var(--cg-surface);
+  color: var(--cg-brand-600);
+  border-color: var(--cg-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.cg-vp-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--cg-brand-500), 0 0 0 4px rgba(255, 157, 10, 0.25);
+}
+
+/* View switcher — sits next to the bg/viewport switchers in the toolbar.
+   Same segmented-pill look as the viewport switcher. Hidden by default;
+   JS unhides it only when the component has at least one enum prop. */
+.cg-preview__view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1875rem;
+  background: var(--cg-gray-50);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+}
+
+.cg-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.375rem;
+  border-radius: var(--cg-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-view-btn svg { width: 0.875rem; height: 0.875rem; pointer-events: none; }
+
+.cg-view-btn:hover { background: var(--cg-surface); color: var(--cg-gray-900); }
+
+.cg-view-btn.cg-active {
+  background: var(--cg-surface);
+  color: var(--cg-brand-600);
+  border-color: var(--cg-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.cg-view-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--cg-brand-500), 0 0 0 4px rgba(255, 157, 10, 0.25);
+}
+
+/* Variants matrix — table with axis labels in the first row/column and
+   a rendered component in each cell. Cells are lazy-loaded as they
+   scroll into view via IntersectionObserver. */
+.cg-preview__matrix {
+  flex: 1;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+  overflow: auto;
+  padding: var(--cg-space-5);
+}
+
+.cg-matrix {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.cg-matrix th, .cg-matrix td { padding: var(--cg-space-3); }
+
+.cg-matrix thead th {
+  position: sticky;
+  top: calc(var(--cg-space-5) * -1);
+  background: var(--cg-gray-50);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  border-bottom: 1px solid var(--cg-border);
+}
+
+.cg-matrix tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--cg-gray-50);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: right;
+  white-space: nowrap;
+  border-right: 1px solid var(--cg-border);
+}
+
+.cg-matrix__corner {
+  font-family: var(--cg-font-mono);
+  text-transform: none !important;
+  font-size: 0.625rem !important;
+  letter-spacing: 0 !important;
+  color: var(--cg-brand-600) !important;
+}
+
+.cg-matrix-cell {
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  padding: var(--cg-space-4);
+  min-width: 11rem;
+  min-height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cg-matrix-cell .cg-spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-width: 1.5px;
+}
+
+.cg-matrix-empty {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--cg-text-muted);
+  padding: var(--cg-space-12);
+}
+
+/* Axis picker — two compact selects above the grid that let the user
+   choose which two discrete props become the Y/X axes. The X "—" option
+   collapses the grid to a single column. */
+.cg-matrix__picker {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  padding: 0 0 var(--cg-space-4);
+  margin-bottom: var(--cg-space-4);
+  border-bottom: 1px dashed var(--cg-border);
+}
+
+.cg-matrix__picker-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cg-matrix__picker-label {
+  font-family: var(--cg-font-mono);
+  color: var(--cg-brand-600);
+}
+.cg-matrix__picker-field .cg-mini-select__trigger {
+  min-width: 5rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+[data-theme="dark"] .cg-matrix__picker { border-bottom-color: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-preview__matrix { background: rgba(255, 255, 255, 0.02); }
+
+[data-theme="dark"] .cg-matrix thead th,
+[data-theme="dark"] .cg-matrix tbody th { background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-matrix-cell { background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.06); }
+
+/* Rendered area = "workspace" outside the device frame */
+.cg-preview__rendered {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+  overflow: auto;
+}
+
+/* Device frame — wraps the stage with a chromeful header so the rendered
+   component reads as something running "inside an app" instead of floating
+   on the workspace. The viewport switcher targets this wrapper now. */
+.cg-preview__device {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  box-shadow: var(--cg-shadow-md);
+  transition: max-width var(--cg-duration-slow) var(--cg-ease-out);
+}
+
+.cg-preview__chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(180deg, #fafafa, #f3f4f6);
+  border-bottom: 1px solid var(--cg-border);
+  flex-shrink: 0;
+}
+
+.cg-preview__chrome-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.cg-preview__chrome-dot--red    { background: #ff5f57; }
+
+.cg-preview__chrome-dot--yellow { background: #febc2e; }
+
+.cg-preview__chrome-dot--green  { background: #28c840; }
+
+/* Stage = the actual device viewport. Holds the rendered component, has the user's bg. */
+.cg-preview__stage {
+  flex: 0 1 auto;
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid transparent;
+  transition: max-width 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+  /* Default — checkered. data-cg-bg variants below override. */
+  background-image:
+    linear-gradient(45deg, var(--cg-gray-100) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--cg-gray-100) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--cg-gray-100) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--cg-gray-100) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.cg-preview__stage[data-cg-bg="checkered"] {
+  background-color: transparent;
+  background-image:
+    linear-gradient(45deg, var(--cg-gray-100) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--cg-gray-100) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--cg-gray-100) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--cg-gray-100) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  border-color: var(--cg-border);
+}
+
+.cg-preview__stage[data-cg-bg="white"] {
+  background: white;
+  border-color: var(--cg-border);
+}
+
+.cg-preview__stage[data-cg-bg="dark"] {
+  background: var(--cg-gray-900);
+  border-color: var(--cg-gray-800);
+}
+
+.cg-preview__stage[data-cg-bg="brand"] {
+  background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600));
+  border-color: var(--cg-brand-700);
+}
+
+/* Viewport sizes — applied to the device wrapper so the chrome resizes too */
+.cg-preview__device[data-cg-viewport="mobile"]  { max-width: 375px; }
+
+.cg-preview__device[data-cg-viewport="tablet"]  { max-width: 768px; }
+
+.cg-preview__device[data-cg-viewport="desktop"] { max-width: 1280px; }
+
+.cg-preview__device[data-cg-viewport="full"]    { max-width: 100%; }
+
+.cg-preview__code {
+  background: var(--cg-gray-950);
+  padding: 0.625rem 1rem 0.75rem;
+}
+
+.cg-preview__code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
+.cg-preview__code-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--cg-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cg-preview__code-label svg { width: 0.75rem; height: 0.75rem; }
+
+.cg-preview__code-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-gray-500);
+  transition: background 0.15s, color 0.15s;
+}
+
+.cg-preview__code-copy svg { width: 0.75rem; height: 0.75rem; }
+
+.cg-preview__code-copy:hover { color: var(--cg-gray-300); background: var(--cg-gray-800); }
+
+.cg-preview__code-copy.cg-copied { color: var(--cg-green-400); background: rgba(74, 222, 128, 0.2); }
+
+.cg-preview__code pre { margin: 0; overflow-x: auto; }
+
+.cg-preview__code code {
+  font-size: 0.8125rem;
+  color: #6ee7b7;
+  font-family: var(--cg-font-mono);
+}
+
+.cg-preview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: var(--cg-text-subtle);
+  font-size: 0.75rem;
+  gap: 0.5rem;
+}
+
+.cg-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--cg-blue-500);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: cg-spin 0.8s linear infinite;
+}
+
+.cg-preview-error {
+  font-size: 0.875rem;
+  color: var(--cg-red-500);
+}
+
+.cg-controls {
+  width: 100%;
+  border-top: 1px solid var(--cg-border);
+  background: var(--cg-gray-50);
+}
+
+/* Desktop: fix width and switch to a left border so controls become the
+   right column of the preview-row split. `flex: 0 0 22rem` (no grow, no
+   shrink, fixed basis) prevents the preview column from squashing the
+   panel — without this `width: 22rem` alone gets shrunk by the flex
+   container when the stage wants to be wide. */
+@media (min-width: 1024px) {
+  .cg-controls {
+    flex: 0 0 22rem;
+    width: 22rem;
+    border-top: none;
+    border-left: 1px solid var(--cg-border);
+  }
+}
+
+.cg-controls__header {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--cg-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--cg-surface);
+}
+
+.cg-controls__title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--cg-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cg-controls__count { font-size: 0.625rem; color: var(--cg-text-subtle); }
+
+.cg-controls__form {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.cg-control { display: flex; flex-direction: column; gap: 0.25rem; }
+
+/* Custom dropdown for enum props — search-filterable list, fixed-positioned
+   menu so it escapes the preview-card's overflow:clip. The hidden input
+   carries the value into the form, with data-cg-instant to skip debouncing
+   in the preview handler. */
+.cg-dropdown { position: relative; width: 100%; }
+
+.cg-dropdown__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--cg-surface);
+  color: var(--cg-text);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: -0.005em;
+  transition: border-color var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-dropdown__trigger:hover { border-color: var(--cg-gray-400); }
+
+.cg-dropdown__trigger:focus-visible,
+.cg-dropdown__trigger[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--cg-blue-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.cg-dropdown__trigger-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cg-dropdown__trigger-chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-dropdown__trigger[aria-expanded="true"] .cg-dropdown__trigger-chevron { transform: rotate(180deg); }
+
+.cg-dropdown__menu {
+  /* Position is set by JS on open via getBoundingClientRect — `fixed` so
+     the menu floats above any ancestor's overflow:clip / sticky context. */
+  position: fixed;
+  z-index: 60;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-xl);
+  display: flex;
+  flex-direction: column;
+  max-height: 18rem;
+  overflow: hidden;
+  animation: cg-lang-pop 160ms var(--cg-ease-out);
+}
+
+.cg-dropdown__search-wrap {
+  position: relative;
+  border-bottom: 1px solid var(--cg-border);
+}
+
+.cg-dropdown__search-icon {
+  position: absolute;
+  left: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--cg-text-subtle);
+  pointer-events: none;
+}
+
+.cg-dropdown__search {
+  width: 100%;
+  padding: 0.5rem 0.5rem 0.5rem 1.875rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  background: transparent;
+  border: 0;
+  color: var(--cg-text);
+  outline: none;
+  letter-spacing: -0.005em;
+}
+
+.cg-dropdown__search::placeholder { color: var(--cg-text-subtle); }
+
+.cg-dropdown__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cg-gray-300) transparent;
+}
+
+.cg-dropdown__list::-webkit-scrollbar { width: 6px; }
+
+.cg-dropdown__list::-webkit-scrollbar-thumb { background: var(--cg-gray-300); border-radius: var(--cg-radius-full); }
+
+.cg-dropdown__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-dropdown__item:hover,
+.cg-dropdown__item.cg-highlighted {
+  background: var(--cg-gray-100);
+}
+
+.cg-dropdown__item[aria-selected="true"] {
+  color: var(--cg-brand-700);
+  font-weight: 600;
+}
+
+.cg-dropdown__item-check {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  color: var(--cg-brand-500);
+  flex-shrink: 0;
+}
+
+.cg-dropdown__empty {
+  margin: 0;
+  padding: 0.875rem 0.625rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+
+/* Dark mode */
+[data-theme="dark"] .cg-dropdown__menu {
+  background: #11161f;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-dropdown__search-wrap { border-bottom-color: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-dropdown__item:hover,
+[data-theme="dark"] .cg-dropdown__item.cg-highlighted { background: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-dropdown__item[aria-selected="true"] { color: var(--cg-brand-400, #ffb632); }
+
+.cg-control--attrs .cg-attrs__input { font-family: var(--cg-font-mono, ui-monospace, SFMono-Regular, monospace); font-size: 0.75rem; }
+
+/* The attrs input is a `<div contenteditable>` so syntax-highlight tokens
+   render live in-place. CSS pins it to a single-line input look:
+   `white-space: pre` + `overflow-x: auto` keep it scrolling horizontally,
+   and the line-height / padding match the height of a real `<input>`. */
+div.cg-attrs__input[contenteditable] {
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+  line-height: 1.5;
+  height: calc(1.5em + 0.75rem + 2px);
+  min-height: 0;
+  cursor: text;
+  caret-color: var(--cg-brand-500);
+}
+
+/* Placeholder for the contenteditable when empty: data attribute rendered
+   via ::before, fades out as soon as the user types anything. */
+div.cg-attrs__input[contenteditable]:empty::before {
+  content: attr(data-cg-placeholder);
+  color: var(--cg-text-muted);
+  pointer-events: none;
+}
+
+div.cg-attrs__input[contenteditable]:focus {
+  outline: none;
+  border-color: var(--cg-blue-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Expanded state — toggled by the attrs expand button. Lets the field grow
+   to multiple lines without opening the modal, useful for medium-length
+   attribute strings that don't justify a full-screen modal. */
+div.cg-attrs__input[contenteditable].cg-attrs__input--expanded {
+  white-space: pre-wrap;
+  height: auto;
+  min-height: 6rem;
+  max-height: 16rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cg-attrs { position: relative; }
+
+.cg-attrs__menu {
+  position: fixed;
+  z-index: 60;
+  /* Caret-anchored: width is content-driven now (no matchAnchorWidth). Set
+     a sensible min/max so the popover doesn't shrink to a single token's
+     width or grow off-screen. */
+  min-width: 18rem;
+  max-width: min(28rem, calc(100vw - 2rem));
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-xl);
+  max-height: 20rem;
+  overflow-y: auto;
+  padding: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cg-gray-300) transparent;
+  animation: cg-lang-pop 140ms var(--cg-ease-out);
+}
+
+.cg-attrs__menu::-webkit-scrollbar { width: 6px; }
+
+.cg-attrs__menu::-webkit-scrollbar-thumb { background: var(--cg-gray-300); border-radius: var(--cg-radius-full); }
+
+.cg-attrs__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.4375rem 0.625rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-attrs__item:hover,
+.cg-attrs__item.cg-highlighted { background: var(--cg-gray-100); }
+
+.cg-attrs__token {
+  font-family: var(--cg-font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.75rem;
+  color: var(--cg-purple-700);
+  background: var(--cg-purple-50);
+  padding: 0.0625rem 0.375rem;
+  border-radius: var(--cg-radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cg-attrs__desc {
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cg-attrs__empty {
+  margin: 0;
+  padding: 0.875rem 0.625rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+
+[data-theme="dark"] .cg-attrs__menu {
+  background: #11161f;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-attrs__item:hover,
+[data-theme="dark"] .cg-attrs__item.cg-highlighted { background: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-attrs__token {
+  color: #d4b3ff;
+  background: rgba(168, 85, 247, 0.15);
+}
+
+.cg-input, .cg-select, .cg-textarea {
+  width: 100%;
+  font-size: 0.875rem;
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+  padding: 0.375rem 0.625rem;
+  font-family: inherit;
+  background: var(--cg-surface);
+  outline: none;
+}
+
+.cg-input:focus, .cg-select:focus, .cg-textarea:focus {
+  border-color: var(--cg-blue-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.cg-textarea { font-family: var(--cg-font-mono); font-size: 0.75rem; resize: vertical; line-height: 1.5; tab-size: 2; }
+
+.cg-textarea--expanded { min-height: 18rem; }
+
+.cg-textarea__expand {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out),
+              color var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-textarea__expand:hover { background: var(--cg-gray-100); color: var(--cg-gray-900); }
+
+.cg-textarea__expand svg { width: 0.75rem; height: 0.75rem; }
+
+.cg-textarea__expand[aria-pressed="true"] { background: var(--cg-gray-100); color: var(--cg-brand-600); }
+
+[data-theme="dark"] .cg-textarea__expand:hover,
+[data-theme="dark"] .cg-textarea__expand[aria-pressed="true"] { background: rgba(255, 255, 255, 0.06); }
+
+.cg-control--slot { padding-top: 0.75rem; border-top: 1px solid var(--cg-border); }
+
+/* Slot editor + intellisense — typing `<` in a slot textarea opens a
+   popover with HTML tag + Cotton component suggestions. The menu uses
+   position:fixed so it can flip above the textarea when the slot is
+   near the bottom of the viewport. */
+/* Highlight overlay alignment: textarea is in normal flow (its rows attribute
+   + resize handle dictate the editor's height), the pre is absolutely-
+   positioned and stretches to fill the parent — guaranteed pixel-exact
+   overlap. CSS Grid with `grid-area: 1/1` had subtle vertical-rhythm bugs
+   on Chrome where the pre rendered text 1 line below the textarea's caret. */
+.cg-slot-editor { position: relative; }
+
+.cg-slot-editor > .cg-slot-highlight {
+  position: absolute;
+  inset: 0;
+}
+
+.cg-slot-editor > .cg-textarea[data-cg-slot-textarea] {
+  position: relative;
+  display: block;
+  z-index: 1;
+}
+
+/* Critical: pre + textarea must share EVERY box-model and text-flow property
+   so each char in the overlay aligns under the same char in the textarea.
+   Mismatches as small as 1px on padding shift everything. */
+.cg-slot-highlight {
+  margin: 0;
+  pointer-events: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-surface);
+  color: var(--cg-text);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  tab-size: 2;
+  z-index: 0;
+}
+
+.cg-slot-highlight::-webkit-scrollbar { display: none; }
+
+.cg-slot-highlight code {
+  font: inherit;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  display: block;
+  white-space: inherit;
+}
+
+/* Highlighted textarea: sits on top of the overlay with transparent text +
+   transparent background. The caret-color rule keeps the cursor visible. */
+.cg-textarea[data-cg-slot-textarea].cg-textarea--highlighted {
+  background: transparent !important;
+  color: transparent;
+  /* Brand-orange caret stays visible against both light and dark themes. */
+  caret-color: var(--cg-brand-500);
+  box-sizing: border-box;
+}
+
+.cg-textarea[data-cg-slot-textarea].cg-textarea--highlighted::selection {
+  background: rgba(255, 157, 10, 0.25);
+  color: transparent;
+}
+
+[data-theme="dark"] .cg-slot-highlight {
+  background: transparent;
+  color: var(--cg-text);
+}
+
+[data-theme="dark"] .cg-textarea[data-cg-slot-textarea].cg-textarea--highlighted::selection {
+  background: rgba(255, 182, 50, 0.3);
+}
+
+
+.cg-intellisense {
+  position: fixed;
+  z-index: 60;
+  /* Caret-anchored width — see the equivalent block on .cg-attrs__menu. */
+  min-width: 22rem;
+  max-width: min(36rem, calc(100vw - 2rem));
+  max-height: 14rem;
+  overflow-y: auto;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-xl);
+  padding: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cg-gray-300) transparent;
+  animation: cg-lang-pop 140ms var(--cg-ease-out);
+}
+
+.cg-intellisense::-webkit-scrollbar { width: 6px; }
+
+.cg-intellisense::-webkit-scrollbar-thumb { background: var(--cg-gray-300); border-radius: var(--cg-radius-full); }
+
+.cg-intellisense__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out);
+}
+
+.cg-intellisense__item:hover,
+.cg-intellisense__item.cg-highlighted { background: var(--cg-gray-100); }
+
+.cg-intellisense__icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono, ui-monospace, monospace);
+}
+
+.cg-intellisense__icon--html   { color: var(--cg-blue-700);   background: var(--cg-blue-50); }
+
+.cg-intellisense__icon--cotton { color: var(--cg-purple-700); background: var(--cg-purple-50); }
+
+.cg-intellisense__icon--prop   { color: var(--cg-amber-700, #b45309); background: var(--cg-amber-50, #fffbeb); width: auto; min-width: 1.875rem; padding: 0 0.25rem; }
+
+.cg-intellisense__icon--value  { color: var(--cg-green-700); background: var(--cg-green-50); width: auto; min-width: 1.875rem; padding: 0 0.25rem; }
+
+.cg-intellisense__icon--css    { color: var(--cg-cyan-700, #0e7490); background: var(--cg-cyan-50, #ecfeff); width: auto; min-width: 1.875rem; padding: 0 0.25rem; }
+
+.cg-intellisense__tag {
+  font-family: var(--cg-font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--cg-text);
+  background: transparent;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cg-intellisense__desc {
+  flex: 1;
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cg-intellisense__empty {
+  margin: 0;
+  padding: 0.875rem 0.625rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+
+[data-theme="dark"] .cg-intellisense {
+  background: #11161f;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-intellisense__item:hover,
+[data-theme="dark"] .cg-intellisense__item.cg-highlighted { background: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .cg-intellisense__icon--html   { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
+
+[data-theme="dark"] .cg-intellisense__icon--cotton { color: #d4b3ff; background: rgba(168, 85, 247, 0.15); }
+
+[data-theme="dark"] .cg-intellisense__icon--prop   { color: #fbbf24; background: rgba(251, 191, 36, 0.15); }
+
+[data-theme="dark"] .cg-intellisense__icon--value  { color: #4ade80; background: rgba(74, 222, 128, 0.15); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Tabs (props/slots/source)
+───────────────────────────────────────────────────────────────────────── */
+.cg-tabs { margin-bottom: 2rem; }
+
+.cg-tabs__list {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  border-bottom: 1px solid var(--cg-border);
+  padding: 0 0.25rem;
+  /* Animated underline that slides between active tabs. JS reads each tab's
+     getBoundingClientRect on activation and writes --cg-tab-x / --cg-tab-w
+     onto this list — the ::after below tweens between values. */
+  --cg-tab-x: 0;
+  --cg-tab-w: 0;
+}
+
+.cg-tabs__list::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  width: var(--cg-tab-w);
+  transform: translateX(var(--cg-tab-x));
+  background: var(--cg-brand-500);
+  border-radius: 2px 2px 0 0;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out),
+              width var(--cg-duration-base) var(--cg-ease-out),
+              opacity var(--cg-duration-base) var(--cg-ease-out);
+  pointer-events: none;
+}
+
+.cg-tabs__list:not(.cg-tabs__list--ready)::after { opacity: 0; }
+
+.cg-tabs__btn {
+  padding: var(--cg-space-3) var(--cg-space-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--cg-text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  border-radius: var(--cg-radius-md) var(--cg-radius-md) 0 0;
+  letter-spacing: -0.005em;
+}
+
+.cg-tabs__btn:hover { color: var(--cg-text-strong); background: var(--cg-gray-50); }
+
+.cg-tabs__btn:focus-visible { outline: none; box-shadow: var(--cg-ring); }
+
+.cg-tabs__btn.cg-active {
+  color: var(--cg-brand-600);
+  background: transparent;
+}
+
+.cg-tabs__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: var(--cg-gray-100);
+  color: var(--cg-text-muted);
+  border-radius: var(--cg-radius-full);
+}
+
+.cg-tabs__btn.cg-active .cg-tabs__count { background: var(--cg-brand-50); color: var(--cg-brand-700); }
+
+.cg-tabs__panel {
+  background: var(--cg-surface);
+  border-radius: 0 0 var(--cg-radius-xl) var(--cg-radius-xl);
+  border: 1px solid var(--cg-border);
+  border-top: none;
+  overflow: hidden;
+}
+
+.cg-app.cg-loading::before {
+  opacity: 1;
+  animation: cg-loading-bar 1s ease-in-out infinite;
+}
+
+.cg-app.cg-loading .cg-main {
+  opacity: 0.6;
+  transition: opacity 0.15s 0.1s;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Editor maximize modal
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-editor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.cg-editor-modal[hidden] { display: none; }
+
+.cg-editor-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 23, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cg-editor-modal__panel {
+  position: relative;
+  width: min(960px, 100%);
+  height: min(680px, calc(100vh - 3rem));
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-lg);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35),
+              0 8px 16px -4px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cg-editor-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0.875rem 0.625rem 1.125rem;
+  border-bottom: 1px solid var(--cg-border);
+  background: var(--cg-gray-50);
+  flex-shrink: 0;
+}
+
+.cg-editor-modal__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cg-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.cg-editor-modal__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.cg-editor-modal__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  color: var(--cg-text-secondary);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-editor-modal__action:hover {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: var(--cg-brand-300);
+}
+
+.cg-editor-modal__action svg { width: 0.875rem; height: 0.875rem; }
+
+.cg-editor-modal__sep {
+  width: 1px;
+  height: 1.25rem;
+  background: var(--cg-border);
+  margin: 0 0.25rem;
+}
+
+.cg-editor-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-md);
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-editor-modal__close:hover { background: var(--cg-gray-100); color: var(--cg-text-primary); }
+
+.cg-editor-modal__close svg { width: 1rem; height: 1rem; }
+
+/* ── Footer with stats + keyboard shortcuts ────────────────────────────── */
+.cg-editor-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--cg-border);
+  background: var(--cg-gray-50);
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+}
+
+.cg-editor-modal__stats,
+.cg-editor-modal__shortcuts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-editor-modal__stats-sep { color: var(--cg-border-strong); }
+
+.cg-editor-modal__shortcuts kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: 4px;
+  font-family: var(--cg-font-mono);
+  font-size: 0.625rem;
+  color: var(--cg-text-secondary);
+}
+
+.cg-editor-modal__slot {
+  flex: 1;
+  min-height: 0;          /* allow children to shrink below content size */
+  overflow: hidden;
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* When a control is moved into the modal it gets `.cg-editor--maximized`. */
+.cg-editor-modal__slot > .cg-editor--maximized {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Hide the entire in-control head inside the modal — its functions (format,
+   expand, maximize, info, tag, label) are either redundant with the modal's
+   own header or no-ops in maximized state. */
+.cg-editor-modal__slot > .cg-editor--maximized > .cg-control__head,
+.cg-editor-modal__slot > .cg-editor--maximized > .cg-control__hint {
+  display: none;
+}
+
+/* Inner editor takes the full panel height. */
+.cg-editor--maximized .cg-attrs[data-cg-attrs-editor],
+.cg-editor--maximized .cg-slot-editor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cg-editor--maximized .cg-attrs[data-cg-attrs-editor] > .cg-attrs__input[contenteditable] {
+  flex: 1;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  white-space: pre-wrap;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cg-editor--maximized .cg-slot-editor textarea[data-cg-slot-textarea],
+.cg-editor--maximized .cg-slot-editor .cg-slot-highlight {
+  flex: 1;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+}
+
+/* ── Inline info button + bubble tooltip ──────────────────────────────────
+   Used to compress long help text (the `{{ attrs }}` pass-through hint, etc.)
+   into an `i` icon. Pure CSS — no JS positioning. The bubble is absolutely
+   positioned BELOW the icon and flips above when there's no room. */
+.cg-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cg-text-muted);
+  cursor: help;
+  transition: color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-info:hover, .cg-info:focus-visible { color: var(--cg-brand-500); outline: none; }
+
+.cg-info svg { width: 0.875rem; height: 0.875rem; }
+
+.cg-info__bubble {
+  /* `position: fixed` escapes overflow-hidden ancestors (the controls panel
+     has overflow-y: auto, which clips position:absolute descendants too).
+     `top` and `right` are set by tooltip.js on hover. */
+  position: fixed;
+  z-index: 200;
+  width: max-content;
+  max-width: 22rem;
+  padding: 0.625rem 0.75rem;
+  background: #0a0d12;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 157, 10, 0.18);
+  border-radius: var(--cg-radius-md);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4),
+              0 4px 8px -2px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-2px);
+  transition: opacity var(--cg-duration-base) var(--cg-ease-out),
+              transform var(--cg-duration-base) var(--cg-ease-out),
+              visibility var(--cg-duration-base) var(--cg-ease-out);
+  pointer-events: none;
+  white-space: normal;
+}
+
+.cg-info__bubble.cg-info__bubble--shown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Inline `<code>` and `<em>` inside the bubble — keep them readable on dark. */
+.cg-info__bubble code {
+  font-family: var(--cg-font-mono);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 0.7rem;
+  color: #ffd46d;
+}
+
+.cg-info__bubble em {
+  color: var(--cg-brand-500);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Lock body scroll when modal is open. */
+body.cg-modal-open { overflow: hidden; }
+
+[data-theme="dark"] .cg-editor-modal__panel {
+  background: var(--cg-surface);
+}
+[data-theme="dark"] .cg-editor-modal__header {
+  background: rgba(255, 255, 255, 0.02);
+}
+[data-theme="dark"] .cg-editor-modal__close:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Dark-mode polish — modal header/footer/actions ─────────────────────
+   Default styles use the light gray tokens (--cg-gray-50/100) which DON'T
+   flip with the theme on purpose; we override them here so the modal shell
+   blends with the dark surface instead of looking like a stuck light card. */
+[data-theme="dark"] .cg-editor-modal__header,
+[data-theme="dark"] .cg-editor-modal__footer {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-editor-modal__action {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cg-text);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+[data-theme="dark"] .cg-editor-modal__action:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.35);
+}
+
+[data-theme="dark"] .cg-editor-modal__sep {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+[data-theme="dark"] .cg-editor-modal__shortcuts kbd,
+[data-theme="dark"] .cg-editor-modal__stats {
+  color: var(--cg-text-muted);
+}
+
+[data-theme="dark"] .cg-editor-modal__shortcuts kbd {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+[data-theme="dark"] .cg-editor-modal__panel {
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* ── Dark-mode polish — autocomplete popover items ──────────────────────
+   The `attr` icon reuses .cg-intellisense__icon--prop whose default amber
+   palette is too light against the dark popover. Tinted amber for dark. */
+[data-theme="dark"] .cg-intellisense__icon--prop {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .cg-intellisense__icon--cotton {
+  background: rgba(168, 85, 247, 0.18);
+  color: #d8b4fe;
+}
+
+[data-theme="dark"] .cg-intellisense__icon--html {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .cg-intellisense__icon--value {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+}
+
+[data-theme="dark"] .cg-intellisense__icon--css {
+  background: rgba(6, 182, 212, 0.18);
+  color: #67e8f9;
+}
+
+/* Attrs popover items — same family. */
+[data-theme="dark"] .cg-attrs__item:hover,
+[data-theme="dark"] .cg-attrs__item.cg-highlighted {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .cg-intellisense__item:hover,
+[data-theme="dark"] .cg-intellisense__item.cg-highlighted {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Dark-mode polish — focus rings on contenteditable / textarea ─────── */
+[data-theme="dark"] div.cg-attrs__input[contenteditable]:focus {
+  border-color: var(--cg-brand-500);
+  box-shadow: 0 0 0 2px rgba(255, 157, 10, 0.25);
+}
+
+/* ── Dark-mode polish — preview workspace + device frame ──────────────── */
+/* The "workspace" surface (around the device) and the macOS-style header
+   bar above the stage both use hard-coded light grays; flip them dark so
+   the chrome blends with the rest of the page. The stage background is
+   left alone — it's set by the user's bg switcher (white / dark / etc). */
+[data-theme="dark"] .cg-preview__rendered {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-preview__device {
+  background: var(--cg-surface);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .cg-preview__chrome {
+  background: linear-gradient(180deg, #1a2030, #11161f);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cg-preview__chrome-dot {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Preview toolbar (top of the device) and the segmented switchers it
+   contains — the gray-50 background reads as a floating white bar in
+   dark mode. Drop it to a translucent white and tone the borders. */
+[data-theme="dark"] .cg-preview__toolbar {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .cg-preview__vp-switcher,
+[data-theme="dark"] .cg-preview__bg-switcher,
+[data-theme="dark"] .cg-preview__view-switcher {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Compare view
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-compare__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.25rem 0 1rem;
+}
+
+.cg-compare__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cg-text-strong);
+  margin: 0;
+}
+
+.cg-compare__pickers {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+/* Searchable combobox — replaces native <select> for the A/B pickers. */
+.cg-combo {
+  position: relative;
+  display: inline-block;
+}
+
+.cg-compare__combo { min-width: 18rem; }
+
+.cg-combo__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  padding: 0.375rem 0.5rem 0.375rem 0.625rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  cursor: pointer;
+  transition: border-color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-combo__trigger:hover { border-color: var(--cg-border-strong); }
+.cg-combo__trigger:focus-visible {
+  outline: 2px solid var(--cg-brand-500);
+  outline-offset: 2px;
+}
+.cg-combo--open .cg-combo__trigger { border-color: var(--cg-brand-500); }
+
+.cg-combo__side {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.0625rem 0.375rem;
+  background: var(--cg-brand-500);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: var(--cg-radius-sm);
+}
+
+.cg-combo__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-family: var(--cg-font-mono);
+}
+.cg-combo__label--placeholder { color: var(--cg-text-muted); font-family: inherit; }
+
+.cg-combo__chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cg-text-muted);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-combo--open .cg-combo__chevron { transform: rotate(180deg); }
+
+.cg-combo__panel {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  max-height: 22rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.cg-combo__search-wrap {
+  position: relative;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--cg-border);
+}
+.cg-combo__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  transform: translateY(-50%);
+  color: var(--cg-text-muted);
+  pointer-events: none;
+}
+.cg-combo__search {
+  width: 100%;
+  padding: 0.375rem 0.5rem 0.375rem 1.875rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+}
+.cg-combo__search:focus {
+  outline: none;
+  border-color: var(--cg-brand-500);
+}
+
+.cg-combo__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.25rem;
+}
+
+.cg-combo__group:not(:first-child) { margin-top: 0.25rem; }
+.cg-combo__group-label {
+  padding: 0.375rem 0.625rem 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cg-text-muted);
+}
+
+.cg-combo__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono);
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--cg-duration-fast, 100ms) var(--cg-ease-out);
+}
+.cg-combo__option:hover,
+.cg-combo__option:focus-visible {
+  background: var(--cg-gray-100);
+  outline: none;
+}
+.cg-combo__option.cg-active {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  font-weight: 600;
+}
+.cg-combo__option--clear { color: var(--cg-text-muted); font-family: inherit; }
+.cg-combo__option-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cg-combo__empty {
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  color: var(--cg-text-muted);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.cg-compare__swap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+
+.cg-compare__swap:hover {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: var(--cg-brand-300);
+}
+
+.cg-compare__swap svg { width: 1rem; height: 1rem; }
+
+.cg-compare__chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+/* Active state on shared switchers — re-uses existing button base. */
+.cg-compare__chrome .cg-vp-btn,
+.cg-compare__chrome .cg-bg-btn {
+  cursor: pointer;
+}
+.cg-compare__chrome .cg-vp-btn.cg-active,
+.cg-compare__chrome .cg-bg-btn.cg-active {
+  border-color: var(--cg-brand-500);
+}
+
+.cg-compare__split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 1280px) {
+  .cg-compare__split { grid-template-columns: 1fr 1fr; }
+}
+
+.cg-compare__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.cg-compare__panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cg-compare__panel-side {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--cg-brand-500);
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: var(--cg-radius-sm);
+}
+
+.cg-compare__panel-title {
+  font-family: var(--cg-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cg-compare__panel-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--cg-text-muted);
+  border-radius: var(--cg-radius-sm);
+  transition: background var(--cg-duration-base), color var(--cg-duration-base);
+}
+.cg-compare__panel-link:hover { background: var(--cg-gray-100); color: var(--cg-text); }
+.cg-compare__panel-link svg { width: 0.875rem; height: 0.875rem; }
+
+.cg-compare__empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--cg-surface);
+  border: 1px dashed var(--cg-border-strong);
+  border-radius: var(--cg-radius-lg);
+  color: var(--cg-text-muted);
+  font-size: 0.875rem;
+}
+
+/* In compare mode, the per-panel preview-row stacks vertically — controls
+   below the preview, not beside — because each panel is already narrow. */
+.cg-compare__panel .cg-preview-row { flex-direction: column !important; }
+.cg-compare__panel .cg-controls {
+  width: 100% !important;
+  border-top: 1px solid var(--cg-border) !important;
+  border-left: 0 !important;
+}
+
+/* Dark-mode polish for compare chrome + combobox. */
+[data-theme="dark"] .cg-combo__trigger,
+[data-theme="dark"] .cg-compare__swap {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-combo__trigger:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+[data-theme="dark"] .cg-compare__swap:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.35);
+}
+[data-theme="dark"] .cg-compare__panel-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .cg-compare__empty {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+[data-theme="dark"] .cg-combo__panel {
+  background: var(--cg-surface);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+[data-theme="dark"] .cg-combo__search-wrap { border-bottom-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .cg-combo__search {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-combo__search:focus { border-color: var(--cg-brand-500); }
+[data-theme="dark"] .cg-combo__option:hover,
+[data-theme="dark"] .cg-combo__option:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .cg-combo__option.cg-active {
+  background: rgba(255, 157, 10, 0.16);
+  color: var(--cg-brand-400, #ffb632);
+}
+
+/* Transparency-checker pattern — invert in dark mode so it reads as
+   "transparent" without flashing pure white tiles on a dark workspace
+   (same approach Photoshop/Figma take). */
+[data-theme="dark"] .cg-preview__stage[data-cg-bg="checkered"] {
+  background-color: #1a2030;
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Prism syntax-highlight palette — VSCode Dark+ inspired.
+   Applied to surfaces that are dark in BOTH themes (Cotton tag preview,
+   source-code tab) so token colors stay consistent regardless of theme.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-source .token.tag,
+.cg-detail__tag-row .token.tag,
+.cg-preview__code .token.tag,
+.cg-source .token.tag .token.tag,
+.cg-detail__tag-row .token.tag .token.tag,
+.cg-preview__code .token.tag .token.tag {
+  color: #569cd6;
+}
+
+.cg-source .token.tag .token.punctuation,
+.cg-detail__tag-row .token.tag .token.punctuation,
+.cg-preview__code .token.tag .token.punctuation {
+  color: #808080;
+}
+
+.cg-source .token.attr-name,
+.cg-detail__tag-row .token.attr-name,
+.cg-preview__code .token.attr-name {
+  color: #9cdcfe;
+}
+
+.cg-source .token.attr-value,
+.cg-detail__tag-row .token.attr-value,
+.cg-preview__code .token.attr-value,
+.cg-source .token.string,
+.cg-detail__tag-row .token.string,
+.cg-preview__code .token.string {
+  color: #ce9178;
+}
+
+/* The opening / closing `"` quotes inside an attr-value are rendered as
+   `<span class="token punctuation">` siblings — by default they pick up
+   the generic punctuation color (gray), which makes the string look
+   broken at the edges. Override so the quotes match the string body.
+   The `=` keeps its gray color via the `.attr-equals` exclusion. */
+.cg-source .token.attr-value > .token.punctuation:not(.attr-equals),
+.cg-detail__tag-row .token.attr-value > .token.punctuation:not(.attr-equals),
+.cg-preview__code .token.attr-value > .token.punctuation:not(.attr-equals) {
+  color: #ce9178;
+}
+
+.cg-source .token.punctuation,
+.cg-detail__tag-row .token.punctuation,
+.cg-preview__code .token.punctuation {
+  color: #d4d4d4;
+}
+
+.cg-source .token.comment,
+.cg-detail__tag-row .token.comment,
+.cg-preview__code .token.comment {
+  color: #6a9955;
+  font-style: italic;
+}
+
+.cg-source .token.keyword,
+.cg-detail__tag-row .token.keyword,
+.cg-preview__code .token.keyword,
+.cg-source .token.builtin,
+.cg-detail__tag-row .token.builtin,
+.cg-preview__code .token.builtin {
+  color: #c586c0;
+}
+
+.cg-source .token.boolean,
+.cg-detail__tag-row .token.boolean,
+.cg-preview__code .token.boolean,
+.cg-source .token.number,
+.cg-detail__tag-row .token.number,
+.cg-preview__code .token.number {
+  color: #b5cea8;
+}
+
+.cg-source .token.operator,
+.cg-detail__tag-row .token.operator,
+.cg-preview__code .token.operator {
+  color: #d4d4d4;
+}
+
+/* Django-grammar specific tokens (prism-django plugin).
+   The grammar does NOT wrap each block in an outer `.token.django`; instead
+   it emits children directly with combined classes (aliases). The selectors
+   below use compound classes to disambiguate from regular HTML tokens that
+   share the same base class (e.g. `.token.tag` for both `<div` and `for`). */
+
+/* Delimiters `{%`, `%}`, `{{`, `}}`, `{#`, `#}` — green so control-flow
+   markers stand out from surrounding HTML punctuation.
+   The `.token.delimiter` selector tied to a parent `.cg-source` (etc.) has
+   specificity 0,2,0 — same as `.cg-source .token.punctuation`. Source order
+   decides ties: this block lives AFTER the punctuation rule, so delimiter
+   wins on elements that carry both classes. No !important needed. */
+.cg-source .token.delimiter,
+.cg-detail__tag-row .token.delimiter,
+.cg-preview__code .token.delimiter,
+[data-theme="dark"] .cg-slot-highlight .token.delimiter {
+  color: #4ec9b0;
+}
+
+/* First word after `{%` (`for`, `if`, `with`, `block`...) — Django marks it
+   as `.token.tag.keyword` (compound class). HTML `<div`-style tags use
+   plain `.token.tag` without the keyword alias, so this targets only Django. */
+.cg-source .token.tag.keyword,
+.cg-detail__tag-row .token.tag.keyword,
+.cg-preview__code .token.tag.keyword,
+[data-theme="dark"] .cg-slot-highlight .token.tag.keyword {
+  color: #c586c0;
+}
+
+/* Block keywords (`in`, `else`, `endif`, `not`, `and`, `or`, `as`, `is`...)
+   — plain `.token.keyword`. */
+.cg-source .token.keyword,
+.cg-detail__tag-row .token.keyword,
+.cg-preview__code .token.keyword,
+[data-theme="dark"] .cg-slot-highlight .token.keyword {
+  color: #c586c0;
+}
+
+/* Identifiers (variables, attribute paths) — `.token.variable`. Covers
+   `label`, `steps`, `idx`, `current`, `forloop.counter`, etc. Same cyan as
+   HTML attr-names. */
+.cg-source .token.variable,
+.cg-detail__tag-row .token.variable,
+.cg-preview__code .token.variable,
+[data-theme="dark"] .cg-slot-highlight .token.variable {
+  color: #9cdcfe;
+}
+
+/* Filters via `|default`, `|slice`, etc. — `.token.filter.function`. */
+.cg-source .token.filter.function,
+.cg-detail__tag-row .token.filter.function,
+.cg-preview__code .token.filter.function,
+[data-theme="dark"] .cg-slot-highlight .token.filter.function {
+  color: #dcdcaa;
+}
+
+/* Same palette inside the slot editor's syntax-highlight overlay. */
+[data-theme="dark"] .cg-slot-highlight .token.tag,
+[data-theme="dark"] .cg-slot-highlight .token.tag .token.tag {
+  color: #569cd6;
+}
+[data-theme="dark"] .cg-slot-highlight .token.tag .token.punctuation { color: #808080; }
+[data-theme="dark"] .cg-slot-highlight .token.attr-name { color: #9cdcfe; }
+[data-theme="dark"] .cg-slot-highlight .token.attr-value,
+[data-theme="dark"] .cg-slot-highlight .token.string { color: #ce9178; }
+[data-theme="dark"] .cg-slot-highlight .token.punctuation { color: #d4d4d4; }
+[data-theme="dark"] .cg-slot-highlight .token.keyword,
+[data-theme="dark"] .cg-slot-highlight .token.builtin { color: #c586c0; }
+[data-theme="dark"] .cg-slot-highlight .token.boolean,
+[data-theme="dark"] .cg-slot-highlight .token.number { color: #b5cea8; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Lint report page
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-lint__header {
+  padding: 1.25rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.cg-lint__title { font-size: 1.5rem; font-weight: 700; color: var(--cg-text-strong); margin: 0; }
+.cg-lint__intro { margin: 0; color: var(--cg-text-muted); font-size: 0.875rem; max-width: 60ch; }
+.cg-lint__intro code { font-family: var(--cg-font-mono); font-size: 0.8125rem; padding: 0.0625rem 0.25rem; background: var(--cg-gray-100); border-radius: 0.1875rem; }
+
+.cg-lint__stats { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem; }
+.cg-lint__stat {
+  display: inline-flex; align-items: baseline; gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  font-size: 0.75rem; color: var(--cg-text-muted);
+}
+.cg-lint__stat strong { font-size: 1rem; color: var(--cg-text); font-weight: 700; }
+.cg-lint__stat--clean strong { color: #16a34a; }
+.cg-lint__stat--error strong { color: #dc2626; }
+.cg-lint__stat--warning strong { color: #d97706; }
+.cg-lint__stat--hint strong { color: #2563eb; }
+.cg-lint__stat--hint { cursor: help; }
+
+.cg-lint__body { display: flex; flex-direction: column; gap: 0.75rem; padding-bottom: 2rem; }
+
+.cg-lint__component {
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+  transition: border-color var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-lint__component:hover {
+  border-color: var(--cg-border-strong);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.cg-lint__component[open] {
+  border-color: var(--cg-border-strong);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+.cg-lint__component-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6875rem 0.875rem;
+  background: var(--cg-surface);
+  transition: background var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-lint__component[open] .cg-lint__component-head {
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+}
+.cg-lint__component:not([open]) > summary:hover { background: var(--cg-gray-50); }
+
+.cg-lint__component-path {
+  font-family: var(--cg-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  text-decoration: none;
+}
+.cg-lint__component-path:hover { color: var(--cg-brand-600); text-decoration: underline; }
+.cg-lint__component-counts { display: inline-flex; gap: 0.375rem; }
+.cg-lint__count {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+.cg-lint__count--error { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+.cg-lint__count--warning { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+.cg-lint__count--hint { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+
+.cg-lint__issues { list-style: none; margin: 0; padding: 0; }
+.cg-lint__issue {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  gap: 0.625rem;
+  align-items: center;
+  padding: 0.5rem 0.875rem 0.5rem 0.625rem;
+  border-top: 1px solid var(--cg-border);
+  font-size: 0.8125rem;
+  border-left: 4px solid transparent;
+}
+.cg-lint__issue:first-child { border-top: 0; }
+.cg-lint__issue--error {
+  background: rgba(220, 38, 38, 0.11);
+  border-left-color: #dc2626;
+}
+.cg-lint__issue--warning {
+  background: rgba(217, 119, 6, 0.14);
+  border-left-color: #d97706;
+}
+.cg-lint__issue--hint {
+  background: rgba(37, 99, 235, 0.10);
+  border-left-color: #2563eb;
+}
+/* Tint the rule chip with the severity colour so the whole row reads as a
+   single coloured card instead of the chip looking neutral grey inside it. */
+.cg-lint__issue--error .cg-lint__rule {
+  background: rgba(220, 38, 38, 0.18);
+  color: #991b1b;
+}
+.cg-lint__issue--warning .cg-lint__rule {
+  background: rgba(217, 119, 6, 0.22);
+  color: #92400e;
+}
+.cg-lint__issue--hint .cg-lint__rule {
+  background: rgba(37, 99, 235, 0.18);
+  color: #1e40af;
+}
+.cg-lint__issue--error .cg-lint__rule:hover { background: rgba(220, 38, 38, 0.28); }
+.cg-lint__issue--warning .cg-lint__rule:hover { background: rgba(217, 119, 6, 0.34); }
+.cg-lint__issue--hint .cg-lint__rule:hover { background: rgba(37, 99, 235, 0.28); }
+
+.cg-lint__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.cg-lint__icon svg { width: 0.9375rem; height: 0.9375rem; }
+.cg-lint__icon--error { background: #dc2626; color: white; }
+.cg-lint__icon--warning { background: #d97706; color: white; }
+.cg-lint__icon--hint { background: #2563eb; color: white; }
+
+.cg-lint__rule {
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  background: var(--cg-gray-100);
+  border: 1px solid transparent;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--cg-radius-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--cg-duration-base), border-color var(--cg-duration-base);
+}
+.cg-lint__rule:hover { border-color: var(--cg-border-strong); background: var(--cg-surface); }
+.cg-lint__rule:focus-visible { outline: 2px solid var(--cg-brand-500); outline-offset: 2px; }
+.cg-lint__msg { color: var(--cg-text); line-height: 1.45; }
+.cg-lint__msg code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  background: var(--cg-gray-100);
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.1875rem;
+}
+.cg-lint__line {
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+  white-space: nowrap;
+}
+
+.cg-lint__empty {
+  display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+  padding: 3rem 1rem;
+  background: var(--cg-surface);
+  border: 1px dashed var(--cg-border-strong);
+  border-radius: var(--cg-radius-lg);
+  color: var(--cg-text-muted);
+  text-align: center;
+}
+.cg-lint__empty svg { width: 2.5rem; height: 2.5rem; color: #16a34a; }
+.cg-lint__empty p { margin: 0; font-size: 0.9375rem; }
+
+[data-theme="dark"] .cg-lint__stat,
+[data-theme="dark"] .cg-lint__component,
+[data-theme="dark"] .cg-lint__empty {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-lint__component-head { background: rgba(255, 255, 255, 0.04); border-bottom-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .cg-lint__issue { border-top-color: rgba(255, 255, 255, 0.06); }
+[data-theme="dark"] .cg-lint__issue--error { background: rgba(220, 38, 38, 0.10); }
+[data-theme="dark"] .cg-lint__issue--warning { background: rgba(217, 119, 6, 0.10); }
+[data-theme="dark"] .cg-lint__rule { background: rgba(255, 255, 255, 0.06); color: var(--cg-text-muted); }
+[data-theme="dark"] .cg-lint__msg code,
+[data-theme="dark"] .cg-lint__intro code { background: rgba(255, 255, 255, 0.06); }
+[data-theme="dark"] .cg-lint__count--error { background: rgba(220, 38, 38, 0.18); color: #fca5a5; }
+[data-theme="dark"] .cg-lint__count--warning { background: rgba(217, 119, 6, 0.18); color: #fcd34d; }
+[data-theme="dark"] .cg-lint__count--hint { background: rgba(37, 99, 235, 0.20); color: #93c5fd; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Detail-page naming-mismatch alert
+   Shown when the component's filename has a hyphen but Cotton is in
+   snake_case mode. The preview will fail with a cryptic
+   TemplateDoesNotExist; this banner pre-empts the confusion and links
+   straight to the Insights "Cotton configuration" card where the full
+   diagnosis + fix instructions live. Whole banner is a clickable link.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-detail__naming-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--cg-radius-md);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: var(--cg-text);
+  text-decoration: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.cg-detail__naming-alert:hover {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+.cg-detail__naming-alert-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  color: #dc2626;
+}
+.cg-detail__naming-alert-body {
+  flex: 1 1 auto;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.cg-detail__naming-alert-body strong {
+  display: block;
+  color: #b91c1c;
+  margin-bottom: 0.125rem;
+}
+.cg-detail__naming-alert-body code {
+  font-size: 0.75rem;
+  padding: 0.0625rem 0.25rem;
+  background: var(--cg-canvas-low);
+  border-radius: 3px;
+}
+.cg-detail__naming-alert-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b91c1c;
+  white-space: nowrap;
+}
+.cg-detail__naming-alert-cta svg { width: 0.875rem; height: 0.875rem; }
+[data-theme="dark"] .cg-detail__naming-alert {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(220, 38, 38, 0.4);
+}
+[data-theme="dark"] .cg-detail__naming-alert:hover {
+  background: rgba(220, 38, 38, 0.20);
+  border-color: rgba(220, 38, 38, 0.55);
+}
+[data-theme="dark"] .cg-detail__naming-alert-icon { color: #f87171; }
+[data-theme="dark"] .cg-detail__naming-alert-body strong,
+[data-theme="dark"] .cg-detail__naming-alert-cta { color: #fca5a5; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Detail-page lint badge + inline panel
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-detail__lint-badge {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: default;
+  background: transparent;
+  transition: background var(--cg-duration-base) var(--cg-ease-out);
+}
+button.cg-detail__lint-badge { cursor: pointer; }
+button.cg-detail__lint-badge:hover { filter: brightness(0.97); }
+.cg-detail__lint-badge svg { width: 0.875rem; height: 0.875rem; flex-shrink: 0; }
+
+.cg-detail__lint-badge--clean {
+  background: rgba(22, 163, 74, 0.10);
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.25);
+}
+.cg-detail__lint-badge--warning {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border-color: rgba(217, 119, 6, 0.30);
+}
+.cg-detail__lint-badge--error {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.30);
+}
+.cg-detail__lint-badge--hint {
+  background: rgba(37, 99, 235, 0.10);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.25);
+}
+.cg-detail__lint-extra {
+  font-weight: 500;
+  opacity: 0.75;
+  font-size: 0.6875rem;
+}
+
+.cg-detail__lint-panel {
+  margin-top: 0.75rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+}
+.cg-detail__lint-panel .cg-lint__issues { list-style: none; margin: 0; padding: 0; }
+.cg-detail__lint-help {
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  border-top: 1px solid var(--cg-border);
+  background: var(--cg-gray-50);
+}
+.cg-detail__lint-help a { color: var(--cg-brand-600); text-decoration: none; }
+.cg-detail__lint-help a:hover { text-decoration: underline; }
+
+[data-theme="dark"] .cg-detail__lint-badge--clean {
+  background: rgba(22, 163, 74, 0.18);
+  color: #4ade80;
+  border-color: rgba(22, 163, 74, 0.35);
+}
+[data-theme="dark"] .cg-detail__lint-badge--warning {
+  background: rgba(217, 119, 6, 0.20);
+  color: #fcd34d;
+  border-color: rgba(217, 119, 6, 0.40);
+}
+[data-theme="dark"] .cg-detail__lint-badge--error {
+  background: rgba(220, 38, 38, 0.20);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.40);
+}
+[data-theme="dark"] .cg-detail__lint-badge--hint {
+  background: rgba(37, 99, 235, 0.20);
+  color: #93c5fd;
+  border-color: rgba(37, 99, 235, 0.40);
+}
+[data-theme="dark"] .cg-detail__lint-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-detail__lint-help {
+  background: rgba(255, 255, 255, 0.02);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Lint list filter toolbar (chips + search)
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-lint-list { background: transparent; }
+.cg-lint-list__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+  padding: 0.5rem 0.625rem;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+}
+
+.cg-lint-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  border: 1px solid var(--cg-border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base), color var(--cg-duration-base), border-color var(--cg-duration-base);
+}
+.cg-lint-chip svg { width: 0.875rem; height: 0.875rem; }
+.cg-lint-chip:hover { background: var(--cg-surface); color: var(--cg-text); }
+
+.cg-lint-chip.cg-active { background: var(--cg-text); color: var(--cg-surface); border-color: var(--cg-text); }
+.cg-lint-chip--error.cg-active { background: #dc2626; border-color: #dc2626; color: white; }
+.cg-lint-chip--warning.cg-active { background: #d97706; border-color: #d97706; color: white; }
+.cg-lint-chip--hint.cg-active { background: #2563eb; border-color: #2563eb; color: white; }
+
+.cg-lint-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  padding: 0 0.375rem;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+.cg-lint-chip.cg-active .cg-lint-chip__count { background: rgba(255, 255, 255, 0.22); }
+
+.cg-lint-list__search {
+  flex: 1;
+  min-width: 8rem;
+  padding: 0.3125rem 0.625rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.75rem;
+  color: var(--cg-text);
+  font-family: var(--cg-font-mono);
+}
+.cg-lint-list__search:focus { outline: none; border-color: var(--cg-brand-500); }
+
+.cg-lint-list__empty {
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--cg-text-muted);
+}
+
+[data-theme="dark"] .cg-lint-list__filters {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-lint-chip {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--cg-text-muted);
+}
+[data-theme="dark"] .cg-lint-chip:hover { background: rgba(255, 255, 255, 0.06); color: var(--cg-text); }
+[data-theme="dark"] .cg-lint-chip.cg-active {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0a0d12;
+  border-color: rgba(255, 255, 255, 0.92);
+}
+[data-theme="dark"] .cg-lint-chip__count { background: rgba(255, 255, 255, 0.10); }
+[data-theme="dark"] .cg-lint-chip.cg-active .cg-lint-chip__count { background: rgba(0, 0, 0, 0.18); }
+[data-theme="dark"] .cg-lint-list__search {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint__rule { background: rgba(255, 255, 255, 0.06); color: var(--cg-text-muted); }
+[data-theme="dark"] .cg-lint__rule:hover { background: rgba(255, 255, 255, 0.10); border-color: rgba(255, 255, 255, 0.20); }
+[data-theme="dark"] .cg-lint__issue--error { background: rgba(220, 38, 38, 0.18); }
+[data-theme="dark"] .cg-lint__issue--warning { background: rgba(217, 119, 6, 0.20); }
+[data-theme="dark"] .cg-lint__issue--error .cg-lint__rule {
+  background: rgba(220, 38, 38, 0.32);
+  color: #fca5a5;
+}
+[data-theme="dark"] .cg-lint__issue--warning .cg-lint__rule {
+  background: rgba(217, 119, 6, 0.34);
+  color: #fcd34d;
+}
+[data-theme="dark"] .cg-lint__issue--error .cg-lint__rule:hover { background: rgba(220, 38, 38, 0.42); }
+[data-theme="dark"] .cg-lint__issue--warning .cg-lint__rule:hover { background: rgba(217, 119, 6, 0.46); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   /django-cotton-gallery/lint/ — page-level toolbar + collapsible component sections
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-lint-page { display: flex; flex-direction: column; gap: 0.875rem; padding-bottom: 2rem; }
+
+.cg-lint-page__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+.cg-lint-page__search {
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.375rem 0.625rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  font-family: inherit;
+}
+.cg-lint-page__search:focus { outline: none; border-color: var(--cg-brand-500); }
+.cg-lint-page__sep {
+  width: 1px;
+  height: 1.25rem;
+  background: var(--cg-border);
+  margin: 0 0.125rem;
+}
+.cg-lint-page__bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.3125rem 0.625rem;
+  background: transparent;
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base), color var(--cg-duration-base);
+}
+.cg-lint-page__bulk svg { width: 0.875rem; height: 0.875rem; }
+.cg-lint-page__bulk:hover { background: var(--cg-gray-100); color: var(--cg-text); }
+
+.cg-lint-page__no-match {
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--cg-text-muted);
+  font-size: 0.875rem;
+  background: var(--cg-surface);
+  border: 1px dashed var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+}
+
+.cg-lint-page__cards { display: flex; flex-direction: column; gap: 0.5rem; }
+
+/* `<details>` styling — chevron rotates on open. The component section
+   itself reuses `.cg-lint__component` styles from the panel block above. */
+.cg-lint__component[data-cg-lint-component] {
+  /* Reset default disclosure marker so we can use our own SVG chevron. */
+  list-style: none;
+}
+.cg-lint__component[data-cg-lint-component] > summary { list-style: none; cursor: pointer; }
+.cg-lint__component[data-cg-lint-component] > summary::-webkit-details-marker { display: none; }
+.cg-lint__component[data-cg-lint-component] > summary::marker { display: none; }
+.cg-lint__component-chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-lint__component[data-cg-lint-component][open] > summary .cg-lint__component-chevron {
+  transform: rotate(90deg);
+}
+.cg-lint__component[data-cg-lint-component] > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* Anchor inside summary should look like text, not stop the toggle. The JS
+   intercepts clicks on the link so the section doesn't toggle when navigating. */
+.cg-lint__component-path { cursor: pointer; }
+
+[data-theme="dark"] .cg-lint-page__toolbar {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+[data-theme="dark"] .cg-lint-page__search {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint-page__sep { background: rgba(255, 255, 255, 0.10); }
+[data-theme="dark"] .cg-lint-page__bulk {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--cg-text-muted);
+}
+[data-theme="dark"] .cg-lint-page__bulk:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint-page__no-match {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* The toggle's chevron uses transform on the icon span — keep it smooth. */
+.cg-lint-page__bulk-icon { transition: transform var(--cg-duration-base) var(--cg-ease-out); }
+
+/* ── Pagination — page-size selector on the left, prev/info/next on the right ── */
+.cg-lint-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6875rem 0.875rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.cg-lint-pagination__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+.cg-lint-pagination__size-label { white-space: nowrap; }
+
+/* ── Mini select (custom dropdown — native <select> can't be themed in dark) ── */
+.cg-mini-select {
+  position: relative;
+  display: inline-block;
+}
+.cg-mini-select__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 3rem;
+  padding: 0.3125rem 0.5rem 0.3125rem 0.625rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  cursor: pointer;
+  transition: border-color var(--cg-duration-base) var(--cg-ease-out),
+              background var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-mini-select__trigger:hover {
+  background: var(--cg-surface);
+  border-color: var(--cg-border-strong);
+}
+.cg-mini-select__trigger:focus-visible {
+  outline: 2px solid var(--cg-brand-500);
+  outline-offset: 2px;
+}
+.cg-mini-select--open .cg-mini-select__trigger { border-color: var(--cg-brand-500); }
+.cg-mini-select__chevron {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--cg-text-muted);
+  transition: transform var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-mini-select--open .cg-mini-select__chevron { transform: rotate(180deg); }
+
+.cg-mini-select__menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 6rem;
+  padding: 0.25rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.18),
+              0 4px 8px -2px rgba(15, 23, 42, 0.10);
+  animation: cg-mini-pop 160ms var(--cg-ease-out);
+}
+/* Direction modifier — `--down` opens the menu BELOW the trigger instead
+   of above. Useful when the dropdown lives at the top of a container. */
+.cg-mini-select.cg-mini-select--down .cg-mini-select__menu {
+  top: calc(100% + 0.5rem);
+  bottom: auto;
+}
+
+@keyframes cg-mini-pop {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cg-mini-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  padding: 0.4375rem 0.625rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--cg-duration-fast) var(--cg-ease-out),
+              color var(--cg-duration-fast) var(--cg-ease-out);
+}
+.cg-mini-select__option-label { flex: 1; }
+.cg-mini-select__check {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  flex-shrink: 0;
+  visibility: hidden;
+  color: var(--cg-brand-700);
+}
+.cg-mini-select__option.cg-active .cg-mini-select__check { visibility: visible; }
+
+.cg-mini-select__option:hover,
+.cg-mini-select__option:focus-visible {
+  background: var(--cg-gray-100);
+  outline: none;
+}
+.cg-mini-select__option.cg-active {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+}
+.cg-mini-select__option.cg-active:hover {
+  background: rgba(255, 157, 10, 0.18);
+}
+
+[data-theme="dark"] .cg-mini-select__trigger {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-mini-select__trigger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Dark menu mirrors the lang-switcher style: brand-tinted border + amber
+   active text, no solid orange — keeps the menu feeling premium. */
+[data-theme="dark"] .cg-mini-select__menu {
+  background: #0a0d12;
+  border-color: rgba(255, 157, 10, 0.18);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6),
+              0 4px 8px -2px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+[data-theme="dark"] .cg-mini-select__option {
+  color: var(--cg-text-muted);
+}
+[data-theme="dark"] .cg-mini-select__option:hover,
+[data-theme="dark"] .cg-mini-select__option:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+[data-theme="dark"] .cg-mini-select__option.cg-active {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+}
+[data-theme="dark"] .cg-mini-select__option.cg-active:hover {
+  background: rgba(255, 157, 10, 0.18);
+}
+[data-theme="dark"] .cg-mini-select__check { color: var(--cg-brand-400, #ffb632); }
+.cg-lint-pagination__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cg-lint-pagination__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0.25rem;
+}
+.cg-lint-pagination__btn,
+.cg-lint-pagination__page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out),
+              box-shadow var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-lint-pagination__btn svg { width: 0.875rem; height: 0.875rem; }
+.cg-lint-pagination__btn:hover:not(:disabled),
+.cg-lint-pagination__page:hover:not(.cg-active) {
+  background: var(--cg-gray-100);
+  border-color: var(--cg-border-strong);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+.cg-lint-pagination__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Active page — brand-tinted (matches the mini-select active option) so the
+   pagination feels like part of the same component family, not a stoplight. */
+.cg-lint-pagination__page.cg-active {
+  background: var(--cg-brand-50);
+  border-color: rgba(255, 157, 10, 0.32);
+  color: var(--cg-brand-700);
+  cursor: default;
+}
+.cg-lint-pagination__page.cg-active:hover { background: rgba(255, 157, 10, 0.18); }
+
+.cg-lint-pagination__ellipsis {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 2rem;
+  padding-bottom: 0.4375rem;
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.cg-lint-pagination__info {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .cg-lint-pagination {
+  background: rgba(255, 255, 255, 0.03);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-lint-pagination__btn {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint-pagination__btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+
+[data-theme="dark"] .cg-lint-pagination {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-lint-pagination__btn {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint-pagination__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+[data-theme="dark"] .cg-lint__component {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-lint__component:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .cg-lint__component[open] {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+[data-theme="dark"] .cg-lint__component-head {
+  background: rgba(255, 255, 255, 0.02);
+}
+[data-theme="dark"] .cg-lint__component[open] .cg-lint__component-head {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .cg-lint__component:not([open]) > summary:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .cg-lint-pagination__page {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint-pagination__page:hover:not(.cg-active) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+[data-theme="dark"] .cg-lint-pagination__page.cg-active {
+  background: rgba(255, 157, 10, 0.12);
+  border-color: rgba(255, 157, 10, 0.32);
+  color: var(--cg-brand-400, #ffb632);
+}
+[data-theme="dark"] .cg-lint-pagination__page.cg-active:hover {
+  background: rgba(255, 157, 10, 0.18);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Fullscreen preview modal — DOM-moves [data-cg-preview-device] into the
+   modal slot so the same chrome (mac dots + checkered stage) renders at
+   the real browser viewport. No iframe.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Action button variant — visually identical to the viewport buttons but
+   semantically a one-shot trigger (not a state). Subtle dashed left
+   border separates it from the radio-group siblings. */
+.cg-vp-btn--action {
+  border-left: 1px dashed var(--cg-border);
+  margin-left: 0.125rem;
+  padding-left: 0.4375rem;
+}
+[data-theme="dark"] .cg-vp-btn--action { border-left-color: rgba(255, 255, 255, 0.12); }
+
+.cg-fs-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: var(--cg-bg);
+}
+body.cg-modal-open { overflow: hidden; }
+
+.cg-fs-preview__header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--cg-surface);
+  border-bottom: 1px solid var(--cg-border);
+  flex-shrink: 0;
+}
+.cg-fs-preview__title {
+  font-family: var(--cg-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+.cg-fs-preview__hint {
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+.cg-fs-preview__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  cursor: pointer;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-fs-preview__close svg { width: 0.9375rem; height: 0.9375rem; }
+.cg-fs-preview__close:hover { background: var(--cg-gray-100); border-color: var(--cg-border-strong); }
+
+/* The slot is the modal's main area — the device gets moved here.
+   `flex: 1` makes the device fill all space below the header so the
+   stage's media queries see the full window minus the toolbar. */
+.cg-fs-preview__slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 1rem;
+  background: var(--cg-bg);
+}
+
+/* When the device sits inside the modal, drop ALL viewport-width
+   constraints (mobile/tablet/desktop max-widths set via [data-cg-viewport])
+   so it actually fills the modal's slot. The `!important` overrides any
+   width/max-width set by the existing viewport CSS. */
+.cg-preview__device--fullscreen {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.cg-preview__device--fullscreen .cg-preview__stage {
+  flex: 1;
+  min-height: 0;
+}
+
+[data-theme="dark"] .cg-fs-preview { background: var(--cg-bg); }
+[data-theme="dark"] .cg-fs-preview__header {
+  background: var(--cg-surface);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-fs-preview__close {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-fs-preview__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+
+/* "Copy stub" button on missing-annotation issues — paste-ready @prop line. */
+.cg-lint__fix {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--cg-duration-base) var(--cg-ease-out),
+              border-color var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-lint__fix svg { width: 0.8125rem; height: 0.8125rem; }
+.cg-lint__fix:hover {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+.cg-lint__fix.cg-copied {
+  background: var(--cg-brand-500);
+  color: white;
+  border-color: var(--cg-brand-500);
+}
+
+[data-theme="dark"] .cg-lint__fix {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: var(--cg-text);
+}
+[data-theme="dark"] .cg-lint__fix:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+[data-theme="dark"] .cg-lint__fix.cg-copied {
+  background: var(--cg-brand-500);
+  color: #0a0d12;
+  border-color: var(--cg-brand-500);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dependencies tab — Uses / Used-by columns on the detail page.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-deps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  padding: 1rem 0.25rem;
+}
+@media (min-width: 768px) {
+  .cg-deps { grid-template-columns: 1fr 1fr; }
+}
+.cg-deps__col {
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  padding: 0.875rem 1rem;
+  /* Grid items default to `min-width: auto` (= min-content) — long mono
+     paths inside the deps lists would push the column wider than its
+     1fr share, dragging the whole tabs container with it. Constrain. */
+  min-width: 0;
+}
+.cg-deps__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--cg-text-strong);
+}
+.cg-deps__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  background: var(--cg-gray-100);
+  color: var(--cg-text-muted);
+  border-radius: 999px;
+  /* Proportional font (not mono) — mono digits sit optically high inside
+     their line box, breaking the centering. `tabular-nums` keeps multi-
+     digit counts aligned horizontally without needing a full mono face. */
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cg-deps__hint {
+  margin: 0 0 0.625rem;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+}
+.cg-deps__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.1875rem; min-width: 0; }
+.cg-deps__list li { min-width: 0; overflow-wrap: anywhere; }
+.cg-deps__link {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  margin-left: -0.5rem;
+  font-family: var(--cg-font-mono);
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  text-decoration: none;
+  border-radius: var(--cg-radius-sm);
+  transition: background var(--cg-duration-base), color var(--cg-duration-base);
+}
+.cg-deps__link:hover { background: var(--cg-brand-50); color: var(--cg-brand-700); }
+.cg-deps__empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--cg-text-muted);
+}
+.cg-deps__col--full { grid-column: 1 / -1; }
+.cg-deps__list--external code { font-family: var(--cg-font-mono); font-size: 0.8125rem; }
+
+.cg-deps__locked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--cg-gray-50, rgba(0, 0, 0, 0.02));
+  border: 1px dashed var(--cg-border);
+  border-radius: 0.5rem;
+}
+.cg-deps__locked-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+}
+.cg-deps__locked-text { margin: 0; font-size: 0.875rem; color: var(--cg-text); }
+.cg-deps__locked-hint { margin: 0; font-size: 0.8125rem; color: var(--cg-text-muted); }
+.cg-deps__locked-hint code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.25rem;
+}
+
+[data-theme="dark"] .cg-deps__col {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-deps__count { background: rgba(255, 255, 255, 0.10); color: rgba(255, 255, 255, 0.78); }
+[data-theme="dark"] .cg-deps__link:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+}
+[data-theme="dark"] .cg-deps__locked { background: rgba(255, 255, 255, 0.04); }
+
+/* Dependency tree (transitive) — collapsible <details> nested as deep as
+   the catalog has chains, with cycle/depth-limit indicators. Lives below
+   the flat direct lists so users opt in only when they need impact analysis. */
+.cg-deptree-section {
+  margin-top: 1rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.625rem;
+}
+.cg-deptree-section__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--cg-text);
+  list-style: none;
+}
+.cg-deptree-section__summary::-webkit-details-marker { display: none; }
+.cg-deptree-section__summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 0.75rem;
+  font-size: 0.625rem;
+  color: var(--cg-text-muted);
+  transition: transform var(--cg-duration-base);
+}
+.cg-deptree-section[open] > .cg-deptree-section__summary::before { transform: rotate(90deg); }
+.cg-deptree-section__icon { width: 1rem; height: 1rem; color: var(--cg-text-muted); }
+.cg-deptree-section__hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--cg-text-muted);
+}
+.cg-deptree-section__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 0.875rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--cg-border);
+}
+@media (min-width: 900px) {
+  .cg-deptree-section__body { grid-template-columns: 1fr 1fr; }
+}
+.cg-deptree-section__col { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.cg-deptree-section__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+.cg-deptree-section__hint-line {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  line-height: 1.5;
+}
+
+/* The tree itself — nested ULs with `<details>` per branch. */
+.cg-deptree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8125rem;
+}
+.cg-deptree__children {
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0.25rem 0 0;
+  border-left: 1px dashed var(--cg-border);
+}
+.cg-deptree__item { padding: 0.125rem 0; }
+.cg-deptree__item--root > .cg-deptree__path { font-weight: 600; color: var(--cg-text-strong); }
+.cg-deptree__details { display: block; }
+.cg-deptree__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  padding: 0.125rem 0.25rem 0.125rem 0;
+  border-radius: 0.25rem;
+}
+.cg-deptree__summary::-webkit-details-marker { display: none; }
+.cg-deptree__summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 0.625rem;
+  font-size: 0.5625rem;
+  color: var(--cg-text-muted);
+  transition: transform var(--cg-duration-base);
+}
+.cg-deptree__details[open] > .cg-deptree__summary::before { transform: rotate(90deg); }
+.cg-deptree__path {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  color: var(--cg-text);
+  text-decoration: none;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+}
+.cg-deptree__path:hover { background: var(--cg-brand-50); color: var(--cg-brand-700); }
+.cg-deptree__path--muted { color: var(--cg-text-muted); }
+.cg-deptree__leaf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.cg-deptree__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1rem;
+  padding: 0 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--cg-text-muted);
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.5rem;
+}
+.cg-deptree__tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+}
+.cg-deptree__leaf--cycle .cg-deptree__tag { color: #c2410c; background: rgba(234, 88, 12, 0.12); }
+.cg-deptree__leaf--truncated .cg-deptree__tag { color: var(--cg-text-muted); background: var(--cg-bg); border: 1px solid var(--cg-border); }
+.cg-deptree__empty {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--cg-text-muted);
+}
+
+[data-theme="dark"] .cg-deptree-section { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.10); }
+[data-theme="dark"] .cg-deptree-section__body { border-top-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .cg-deptree__children { border-left-color: rgba(255, 255, 255, 0.10); }
+[data-theme="dark"] .cg-deptree__count { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.10); }
+[data-theme="dark"] .cg-deptree__path:hover { background: rgba(255, 157, 10, 0.12); color: var(--cg-brand-400, #ffb632); }
+[data-theme="dark"] .cg-deptree__leaf--cycle .cg-deptree__tag { color: #fb923c; background: rgba(234, 88, 12, 0.18); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   /django-cotton-gallery/builder/ — interactive @prop annotation composer.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-builder__header {
+  padding: 1.25rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cg-builder__title { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--cg-text-strong); }
+.cg-builder__intro { margin: 0; color: var(--cg-text-muted); font-size: 0.875rem; max-width: 60ch; }
+.cg-builder__intro code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.8125rem;
+  padding: 0.0625rem 0.25rem;
+  background: var(--cg-gray-100);
+  border-radius: 0.1875rem;
+}
+
+.cg-builder { padding-bottom: 2rem; }
+.cg-builder__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 1024px) {
+  .cg-builder__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); }
+}
+@media (min-width: 1440px) {
+  .cg-builder__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 36rem); }
+}
+
+.cg-builder__form-side { display: flex; flex-direction: column; gap: 0.75rem; }
+.cg-builder__entries { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* Field base — declared BEFORE the modifiers (`--checks`, `--full`) so
+   modifier rules win the cascade. Living next to the entry CSS keeps the
+   builder layout co-located. */
+.cg-builder__field { display: flex; flex-direction: column; gap: 0.3125rem; }
+.cg-builder__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+.cg-builder__label code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.75rem;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--cg-gray-100);
+  border-radius: 0.1875rem;
+  color: var(--cg-brand-700);
+}
+.cg-builder__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  line-height: 1.4;
+}
+
+/* `overflow: visible` so the type dropdown can extend past the entry's
+   border-radius without being clipped. The header gets its own top
+   border-radius to keep the rounded corners on the gray background. */
+.cg-builder__entry {
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  transition: border-color var(--cg-duration-base);
+}
+.cg-builder__entry:hover { border-color: var(--cg-border-strong); }
+
+.cg-builder__entry-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.875rem;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+  /* Round the top corners so the gray bg follows the card's border-radius
+     (the parent has `overflow: visible` so we can't rely on its clip). */
+  border-radius: var(--cg-radius-md) var(--cg-radius-md) 0 0;
+}
+.cg-builder__entry-title {
+  font-family: var(--cg-font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+.cg-builder__entry-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base), color var(--cg-duration-base);
+}
+.cg-builder__entry-remove svg { width: 0.875rem; height: 0.875rem; }
+.cg-builder__entry-remove:hover {
+  background: rgba(220, 38, 38, 0.10);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.30);
+}
+
+.cg-builder__entry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
+}
+.cg-builder__field--full { grid-column: 1 / -1; }
+
+.cg-builder__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.8125rem;
+  color: var(--cg-text);
+  cursor: pointer;
+}
+.cg-builder__check code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--cg-gray-100);
+  border-radius: 0.1875rem;
+  color: var(--cg-brand-700);
+}
+.cg-builder__field--checks {
+  flex-direction: row;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.cg-builder__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4375rem;
+  padding: 0.625rem 1rem;
+  background: var(--cg-surface);
+  border: 1px dashed var(--cg-border-strong);
+  border-radius: var(--cg-radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cg-text-muted);
+  cursor: pointer;
+  transition: background var(--cg-duration-base), color var(--cg-duration-base), border-color var(--cg-duration-base);
+}
+.cg-builder__add svg { width: 1rem; height: 1rem; }
+.cg-builder__add:hover {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: rgba(255, 157, 10, 0.40);
+  border-style: solid;
+}
+
+.cg-builder__preview-section { border-top: 1px solid var(--cg-border); }
+.cg-builder__preview-section:first-of-type { border-top: 0; }
+.cg-builder__preview-section-label {
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+}
+
+[data-theme="dark"] .cg-builder__entry {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-builder__entry:hover { border-color: rgba(255, 255, 255, 0.18); }
+[data-theme="dark"] .cg-builder__entry-head {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-builder__entry-remove:hover {
+  background: rgba(220, 38, 38, 0.20);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.40);
+}
+[data-theme="dark"] .cg-builder__check code { background: rgba(255, 255, 255, 0.06); color: var(--cg-brand-400, #ffb632); }
+[data-theme="dark"] .cg-builder__add {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--cg-text-muted);
+}
+[data-theme="dark"] .cg-builder__add:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.40);
+}
+[data-theme="dark"] .cg-builder__preview-section { border-top-color: rgba(255, 255, 255, 0.08); }
+
+/* Live preview pane — sticky on tall screens so it stays visible while
+   the user scrolls through fields. */
+.cg-builder__preview {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+}
+.cg-builder__preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+}
+.cg-builder__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.cg-builder__copy svg { width: 0.8125rem; height: 0.8125rem; }
+.cg-builder__copy:hover { background: var(--cg-brand-50); color: var(--cg-brand-700); border-color: rgba(255, 157, 10, 0.32); }
+.cg-builder__copy.cg-copied { background: var(--cg-brand-500); color: white; border-color: var(--cg-brand-500); }
+.cg-builder__output {
+  margin: 0;
+  padding: 0.875rem;
+  background: transparent;
+  font-size: 0.8125rem;
+}
+/* Force wrapping on the highlighted code blocks. Prism's tomorrow theme
+   ships `white-space: pre` for both `pre[class*="language-"]` and
+   `code[class*="language-"]` AND loads after our stylesheet, so we
+   override with a more specific path (`.cg-builder__preview` ancestor
+   bumps the count above Prism's). */
+.cg-builder__preview pre[class*="language-"],
+.cg-builder__preview code[class*="language-"] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.cg-builder__validation {
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  background: rgba(217, 119, 6, 0.10);
+  border-top: 1px solid rgba(217, 119, 6, 0.32);
+  color: #92400e;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+[data-theme="dark"] .cg-builder__preview {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-builder__preview-head {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-builder__copy {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-builder__copy:hover {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+[data-theme="dark"] .cg-builder__copy.cg-copied { background: var(--cg-brand-500); color: #0a0d12; border-color: var(--cg-brand-500); }
+[data-theme="dark"] .cg-builder__intro code,
+[data-theme="dark"] .cg-builder__label code { background: rgba(255, 255, 255, 0.06); }
+[data-theme="dark"] .cg-builder__validation {
+  background: rgba(217, 119, 6, 0.16);
+  border-top-color: rgba(217, 119, 6, 0.40);
+  color: #fcd34d;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Keyboard shortcut cheatsheet — `?` opens; Esc / backdrop / X close.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-cheatsheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.cg-cheatsheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(2px);
+}
+.cg-cheatsheet__panel {
+  position: relative;
+  width: min(40rem, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-lg);
+  box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.40);
+  overflow: hidden;
+}
+.cg-cheatsheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.125rem;
+  background: var(--cg-gray-50);
+  border-bottom: 1px solid var(--cg-border);
+}
+.cg-cheatsheet__title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--cg-text-strong); }
+.cg-cheatsheet__close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.875rem; height: 1.875rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-text);
+  cursor: pointer;
+}
+.cg-cheatsheet__close svg { width: 0.9375rem; height: 0.9375rem; }
+.cg-cheatsheet__close:hover { background: var(--cg-gray-100); border-color: var(--cg-border-strong); }
+.cg-cheatsheet__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.125rem;
+  overflow-y: auto;
+}
+.cg-cheatsheet__group { display: flex; flex-direction: column; gap: 0.5rem; }
+.cg-cheatsheet__group-title {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+}
+.cg-cheatsheet__list {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  align-items: baseline;
+}
+.cg-cheatsheet__list dt { display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+.cg-cheatsheet__list dt kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.375rem;
+  padding: 0 0.4375rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+}
+.cg-cheatsheet__or { color: var(--cg-text-muted); font-size: 0.75rem; padding: 0 0.0625rem; }
+.cg-cheatsheet__list dd { margin: 0; font-size: 0.8125rem; color: var(--cg-text); line-height: 1.45; }
+
+[data-theme="dark"] .cg-cheatsheet__panel {
+  background: var(--cg-surface);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.6);
+}
+[data-theme="dark"] .cg-cheatsheet__header {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .cg-cheatsheet__close {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-cheatsheet__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+[data-theme="dark"] .cg-cheatsheet__list dt kbd {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Quick switcher — Ctrl/Cmd+K fuzzy component finder.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-switcher {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6rem 1.5rem 1.5rem;  /* offset top so the input lands ~ at eye level */
+}
+.cg-switcher__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(2px);
+}
+.cg-switcher__panel {
+  position: relative;
+  width: min(36rem, 100%);
+  max-height: calc(100vh - 8rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--cg-surface);
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-lg);
+  box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.40);
+  overflow: hidden;
+  animation: cg-mini-pop 140ms var(--cg-ease-out);
+}
+.cg-switcher__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--cg-border);
+}
+.cg-switcher__input-icon {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  margin-right: 0.625rem;
+  color: var(--cg-text-muted);
+  flex-shrink: 0;
+}
+.cg-switcher__input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--cg-text);
+  outline: none;
+  min-width: 0;
+}
+.cg-switcher__input::placeholder { color: var(--cg-text-muted); }
+.cg-switcher__kbd {
+  padding: 0.0625rem 0.4375rem;
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  color: var(--cg-text-muted);
+}
+.cg-switcher__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 16rem);
+}
+.cg-switcher__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--cg-radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.cg-switcher__name {
+  font-family: var(--cg-font-mono);
+  color: var(--cg-text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cg-switcher__path {
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+.cg-switcher__item.cg-active {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+}
+.cg-switcher__item.cg-active .cg-switcher__name { color: var(--cg-brand-700); font-weight: 600; }
+.cg-switcher__item.cg-active .cg-switcher__path { color: var(--cg-brand-700); opacity: 0.7; }
+/* Suggestion items (autocomplete chips for prop:/slot: identifiers) —
+   styled subtly to feel like "hint, click to fill" rather than a result. */
+.cg-switcher__item--suggestion .cg-switcher__name {
+  font-family: var(--cg-font-mono);
+  font-weight: 500;
+}
+.cg-switcher__item--suggestion .cg-switcher__path {
+  font-style: italic;
+  opacity: 0.75;
+}
+/* Group section header — non-clickable label that contextualizes why a
+   given list of components is showing (e.g. "Components with prop size").
+   Suppressed on plain text searches because the input itself already
+   tells the user what's filtering. */
+.cg-switcher__group-title {
+  list-style: none;
+  padding: 0.5rem 0.875rem 0.25rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+  background: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+[data-theme="dark"] .cg-switcher__group-title { color: rgba(255, 255, 255, 0.55); }
+.cg-switcher__empty,
+.cg-switcher__loading {
+  padding: 1.5rem;
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--cg-text-muted);
+}
+.cg-switcher__hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem 0.75rem;
+  border-top: 1px solid var(--cg-border);
+}
+.cg-switcher__hint {
+  font-family: var(--cg-font-mono);
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.4375rem;
+  color: var(--cg-text-muted);
+  background: var(--cg-bg);
+  border: 1px solid var(--cg-border);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background var(--cg-duration-base), color var(--cg-duration-base), border-color var(--cg-duration-base);
+}
+.cg-switcher__hint:hover {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: var(--cg-brand-200, var(--cg-border));
+}
+.cg-switcher__hint:focus-visible {
+  outline: 2px solid var(--cg-brand-500, #ff9d0a);
+  outline-offset: 1px;
+}
+[data-theme="dark"] .cg-switcher__hints { border-top-color: rgba(255, 255, 255, 0.06); }
+[data-theme="dark"] .cg-switcher__hint {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-switcher__hint:hover {
+  background: rgba(255, 157, 10, 0.14);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.30);
+}
+
+[data-theme="dark"] .cg-switcher__panel {
+  background: #11161f;
+  border-color: rgba(255, 157, 10, 0.18);
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.7);
+}
+[data-theme="dark"] .cg-switcher__input-wrap { border-bottom-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .cg-switcher__kbd {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .cg-switcher__item.cg-active {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+}
+[data-theme="dark"] .cg-switcher__item.cg-active .cg-switcher__name,
+[data-theme="dark"] .cg-switcher__item.cg-active .cg-switcher__path {
+  color: var(--cg-brand-400, #ffb632);
+}
+
+/* Pin button on the detail tag-row — toggles between outlined star (off)
+   and filled star (on) via the `data-cg-pinned` attribute. */
+.cg-detail__pin .cg-detail__pin-icon {
+  fill: none;
+  transition: fill var(--cg-duration-base) var(--cg-ease-out),
+              color var(--cg-duration-base) var(--cg-ease-out);
+}
+.cg-detail__pin[data-cg-pinned="true"] {
+  background: var(--cg-brand-50);
+  color: var(--cg-brand-700);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+.cg-detail__pin[data-cg-pinned="true"] .cg-detail__pin-icon {
+  fill: var(--cg-brand-500);
+  color: var(--cg-brand-500);
+}
+[data-theme="dark"] .cg-detail__pin[data-cg-pinned="true"] {
+  background: rgba(255, 157, 10, 0.12);
+  color: var(--cg-brand-400, #ffb632);
+  border-color: rgba(255, 157, 10, 0.32);
+}
+[data-theme="dark"] .cg-detail__pin[data-cg-pinned="true"] .cg-detail__pin-icon {
+  fill: var(--cg-brand-400, #ffb632);
+  color: var(--cg-brand-400, #ffb632);
+}

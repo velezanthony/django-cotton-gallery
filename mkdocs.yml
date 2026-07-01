@@ -1,0 +1,97 @@
+site_name: django-cotton-gallery
+site_description: Drop-in playground for Django Cotton component libraries — annotated, copy-and-pasteable, themable.
+site_url: https://velezanthony.github.io/django-cotton-gallery/
+repo_url: https://github.com/velezanthony/django-cotton-gallery
+repo_name: velezanthony/django-cotton-gallery
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2026 Anthony Velez Tapia
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - search.highlight
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - For users:
+    - Getting started: users/getting-started.md
+    - Features: users/features.md
+    - Configuration: users/configuration.md
+    - Annotation reference: users/annotations.md
+  - For contributors:
+    - Overview: contributors/index.md
+    - Development setup: contributors/development.md
+    - Testing: contributors/testing.md
+    - Architecture: contributors/architecture.md
+    - Internationalization: contributors/i18n.md
+    - Release process: contributors/release.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/velezanthony/django-cotton-gallery
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/django-cotton-gallery/

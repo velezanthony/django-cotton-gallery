@@ -1,0 +1,30 @@
+{# @description Linear progress bar with optional label #}
+{# @prop :value:number | default:50 | description:"Current progress (0–100)" #}
+{# @prop tone:select['brand', 'success', 'warn', 'danger'] | default:"brand" | description:"Bar color" #}
+{# @prop showLabel:boolean | default:False | description:"Render the percentage on the right" #}
+{# @prop label:text | default:"" | description:"Optional caption above the bar" #}
+
+<c-vars :value="50" tone="brand" showLabel=False label="" />
+
+<div class="w-full" {{ attrs }}>
+  {% if label or showLabel %}
+    <div class="flex items-center justify-between mb-1.5 text-xs font-medium text-gray-700">
+      <span>{{ label }}</span>
+      {% if showLabel %}<span class="tabular-nums text-gray-500">{{ value }}%</span>{% endif %}
+    </div>
+  {% endif %}
+  <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+    <div
+      role="progressbar"
+      aria-valuenow="{{ value }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      class="h-full rounded-full transition-all duration-500
+             {% if tone == 'brand' %}bg-indigo-500{% endif %}
+             {% if tone == 'success' %}bg-green-500{% endif %}
+             {% if tone == 'warn' %}bg-yellow-500{% endif %}
+             {% if tone == 'danger' %}bg-red-500{% endif %}"
+      style="width: {{ value }}%"
+    ></div>
+  </div>
+</div>

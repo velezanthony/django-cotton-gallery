@@ -1,0 +1,23 @@
+{# @description Single key metric with label and optional trend #}
+{# @prop label:text | required | description:"Metric label" #}
+{# @prop :value:text | required | description:"Numeric or text value to display" #}
+{# @prop trend:select['up', 'down', 'flat'] | default:"flat" | description:"Trend direction" #}
+{# @prop change:text | default:"" | description:"Trend change text (e.g. '+12%')" #}
+
+<c-vars label :value trend="flat" change="" />
+
+<div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm" {{ attrs }}>
+  <p class="text-sm font-medium text-gray-500">{{ label }}</p>
+  <div class="mt-2 flex items-baseline gap-2">
+    <span class="text-3xl font-bold text-gray-900">{{ value }}</span>
+    {% if change %}
+      <span class="text-sm font-medium
+                   {% if trend == 'up' %}text-green-600{% endif %}
+                   {% if trend == 'down' %}text-red-600{% endif %}
+                   {% if trend == 'flat' %}text-gray-500{% endif %}">
+        {% if trend == 'up' %}↑{% elif trend == 'down' %}↓{% else %}→{% endif %}
+        {{ change }}
+      </span>
+    {% endif %}
+  </div>
+</div>

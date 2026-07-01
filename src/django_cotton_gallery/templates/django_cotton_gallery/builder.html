@@ -1,0 +1,155 @@
+{% extends 'django_cotton_gallery/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Annotation builder" %}{% endblock %}
+
+{% block content %}
+  <header class="cg-builder__header">
+    <h1 class="cg-builder__title">{% trans "Annotation builder" %}</h1>
+    <p class="cg-builder__intro">
+      {% blocktranslate %}Compose <code>@prop</code> annotations and the matching <code>&lt;c-vars&gt;</code> line interactively. Add as many props as you need, fill the fields, and copy the result into a new component template.{% endblocktranslate %}
+    </p>
+  </header>
+
+  <div class="cg-builder" data-cg-builder>
+    <div class="cg-builder__grid">
+
+      {# ── Form (left): list of prop entries ── #}
+      <div class="cg-builder__form-side">
+        <div class="cg-builder__entries" data-cg-builder-entries></div>
+        <button type="button" class="cg-builder__add" data-cg-builder-add>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          <span>{% trans "Add prop" %}</span>
+        </button>
+      </div>
+
+      {# ── Live preview pane (right): @prop block + <c-vars> line ── #}
+      <aside class="cg-builder__preview">
+        <header class="cg-builder__preview-head">
+          <span class="cg-builder__preview-label">{% trans "Result" %}</span>
+          <button type="button" class="cg-builder__copy" data-cg-copy-target="#cg-bld-output">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"/></svg>
+            <span>{% trans "Copy" %}</span>
+          </button>
+        </header>
+
+        <div class="cg-builder__preview-section">
+          <div class="cg-builder__preview-section-label">{% trans "Annotations" %}</div>
+          <pre class="cg-builder__output language-django"><code data-cg-bld-annotations>{% verbatim %}{# @prop name:text | description:"" #}{% endverbatim %}</code></pre>
+        </div>
+
+        <div class="cg-builder__preview-section">
+          <div class="cg-builder__preview-section-label">{% trans "<c-vars> line" %}</div>
+          <pre class="cg-builder__output language-markup"><code data-cg-bld-cvars>&lt;c-vars name=&quot;&quot; /&gt;</code></pre>
+        </div>
+
+        {% comment %}
+        Combined output (annotations + blank line + c-vars) — what the
+        Copy button actually copies. Hidden visually since the user sees
+        the two sections above.
+        {% endcomment %}
+        <code id="cg-bld-output" data-cg-bld-output hidden></code>
+
+        <p class="cg-builder__validation" data-cg-bld-validation hidden></p>
+      </aside>
+    </div>
+
+    {% comment %}
+    Entry template — cloned each time the user clicks "Add prop".
+    `<template>` contents are inert until cloned; translations inside are
+    rendered server side, so spawned entries get the right i18n strings.
+    Lives INSIDE [data-cg-builder] so the JS init can find it via
+    `builder.querySelector(...)`.
+    {% endcomment %}
+    <template data-cg-bld-entry-tpl>
+    <div class="cg-builder__entry" data-cg-bld-entry>
+      <header class="cg-builder__entry-head">
+        <span class="cg-builder__entry-title" data-cg-bld-entry-title>{% trans "Prop" %}</span>
+        <button type="button" class="cg-builder__entry-remove" data-cg-bld-remove aria-label="{% trans 'Remove this prop' %}" title="{% trans 'Remove' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>
+        </button>
+      </header>
+
+      <div class="cg-builder__entry-grid">
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Name" %}</label>
+          <p class="cg-builder__hint">{% trans "Identifier — appears on both <c-vars> and @prop." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-name placeholder="variant">
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Type" %}</label>
+          <p class="cg-builder__hint">{% trans "Drives the controls UI on the detail page." %}</p>
+          <div class="cg-mini-select" data-cg-mini-select data-cg-bld-type data-cg-mini-value="text">
+            <button type="button" class="cg-mini-select__trigger" data-cg-mini-trigger aria-haspopup="listbox" aria-expanded="false">
+              <span class="cg-mini-select__label" data-cg-mini-label>text</span>
+              <svg class="cg-mini-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="cg-mini-select__menu" data-cg-mini-menu hidden role="listbox">
+              <button type="button" class="cg-mini-select__option cg-active" data-cg-mini-option="text" role="option" aria-selected="true">
+                <span class="cg-mini-select__option-label">text</span>
+                <svg class="cg-mini-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </button>
+              <button type="button" class="cg-mini-select__option" data-cg-mini-option="number" role="option" aria-selected="false">
+                <span class="cg-mini-select__option-label">number</span>
+                <svg class="cg-mini-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </button>
+              <button type="button" class="cg-mini-select__option" data-cg-mini-option="boolean" role="option" aria-selected="false">
+                <span class="cg-mini-select__option-label">boolean</span>
+                <svg class="cg-mini-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </button>
+              <button type="button" class="cg-mini-select__option" data-cg-mini-option="select" role="option" aria-selected="false">
+                <span class="cg-mini-select__option-label">select</span>
+                <svg class="cg-mini-select__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cg-builder__field cg-builder__field--full" data-cg-bld-options-field hidden>
+          <label class="cg-builder__label">{% trans "Options" %}</label>
+          <p class="cg-builder__hint">{% trans "Comma-separated — e.g. info, success, warn, danger." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-options placeholder="info, success, warn, danger">
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Default" %}</label>
+          <p class="cg-builder__hint">{% trans "Fallback value. Leave empty to omit." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-default placeholder="info">
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Description" %}</label>
+          <p class="cg-builder__hint">{% trans "One-line summary for hover docs." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-description placeholder="{% trans 'Semantic tone' %}">
+        </div>
+
+        <div class="cg-builder__field cg-builder__field--checks cg-builder__field--full">
+          <label class="cg-builder__check">
+            <input type="checkbox" data-cg-bld-dynamic>
+            <span>{% trans "Dynamic" %} <code>:name</code></span>
+          </label>
+          <label class="cg-builder__check">
+            <input type="checkbox" data-cg-bld-required>
+            <span>{% trans "Required" %} <code>| required</code></span>
+          </label>
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Deprecated" %}</label>
+          <p class="cg-builder__hint">{% trans "Optional message — e.g. \"Use new-api\"." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-deprecated>
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Example" %}</label>
+          <p class="cg-builder__hint">{% trans "Optional usage hint for hover docs." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-example>
+        </div>
+      </div>
+    </div>
+  </template>
+  </div>
+{% endblock %}
