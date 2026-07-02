@@ -68,7 +68,9 @@ const buildCatalogIndex = () => {
   _catalogCache = Array.from(byPath.values());
   return _catalogCache;
 };
-const invalidateCatalogIndex = () => { _catalogCache = null; _propsIndexCache = null; };
+// Only the catalog snapshot varies per page; the props index is a static
+// global JSON, so it stays cached for the whole session.
+const invalidateCatalogIndex = () => { _catalogCache = null; };
 window.addEventListener('popstate', invalidateCatalogIndex);
 document.addEventListener('cg-content-swapped', invalidateCatalogIndex);
 
@@ -253,6 +255,9 @@ export const initQuickSwitcher = () => {
   const input = modal.querySelector('[data-cg-switcher-input]');
   const list = modal.querySelector('[data-cg-switcher-list]');
   const empty = modal.querySelector('[data-cg-switcher-empty]');
+  // Captured once so a fetch-error message can't permanently replace the
+  // default "No matches." text.
+  const emptyDefaultText = empty ? empty.textContent : '';
   const loading = modal.querySelector('[data-cg-switcher-loading]');
   let highlight = -1;
   let visible = [];
@@ -367,7 +372,12 @@ export const initQuickSwitcher = () => {
     }).join('');
     list.innerHTML = html;
     highlight = items.length ? 0 : -1;
-    if (empty) empty.toggleAttribute('hidden', items.length > 0);
+    if (empty) {
+      // Restore the default message — this is the normal empty state, never
+      // the fetch-error one (only the catch branch sets the error text).
+      empty.textContent = emptyDefaultText;
+      empty.toggleAttribute('hidden', items.length > 0);
+    }
     list.querySelectorAll('[data-cg-switcher-href], [data-cg-switcher-suggest]').forEach((li, i) => {
       li.addEventListener('mouseenter', () => setHighlight(i));
       li.addEventListener('click', () => accept(i));
@@ -484,9 +494,29 @@ export const initQuickSwitcher = () => {
       return;
     }
     close();
-    // The navigation interceptor in navigation.js will turn this into an
-    // SPA swap if it can; otherwise it's a normal navigation.
-    location.assign(item.href);
+    spaNavigate(item.href);
+  };
+
+  // navigation.js only intercepts real anchor clicks — location.assign
+  // would force a full reload. Click the sidebar link (or a synthetic one).
+  const spaNavigate = (href) => {
+    if (!href) return;
+    const existing = document.querySelector(
+      '[data-cg-sidebar] a[data-cg-component][href="' + href.replace(/"/g, '\\"') + '"]'
+    );
+    if (existing) { existing.click(); return; }
+    const sidebar = document.querySelector('[data-cg-sidebar]');
+    if (sidebar) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.setAttribute('data-cg-component', '');
+      a.style.display = 'none';
+      sidebar.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
+    location.assign(href);
   };
 
   const open = () => {
@@ -533,6 +563,15 @@ export const initQuickSwitcher = () => {
   // while the modal is closed.
   document.addEventListener('keydown', focusTrapHandler(modal, isOpen));
 
+  // Escape closes from anywhere — the input handler only fires while the
+  // text field has focus, which would strand focus on a hint chip.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) {
+      e.preventDefault();
+      close();
+    }
+  });
+
   document.addEventListener('keydown', (e) => {
     // Ctrl+K / Cmd+K opens the switcher. K is the modern convention
     // (GitHub, Linear, Vercel) and doesn't clash with the browser's
@@ -541,8 +580,11 @@ export const initQuickSwitcher = () => {
     if (inOurInput) return;
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
       e.preventDefault();
-      if (isOpen()) close();
-      else open();
+      if (isOpen()) { close(); return; }
+      // Don't stack on top of an already-open modal (e.g. the editor).
+      if (document.querySelector('[data-cg-editor-modal]:not([hidden])')
+          || document.body.classList.contains('cg-modal-open')) return;
+      open();
     }
   });
 };
@@ -650,7 +692,9 @@ export const initRecents = () => {
 
     const items = stored.map(resolvePath).filter(Boolean);
     renderSidebarList('recents', 'Recent', items, (path) => {
-      const next = (readJSON(STORAGE_RECENTS) || []).filter((p) => p !== path);
+      let cur = readJSON(STORAGE_RECENTS);
+      if (!Array.isArray(cur)) cur = [];
+      const next = cur.filter((p) => p !== path);
       writeJSON(STORAGE_RECENTS, next);
       refresh();
     });
@@ -682,7 +726,9 @@ export const initPins = () => {
     if (!Array.isArray(stored)) stored = [];
     const items = stored.map(resolvePath).filter(Boolean);
     renderSidebarList('pins', 'Pinned', items, (path) => {
-      const next = (readJSON(STORAGE_PINS) || []).filter((p) => p !== path);
+      let cur = readJSON(STORAGE_PINS);
+      if (!Array.isArray(cur)) cur = [];
+      const next = cur.filter((p) => p !== path);
       writeJSON(STORAGE_PINS, next);
       refresh();
       syncStarButton();
@@ -694,7 +740,8 @@ export const initPins = () => {
     const btn = document.querySelector('[data-cg-pin-toggle]');
     if (!btn) return;
     const path = btn.getAttribute('data-cg-pin-path');
-    const stored = readJSON(STORAGE_PINS) || [];
+    let stored = readJSON(STORAGE_PINS);
+    if (!Array.isArray(stored)) stored = [];
     const pinned = stored.includes(path);
     btn.setAttribute('aria-pressed', pinned ? 'true' : 'false');
     btn.setAttribute('data-cg-pinned', pinned ? 'true' : 'false');
