@@ -723,7 +723,13 @@ const buildQueryString = (form) => {
   for (let i = 0; i < elements.length; i++) {
     const el = elements[i];
     if (!el.name) continue;
-    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
+    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
+    // bool would win server-side. Radios still serialize only when checked.
+    if (el.type === 'radio' && !el.checked) continue;
+    if (el.type === 'checkbox' && !el.checked) {
+      params.append(el.name, 'false');
+      continue;
+    }
     params.append(el.name, el.value);
   }
   return params.toString();

@@ -81,6 +81,10 @@ def _resolve_attrs(props: tuple[Prop, ...], params: Mapping[str, str]) -> list[s
         if prop.type == "boolean":
             if value in TRUTHY_TOKENS:
                 attrs.append(prop.name)
+            elif prop.default is True:
+                # Omitting the attr would let the component's default-True win —
+                # emit an explicit False so the toggle can actually switch off.
+                attrs.append(f':{prop.name}="False"')
         elif value not in (None, ""):
             attrs.append(f'{prop.name}="{_escape_attr(value)}"')
     return attrs

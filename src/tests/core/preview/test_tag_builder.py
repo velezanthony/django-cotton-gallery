@@ -64,6 +64,26 @@ class TestBuildTag:
         )
         assert build_tag("atoms.btn", parsed, {}) == "<c-atoms.btn  />"
 
+    def test_boolean_default_true_turned_off_emits_explicit_false(self):
+        # A default-True boolean switched off must emit an explicit dynamic
+        # False, otherwise the component's own `<c-vars name=True />` default
+        # wins and the toggle can never be turned off in the preview.
+        parsed = _parsed(
+            props=(
+                Prop(
+                    name="bordered",
+                    clean_name="bordered",
+                    type="boolean",
+                    default=True,
+                    has_default=True,
+                ),
+            )
+        )
+        assert (
+            build_tag("molecules.data-table", parsed, {"bordered": "false"})
+            == '<c-molecules.data-table :bordered="False" />'
+        )
+
     def test_dynamic_prop_keeps_colon_in_output(self):
         parsed = _parsed(
             props=(
