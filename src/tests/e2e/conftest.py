@@ -24,11 +24,17 @@ from django_cotton_gallery.factories import reset_caches
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
-    """Reasonable defaults for the browser context."""
+    """Reasonable defaults for the browser context.
+
+    Clipboard permissions are granted so the copy/share buttons
+    (`navigator.clipboard.writeText`) can be asserted by reading the
+    clipboard back — otherwise chromium blocks the read in headless runs.
+    """
     return {
         **browser_context_args,
         "viewport": {"width": 1600, "height": 1000},
         "ignore_https_errors": True,
+        "permissions": ["clipboard-read", "clipboard-write"],
     }
 
 
