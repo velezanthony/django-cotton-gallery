@@ -49,9 +49,83 @@ class _PropFilters:
 
 
 _PROP_BLOCK = re.compile(r"\{#\s*@prop\s+(.+?)\s*#\}")
-_FILTER = re.compile(r'^([\w-]+)(?::(?:"([^"]*)"|(\S+)))?$')
+# Quoted filter values support backslash escapes (`\"` → literal quote,
+# `\\` → literal backslash) so a value can contain the DSL's own delimiter.
+_FILTER = re.compile(r'^([\w-]+)(?::(?:"((?:[^"\\]|\\.)*)"|(\S+)))?$')
 _HEAD = re.compile(r"^(:?[\w-]+):(\w+)(?:\[([^\]]*)\])?$")
-_OPTION = re.compile(r"'([^']*)'")
+# Same escape convention for single-quoted select options (`\'`).
+_OPTION = re.compile(r"'((?:[^'\\]|\\.)*)'")
+_ESCAPE = re.compile(r"\\(.)")
+
+# Filter keys the parser acts on. The malformed-filter lint scanner uses
+# this to tell a typo'd key apart from a syntax error.
+FILTER_KEYS: frozenset[str] = frozenset(
+    {"default", "description", "required", "deprecated", "hidden", "example"}
+)
+
+
+def unescape_filter_value(value: str) -> str:
+    """Resolve backslash escapes in a quoted filter value / select option."""
+    return _ESCAPE.sub(r"\1", value)
+
+
+def escape_filter_value(value: str) -> str:
+    """Inverse of `unescape_filter_value` — used by stub/annotation generators."""
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def split_filter_segments(body: str) -> list[str]:
+    """Split a `@prop` body on `|` — respecting quotes and brackets.
+
+    A pipe inside a double-quoted value (`description:"sm | md"`) or inside
+    the select options brackets (`select['a|b']`) is content, not a filter
+    separator. Backslash-escaped characters inside quotes are skipped, so
+    `default:"say \\"a | b\\""` stays one segment.
+    """
+    segments: list[str] = []
+    buf: list[str] = []
+    depth = 0
+    in_quote = False
+    i = 0
+    n = len(body)
+    while i < n:
+        ch = body[i]
+        if in_quote:
+            buf.append(ch)
+            if ch == "\\" and i + 1 < n:
+                buf.append(body[i + 1])
+                i += 2
+                continue
+            if ch == '"':
+                in_quote = False
+        elif ch == '"':
+            in_quote = True
+            buf.append(ch)
+        elif ch == "[":
+            depth += 1
+            buf.append(ch)
+        elif ch == "]":
+            depth = max(0, depth - 1)
+            buf.append(ch)
+        elif ch == "|" and depth == 0:
+            segments.append("".join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+        i += 1
+    segments.append("".join(buf).strip())
+    return segments
+
+
+def match_filter_segment(segment: str) -> str | None:
+    """Return the filter key when the segment is syntactically valid, else None."""
+    match = _FILTER.match(segment)
+    return match.group(1) if match else None
+
+
+def head_is_valid(segment: str) -> bool:
+    """Whether a `@prop` head segment (`name:type[...]`) is parseable."""
+    return _HEAD.match(segment) is not None
 _SLOT = re.compile(r"\{#\s*@slot(?::(?P<name>[\w-]+))?\s*(?P<body>.*?)\s*#\}")
 _TRIGGER = re.compile(r"\{#\s*@trigger\s+(?P<content>.*?)(?:\s*—\s*(?P<desc>[^#]*))?\s*#\}")
 _DESCRIPTION = re.compile(r"\{#\s*@description\s+(.+?)\s*#\}")
@@ -82,7 +156,7 @@ class AnnotationParser:
                 yield prop
 
     def _parse_prop_body(self, body: str) -> Prop | None:
-        segments = [s.strip() for s in body.split("|")]
+        segments = split_filter_segments(body)
 
         head_match = _HEAD.match(segments[0])
         if not head_match:
@@ -91,7 +165,11 @@ class AnnotationParser:
         name = head_match.group(1)
         ptype: PropType = head_match.group(2)  # type: ignore[assignment]
         opts_str = head_match.group(3) or ""
-        options = tuple(_OPTION.findall(opts_str)) if opts_str else ()
+        options = (
+            tuple(unescape_filter_value(o) for o in _OPTION.findall(opts_str))
+            if opts_str
+            else ()
+        )
 
         attrs = self._parse_filters(segments[1:])
 
@@ -124,7 +202,10 @@ class AnnotationParser:
             if not match:
                 continue
             key = match.group(1)
-            val = match.group(2) if match.group(2) is not None else (match.group(3) or "")
+            if match.group(2) is not None:
+                val = unescape_filter_value(match.group(2))
+            else:
+                val = match.group(3) or ""
 
             if key == "default":
                 result.has_default = True

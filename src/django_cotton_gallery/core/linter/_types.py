@@ -27,6 +27,8 @@ RuleCode = Literal[
     "enum-default-out-of-range",
     "type-default-mismatch",
     "missing-description",
+    "malformed-prop-filter",
+    "unknown-prop-filter",
     "undeclared-template-var",
 ]
 
