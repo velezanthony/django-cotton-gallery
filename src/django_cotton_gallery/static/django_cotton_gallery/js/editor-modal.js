@@ -179,6 +179,11 @@ const close = () => {
   if (placeholder.parentNode) {
     placeholder.parentNode.replaceChild(editor, placeholder);
   }
+
+  // Maximized, the editor lived outside the controls form and its input
+  // events never reached the preview debounce — flush one now it's back.
+  if (editable) editable.dispatchEvent(new Event('input', { bubbles: true }));
+
   modal.setAttribute('hidden', '');
   document.body.classList.remove('cg-modal-open');
   active = null;
