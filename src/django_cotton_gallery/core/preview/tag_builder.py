@@ -44,7 +44,7 @@ def build_default_tag(tag_path: str, parsed: ParsedComponent) -> str:
             if value is True:
                 attrs.append(prop.name)
         elif value not in (None, ""):
-            attrs.append(f'{prop.name}="{_escape_attr(value)}"')
+            attrs.append(_quote_attr(prop.name, value))
 
     default_content = ""
     named_fragments: list[str] = []
@@ -86,7 +86,7 @@ def _resolve_attrs(props: tuple[Prop, ...], params: Mapping[str, str]) -> list[s
                 # emit an explicit False so the toggle can actually switch off.
                 attrs.append(f':{prop.name}="False"')
         elif value not in (None, ""):
-            attrs.append(f'{prop.name}="{_escape_attr(value)}"')
+            attrs.append(_quote_attr(prop.name, value))
     return attrs
 
 
@@ -105,13 +105,28 @@ def _resolve_slots(slots: tuple[Slot, ...], params: Mapping[str, str]) -> tuple[
     return default_content, named_fragments
 
 
+def _quote_attr(name: str, value: object) -> str:
+    """Render `name=value` with a quote style the value can't break out of.
+
+    Cotton doesn't decode entities in attr values, so `&quot;` would reach
+    the runtime prop literally. Values with `"` but no `'` get single quotes
+    (breakout needs the delimiter, guaranteed absent); everything else keeps
+    the classic double-quote + `&quot;` path.
+    """
+    s = str(value)
+    if '"' in s and "'" not in s:
+        escaped = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        return f"{name}='{escaped}'"
+    return f'{name}="{_escape_attr(s)}"'
+
+
 def _escape_attr(value: object) -> str:
     """Escape a prop value for safe insertion inside a double-quoted HTML attribute.
 
     Escapes `<`, `>`, `&`, and `"`. We deliberately do NOT escape `'`:
 
-    - The attribute boundary is `"` (always double-quoted in the output) so
-      a single quote can't break out of the attribute.
+    - The attribute boundary is `"` (double-quoted branch of `_quote_attr`)
+      so a single quote can't break out of the attribute.
     - Cotton evaluates dynamic-prop values (`:foo="..."`) as Python code,
       where `'` is the string-literal delimiter. Escaping it to `&#x27;`
       breaks expressions like `:steps="['a', 'b']"` — Cotton ends up with
