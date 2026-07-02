@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["django", "cotton", "components", "gallery", "playground", "tailwind"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
@@ -66,6 +66,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/velezanthony/django-cotton-gallery"
 Documentation = "https://velezanthony.github.io/django-cotton-gallery/"
+Source = "https://github.com/velezanthony/django-cotton-gallery"
 Issues = "https://github.com/velezanthony/django-cotton-gallery/issues"
 Changelog = "https://github.com/velezanthony/django-cotton-gallery/blob/main/CHANGELOG.md"
 Funding = "https://github.com/sponsors/velezanthony"
