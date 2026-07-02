@@ -68,6 +68,7 @@ Homepage = "https://github.com/velezanthony/django-cotton-gallery"
 Documentation = "https://velezanthony.github.io/django-cotton-gallery/"
 Issues = "https://github.com/velezanthony/django-cotton-gallery/issues"
 Changelog = "https://github.com/velezanthony/django-cotton-gallery/blob/main/CHANGELOG.md"
+Funding = "https://github.com/sponsors/velezanthony"
 
 [tool.hatch.build]
 # The dropdown timeline recorder is an internal dev aid for people working ON

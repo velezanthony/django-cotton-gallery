@@ -85,6 +85,12 @@ CI verifies every valid Python × Django combination on every push (plus Windows
 
 Clone, then `make dev && make serve` to run the bundled demo at `http://localhost:8000/django-cotton-gallery/`. Everything else — repo layout, tests, the Python × Django matrix, i18n, releases — lives in **[docs/contributors/](https://velezanthony.github.io/django-cotton-gallery/contributors/)**. See also [CONTRIBUTING.md](./CONTRIBUTING.md) and the [CHANGELOG](./CHANGELOG.md).
 
+## Support
+
+[![Sponsor](https://img.shields.io/github/sponsors/velezanthony?logo=githubsponsors&color=EA4AAA)](https://github.com/sponsors/velezanthony)
+
+If this project saves you time, consider [sponsoring its development](https://github.com/sponsors/velezanthony). It helps keep it maintained.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
