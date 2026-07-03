@@ -5,6 +5,9 @@ from __future__ import annotations
 from django.conf import settings as django_settings
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.utils.safestring import SafeString, mark_safe
+from django.utils.translation import get_language
 
 from .conf import discover_template_roots, load
 from .context_processors import PACKAGE_LANGUAGES
@@ -55,17 +58,47 @@ def _summary_catalog(catalog: CatalogService) -> SummaryCatalog:
     }
 
 
+# Rendered sidebar-tree HTML, keyed by (signature, language). The tree has no
+# per-page state, so one render serves every navigation until a file changes.
+_sidebar_tree_cache: dict[tuple[tuple[int, float], str | None], SafeString] = {}
+
+
+def _cached_sidebar_tree(catalog: CatalogService) -> SafeString:
+    """Render the sidebar category tree once per (signature, language), cached.
+
+    The tree is 130+ nested includes. Rendered inline on every page, Debug
+    Toolbar's Templates panel snapshots each one per request, and browsing
+    detail pages piles that up until OOM. Pre-rendering to a single cached
+    string means the toolbar sees one variable, not the whole tree.
+    """
+    sig = signature(catalog.config)
+    key = (sig, get_language())
+    cached = _sidebar_tree_cache.get(key)
+    if cached is not None:
+        return cached
+    html = render_to_string(
+        "django_cotton_gallery/_sidebar_tree.html",
+        {
+            "categories": _summary_catalog(catalog),
+            "lint_summary": _cached_lint_summary(catalog),
+        },
+    )
+    _sidebar_tree_cache.clear()
+    _sidebar_tree_cache[key] = mark_safe(html)  # our own template output
+    return _sidebar_tree_cache[key]
+
+
 def _sidebar_context(catalog: CatalogService) -> dict:
     """Context every view needs to render the sidebar correctly.
 
-    `categories` is the source-free `ComponentSummary` projection (sidebar,
-    index grid, and compare all read from it). `lint_summary` powers the
-    per-component badges — cached by catalog signature so navigations skip the
-    regex pass; both invalidate the moment any component file's mtime changes.
+    `sidebar_tree` is the pre-rendered (cached) category tree. `categories`
+    (source-free `ComponentSummary`) stays for the footer count, empty-state
+    check, and the index/compare grids that still iterate it.
     """
     return {
         "categories": _summary_catalog(catalog),
         "lint_summary": _cached_lint_summary(catalog),
+        "sidebar_tree": _cached_sidebar_tree(catalog),
     }
 
 

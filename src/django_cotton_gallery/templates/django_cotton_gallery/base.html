@@ -246,61 +246,7 @@
         <p class="cg-sidebar__empty-search-msg">{% trans "No matches for" %} <code class="cg-sidebar__empty-search-query" data-cg-empty-search-query></code></p>
       </div>
 
-      {% for cat_name, subcategories in categories.items %}
-        <div data-cg-category>
-          <button type="button" class="cg-cat__toggle" data-cg-toggle="{{ cat_name|default:'_uncategorized' }}">
-            <span style="display:flex;align-items:center;gap:0.5rem;">
-              <span class="cg-cat__name">{% if cat_name %}{{ cat_name }}{% else %}{% trans "Components" %}{% endif %}</span>
-              <span class="cg-cat__count">{{ subcategories|component_count }}</span>
-            </span>
-            <svg class="cg-cat__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-            </svg>
-          </button>
-          <div data-cg-collapse="{{ cat_name|default:'_uncategorized' }}">
-            {% for sub_name, components in subcategories.items %}
-              {% if sub_name %}
-                <div data-cg-subcategory>
-                  <button type="button" class="cg-sub__toggle" data-cg-toggle="{{ cat_name }}/{{ sub_name }}">
-                    <span class="cg-sub__name-wrap">
-                      <span class="cg-sub__name">{{ sub_name }}</span>
-                      <span class="cg-sub__count">{{ components|length }}</span>
-                    </span>
-                    <svg class="cg-sub__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                    </svg>
-                  </button>
-                  <div data-cg-collapse="{{ cat_name }}/{{ sub_name }}">
-                    {% for comp in components %}
-                      {% with counts=lint_summary|lint_counts:comp.path %}
-                        <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
-                           class="cg-link cg-link--nested"
-                           data-cg-component="{{ comp.name }}"
-                           title="{{ comp.description }}">
-                          <span class="cg-link__name">{{ comp.name }}</span>
-                          {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
-                        </a>
-                      {% endwith %}
-                    {% endfor %}
-                  </div>
-                </div>
-              {% else %}
-                {% for comp in components %}
-                  {% with counts=lint_summary|lint_counts:comp.path %}
-                    <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
-                       class="cg-link"
-                       data-cg-component="{{ comp.name }}"
-                       title="{{ comp.description }}">
-                      <span class="cg-link__name">{{ comp.name }}</span>
-                      {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
-                    </a>
-                  {% endwith %}
-                {% endfor %}
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endfor %}
+      {{ sidebar_tree }}
     </nav>
 
     <div class="cg-sidebar__footer">
