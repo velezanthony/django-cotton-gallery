@@ -72,3 +72,6 @@ TEMPLATES = [
 
 COTTON_SNAKE_CASED_NAMES = False
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Disable the signature memo so tests observe filesystem edits immediately.
+DJANGO_COTTON_GALLERY_SIGNATURE_TTL = 0
