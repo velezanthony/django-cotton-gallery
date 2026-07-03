@@ -48,6 +48,7 @@
     <div class="cg-detail__tag-row">
       <code class="cg-detail__tag" id="cg-detail-tag">&lt;c-{{ tag_path }} /&gt;</code>
       {% if strict %}<span class="cg-detail__strict-badge" title="{% trans 'Closed prop set — only declared @props are accepted' %}">@strict</span>{% endif %}
+      {% if ignore_unused %}<span class="cg-detail__ignore-badge" title="{% trans 'Excluded from the Insights zombie check — intentionally unreferenced here' %}">@ignore-unused</span>{% endif %}
       <button type="button" class="cg-detail__tag-copy"
               data-cg-copy-target="#cg-detail-tag"
               aria-label="{% trans 'Copy component tag' %}">{% trans "Copy tag" %}</button>
@@ -464,6 +465,21 @@
         sidebar-nav that may still have External-usage information.
       {% endcomment %}
       <div class="cg-deps">
+          {% comment %}
+          Zombie banner — a component nothing references (0 internal + 0 external,
+          only decidable when external scanning is on). @ignore-unused suppresses
+          the alert and explains itself; if it's set but the component IS used,
+          say the flag has no effect.
+          {% endcomment %}
+          {% if ignore_unused %}
+            {% if external_scan_enabled and not deps_used_by and not deps_external %}
+              <p class="cg-deps__zombie cg-deps__zombie--ignored">{% blocktranslate %}<code>@ignore-unused</code> — nothing references this component, but it's <strong>intentionally</strong> unreferenced here, so Insights won't flag it as a zombie.{% endblocktranslate %}</p>
+            {% else %}
+              <p class="cg-deps__zombie cg-deps__zombie--ignored">{% blocktranslate %}<code>@ignore-unused</code> is set, but this component <strong>is</strong> referenced — the flag has no effect here.{% endblocktranslate %}</p>
+            {% endif %}
+          {% elif external_scan_enabled and not deps_used_by and not deps_external %}
+            <p class="cg-deps__zombie cg-deps__zombie--alert" role="alert">{% blocktranslate %}<strong>Zombie</strong> — nothing in the catalog or your templates references this component. If that's intentional (a library or WIP component), add <code>&#123;# @ignore-unused #&#125;</code> to silence this.{% endblocktranslate %}</p>
+          {% endif %}
           <div class="cg-deps__col">
             <h3 class="cg-deps__title">
               {% trans "Uses" %}

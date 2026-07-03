@@ -211,6 +211,21 @@ class TestStrict:
         assert AnnotationParser().parse("{# @strict now #}").strict is False
 
 
+class TestIgnoreUnused:
+    def test_flag_present(self):
+        parsed = AnnotationParser().parse("{# @ignore-unused #}\n<div></div>")
+        assert parsed.ignore_unused is True
+
+    def test_absent_defaults_false(self):
+        assert AnnotationParser().parse("{# @description X #}").ignore_unused is False
+
+    def test_tolerates_whitespace(self):
+        assert AnnotationParser().parse("{#   @ignore-unused   #}").ignore_unused is True
+
+    def test_requires_exact_marker(self):
+        assert AnnotationParser().parse("{# @ignore-unusedx #}").ignore_unused is False
+
+
 class TestEmptySource:
     def test_empty_string(self):
         parsed = AnnotationParser().parse("")

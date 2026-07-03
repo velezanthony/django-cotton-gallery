@@ -134,6 +134,8 @@ _DESCRIPTION = re.compile(r"\{#\s*@description\s+(.+?)\s*#\}")
 _ACCEPTS_ATTRS = re.compile(r'\{\{\s*attrs\b|:?attrs="attrs"|\battrs="attrs"')
 # Flag annotation — the whole comment is just `@strict`, nothing after it.
 _STRICT = re.compile(r"\{#\s*@strict\s*#\}")
+# Flag annotation — marks a component as intentionally unreferenced.
+_IGNORE_UNUSED = re.compile(r"\{#\s*@ignore-unused\s*#\}")
 
 
 class AnnotationParser:
@@ -147,6 +149,7 @@ class AnnotationParser:
             description=self.extract_description(source),
             accepts_attrs=bool(_ACCEPTS_ATTRS.search(source)),
             strict=bool(_STRICT.search(source)),
+            ignore_unused=bool(_IGNORE_UNUSED.search(source)),
         )
 
     @staticmethod

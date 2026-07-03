@@ -118,6 +118,16 @@ It declares a **closed prop set**: every prop the component accepts is listed vi
 - If the component also spreads `{{ attrs }}`, the two contradict — arbitrary attributes still pass through, so the set isn't really closed. The linter raises `strict-with-attrs` (**error**), and the "Extra attrs" editor is shown disabled and flagged.
 - An undocumented `<c-vars>` attribute (a prop with no `@prop`) escalates from a warning to an **error** — under `@strict` every prop must be documented.
 
+## `@ignore-unused`
+
+Another component-level flag:
+
+```html
+{# @ignore-unused #}
+```
+
+The Insights dashboard flags **zombies** — components not referenced anywhere in the workspace (only when scanning is on via `DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS`). Add `@ignore-unused` to a component that is *deliberately* unreferenced — a published library component, a work-in-progress — so it's excluded from the zombie list. The detail page shows an `@ignore-unused` badge.
+
 ## Full example
 
 ```html

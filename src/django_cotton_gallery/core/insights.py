@@ -130,9 +130,14 @@ def compute_insights(
     # and the linter — lint_catalog would otherwise re-parse the whole
     # catalog a second time.
     lint_reports: list[ComponentReport] = []
+    # Components that opted out of the zombie check via `{# @ignore-unused #}`
+    # (e.g. published library components that are deliberately unreferenced here).
+    ignore_unused_paths: set[str] = set()
 
     for path, source in items_list:
         parsed = parser.parse(source)
+        if parsed.ignore_unused:
+            ignore_unused_paths.add(path)
         has_desc = bool(parsed.description)
         if has_desc:
             annotated_count += 1
@@ -171,7 +176,7 @@ def compute_insights(
             ext = len(external.get(path, ()))
             total = internal + ext
             ranking.append((path, total))
-            if total == 0:
+            if total == 0 and path not in ignore_unused_paths:
                 zombies.append(path)
         ranking.sort(key=lambda kv: (-kv[1], kv[0]))
         most_referenced = tuple(rank for rank in ranking[:10] if rank[1] > 0)
