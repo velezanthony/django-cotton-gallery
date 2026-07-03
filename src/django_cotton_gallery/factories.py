@@ -14,7 +14,7 @@ from functools import lru_cache
 
 from .conf import load, resolve_cotton_dir
 from .core.annotations import AnnotationParser
-from .core.catalog import CatalogService
+from .core.catalog import CatalogService, clear_signature_cache
 from .core.preview import PreviewService
 from .core.schemas import CatalogConfig
 
@@ -30,6 +30,7 @@ def get_catalog_config() -> CatalogConfig:
         category_sort=s.category_sort,
         subcategory_order=s.subcategory_order,
         subcategory_sort=s.subcategory_sort,
+        signature_ttl=s.signature_ttl,
     )
 
 
@@ -54,3 +55,4 @@ def reset_caches() -> None:
     get_parser.cache_clear()
     get_catalog_service.cache_clear()
     get_preview_service.cache_clear()
+    clear_signature_cache()

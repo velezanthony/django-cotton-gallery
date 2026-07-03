@@ -15,12 +15,13 @@ from ..source_reader import read_text
 from .cache import CatalogCache
 from .orderer import order_catalog
 from .resolver import ComponentNotFound, resolve
-from .scanner import group_by_category, scan, signature
+from .scanner import clear_signature_cache, group_by_category, scan, signature
 
 __all__ = [
     "CatalogCache",
     "CatalogService",
     "ComponentNotFound",
+    "clear_signature_cache",
     "group_by_category",
     "order_catalog",
     "resolve",

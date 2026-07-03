@@ -2,7 +2,11 @@
 
 from pathlib import Path
 
+import pytest
+
 from django_cotton_gallery.core.catalog.scanner import (
+    _should_include,
+    clear_signature_cache,
     group_by_category,
     scan,
     signature,
@@ -218,6 +222,161 @@ class TestSignature:
     def test_signature_for_missing_dir(self, tmp_path: Path):
         config = CatalogConfig(cotton_dir=tmp_path / "missing")
         assert signature(config) == (0, 0.0)
+
+
+def _rglob_signature_reference(config: CatalogConfig) -> tuple[int, float]:
+    """Frozen copy of the original `Path.rglob`-based signature.
+
+    Kept in the test suite as the behavioural anchor for the `os.scandir`
+    rewrite: the fast implementation MUST produce the identical
+    `(count, max_mtime)` tuple this one does, on any tree without symlinks.
+    """
+    count = 0
+    max_mtime = 0.0
+    if not config.cotton_dir.exists():
+        return (0, 0.0)
+    try:
+        for f in config.cotton_dir.rglob("*.html"):
+            rel_parts = f.relative_to(config.cotton_dir).parts
+            if not _should_include(rel_parts, config.excluded_categories):
+                continue
+            count += 1
+            m = f.stat().st_mtime
+            if m > max_mtime:
+                max_mtime = m
+    except OSError:
+        pass
+    return (count, max_mtime)
+
+
+@pytest.fixture
+def rich_tree(tmp_path: Path) -> Path:
+    """A cotton/ tree exercising every branch signature() must honour:
+    deep nesting, index.html entry points, private folder + private file,
+    an excluded category, and a loose root-level component.
+    """
+    root = tmp_path / "cotton"
+    root.mkdir()
+
+    (root / "atoms" / "ui" / "forms").mkdir(parents=True)
+    (root / "atoms" / "button.html").write_text("{# @description Button #}")
+    (root / "atoms" / "ui" / "badge.html").write_text("{# @description Badge #}")
+    (root / "atoms" / "ui" / "forms" / "input.html").write_text("{# @description Input #}")
+
+    # index.html entry point (component named after its folder)
+    (root / "molecules" / "card").mkdir(parents=True)
+    (root / "molecules" / "card" / "index.html").write_text("{# @description Card #}")
+
+    # Excluded category
+    (root / "organisms").mkdir()
+    (root / "organisms" / "navbar.html").write_text("{# @description Navbar #}")
+
+    # Private folder (whole subtree ignored) and private file
+    (root / "_private").mkdir()
+    (root / "_private" / "secret.html").write_text("secret")
+    (root / "atoms" / "_internal.html").write_text("internal")
+
+    # Loose root-level component (no category folder)
+    (root / "loose.html").write_text("{# @description Loose #}")
+
+    return root
+
+
+class TestSignatureEquivalence:
+    """`signature()` (os.scandir) must match the frozen rglob reference."""
+
+    def test_matches_reference_unrestricted(self, rich_tree: Path):
+        config = CatalogConfig(cotton_dir=rich_tree)
+        assert signature(config) == _rglob_signature_reference(config)
+
+    def test_matches_reference_with_exclusions(self, rich_tree: Path):
+        config = CatalogConfig(cotton_dir=rich_tree, excluded_categories=frozenset({"organisms"}))
+        assert signature(config) == _rglob_signature_reference(config)
+
+    def test_matches_reference_on_basic_tree(self, basic_config, cotton_tree: Path):
+        assert signature(basic_config) == _rglob_signature_reference(basic_config)
+
+    def test_count_reflects_only_included_components(self, rich_tree: Path):
+        config = CatalogConfig(cotton_dir=rich_tree)
+        # button, badge, input, card(index), navbar, loose = 6 included;
+        # _private/secret and atoms/_internal excluded.
+        assert signature(config)[0] == 6
+
+    def test_scandir_import_needs_reference(self, rich_tree: Path):
+        """The reference must also be self-consistent (guards against a
+        broken anchor silently passing the equivalence assertions)."""
+        config = CatalogConfig(cotton_dir=rich_tree)
+        assert _rglob_signature_reference(config)[0] == 6
+
+
+class _FakeClock:
+    """Deterministic monotonic clock for TTL tests — no wall-clock flakiness."""
+
+    def __init__(self) -> None:
+        self.now = 1000.0
+
+    def __call__(self) -> float:
+        return self.now
+
+    def advance(self, seconds: float) -> None:
+        self.now += seconds
+
+
+class TestSignatureTTL:
+    """The signature memo (Fix 1+2): dedup walks within a request and skip
+    them across close-together requests, without ever masking a real edit
+    beyond the configured TTL window.
+    """
+
+    def setup_method(self) -> None:
+        clear_signature_cache()
+
+    def teardown_method(self) -> None:
+        clear_signature_cache()
+
+    def test_ttl_zero_never_memoizes(self, cotton_tree: Path):
+        config = CatalogConfig(cotton_dir=cotton_tree, signature_ttl=0.0)
+        before = signature(config)
+        (cotton_tree / "atoms" / "new.html").write_text("{# @description New #}")
+        # No memo → the very next call reflects the addition immediately.
+        assert signature(config)[0] == before[0] + 1
+
+    def test_memo_serves_cached_within_window(self, cotton_tree: Path):
+        clock = _FakeClock()
+        config = CatalogConfig(cotton_dir=cotton_tree, signature_ttl=0.5)
+        before = signature(config, _clock=clock)
+        # File added, but clock has NOT advanced past the TTL.
+        (cotton_tree / "atoms" / "new.html").write_text("{# @description New #}")
+        clock.advance(0.4)
+        assert signature(config, _clock=clock) == before  # stale-but-cheap, by design
+
+    def test_memo_recomputes_after_window(self, cotton_tree: Path):
+        clock = _FakeClock()
+        config = CatalogConfig(cotton_dir=cotton_tree, signature_ttl=0.5)
+        before = signature(config, _clock=clock)
+        (cotton_tree / "atoms" / "new.html").write_text("{# @description New #}")
+        clock.advance(0.6)  # past the TTL → re-walk
+        assert signature(config, _clock=clock)[0] == before[0] + 1
+
+    def test_memo_keyed_by_excluded_categories(self, cotton_tree: Path):
+        clock = _FakeClock()
+        unrestricted = CatalogConfig(cotton_dir=cotton_tree, signature_ttl=0.5)
+        excluded = CatalogConfig(
+            cotton_dir=cotton_tree,
+            excluded_categories=frozenset({"molecules"}),
+            signature_ttl=0.5,
+        )
+        # Same dir, different exclusions must NOT share a memo slot.
+        assert signature(unrestricted, _clock=clock)[0] > signature(excluded, _clock=clock)[0]
+
+    def test_clear_signature_cache_forces_recompute(self, cotton_tree: Path):
+        clock = _FakeClock()
+        config = CatalogConfig(cotton_dir=cotton_tree, signature_ttl=0.5)
+        before = signature(config, _clock=clock)
+        (cotton_tree / "atoms" / "new.html").write_text("{# @description New #}")
+        clear_signature_cache()
+        # Cleared memo → recompute even though the clock never advanced.
+        assert signature(config, _clock=clock)[0] == before[0] + 1
 
 
 class TestGroupByCategory:

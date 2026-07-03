@@ -71,6 +71,25 @@ Catalog = dict[str, dict[str, list[Component]]]
 
 
 @dataclass(frozen=True)
+class ComponentSummary:
+    """Everything the catalog templates (sidebar, index grid, compare) read —
+    and nothing else. Deliberately omits `source`: it never reaches a template,
+    so it must not ride along in the context where Debug Toolbar would snapshot
+    all ~130 copies. `Component` → `ComponentSummary` is a one-way projection
+    built for rendering; the full `Component` (with source) stays server-side
+    for lint, insights, and the props index.
+    """
+
+    name: str
+    path: str
+    tag_path: str
+    description: str
+
+
+SummaryCatalog = dict[str, dict[str, list[ComponentSummary]]]
+
+
+@dataclass(frozen=True)
 class GalleryAssets:
     """Consumer-injected assets rendered into the gallery base template.
 
@@ -94,3 +113,7 @@ class CatalogConfig:
     category_sort: Literal["asc", "desc"] = "asc"
     subcategory_order: dict[str, tuple[str, ...]] = field(default_factory=dict)
     subcategory_sort: Literal["asc", "desc"] = "asc"
+    # Seconds to reuse a signature() snapshot before re-walking. 0.0 = off
+    # (always fresh); the factory raises it. Here, not in settings, keeps the
+    # scanner Django-free.
+    signature_ttl: float = 0.0
