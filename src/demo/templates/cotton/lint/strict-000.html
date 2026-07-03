@@ -1,0 +1,8 @@
+{# @strict #}
+{# @description Lint stress-test — @strict but violates the closed prop set. #}
+{# @prop label:text | default:"Tag" | description:"Text" #}
+
+{# `extra` is in c-vars with no @prop, and {{ attrs }} spreads freely — both errors under @strict. #}
+<c-vars label="Tag" extra="oops" />
+
+<span class="rounded bg-gray-100 px-2 py-0.5 text-xs" {{ attrs }}>{{ label }}</span>
