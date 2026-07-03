@@ -105,6 +105,19 @@ The gallery auto-detects components that pass user-supplied HTML attrs through (
 
 Any `name`, `name="value"`, or `name='value'` token is accepted. Event handlers (`onclick`, `onmouseover`, etc.) are silently dropped — gallery URLs are shareable, and a malicious link with `onclick="alert(1)"` would execute on the recipient's machine.
 
+## `@strict`
+
+A component-level flag — the whole comment is just `@strict`, nothing after it:
+
+```html
+{# @strict #}
+```
+
+It declares a **closed prop set**: every prop the component accepts is listed via `@prop`. The gallery shows a `@strict` badge on the detail page, and tightens the linter two ways:
+
+- If the component also spreads `{{ attrs }}`, the two contradict — arbitrary attributes still pass through, so the set isn't really closed. The linter raises `strict-with-attrs` (**error**), and the "Extra attrs" editor is shown disabled and flagged.
+- An undocumented `<c-vars>` attribute (a prop with no `@prop`) escalates from a warning to an **error** — under `@strict` every prop must be documented.
+
 ## Full example
 
 ```html
@@ -157,7 +170,8 @@ The `/django-cotton-gallery/lint/` page cross-checks every component's `@prop` a
 | `required-with-default` | error | `\| required` and `\| default:` coexist (contradictory). |
 | `enum-default-out-of-range` | error | Default not in `select['…']` options. |
 | `type-default-mismatch` | error | Default value doesn't match the declared type (e.g. `number` with `"abc"`). |
+| `strict-with-attrs` | error | Component is `@strict` (closed prop set) but also spreads `{{ attrs }}` — contradictory. |
 | `missing-cvars` | warning | Component has `@prop` but no `<c-vars>` tag. |
-| `missing-annotation` | warning | `<c-vars>` declares a prop with no `@prop` documenting it. |
+| `missing-annotation` | warning (error under `@strict`) | `<c-vars>` declares a prop with no `@prop` documenting it. |
 | `missing-description` | warning | `@prop` without `\| description:` filter. |
 | `undeclared-template-var` | hint | `{{ x }}` referenced but not in `<c-vars>`. Heuristic — context-processor variables and `{% with %}` locals legitimately trip this. |

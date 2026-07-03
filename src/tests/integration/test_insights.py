@@ -94,6 +94,8 @@ class TestPropsIndex:
         assert "accepts_attrs" in button
         assert "has_slots" in button
         assert "deprecated" in button
+        # `strict` fuels the switcher's `strict` filter; the button isn't @strict.
+        assert button["strict"] is False
         # The button fixture has a `label` prop so it should surface.
         assert any(p["name"] == "label" for p in button["props"])
 

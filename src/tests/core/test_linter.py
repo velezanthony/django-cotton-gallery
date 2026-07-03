@@ -51,6 +51,14 @@ class TestMissingAnnotation:
         assert issues[0].prop_name == "extra"
         assert issues[0].severity == "warning"
 
+    def test_undocumented_cvar_escalates_to_error_under_strict(self):
+        # @strict declares a closed prop set, so an undocumented <c-vars> attr
+        # is a hard contradiction, not just a warning.
+        source = '{# @strict #}\n<c-vars extra="x" />\n'
+        issues = _by_rule(source, "missing-annotation")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
     def test_carries_paste_ready_stub(self):
         source = '<c-vars name="hello" />\n'
         issue = _by_rule(source, "missing-annotation")[0]
@@ -348,3 +356,19 @@ class TestStubSuggestionRoundTrip:
         assert prop.clean_name == "greeting"
         assert prop.default == 'Say "hi"'
         assert prop.has_default is True
+
+
+class TestStrictWithAttrs:
+    def test_strict_plus_attrs_warns(self):
+        source = "{# @strict #}\n<button {{ attrs }}>{{ slot }}</button>\n"
+        issues = _by_rule(source, "strict-with-attrs")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
+    def test_strict_without_attrs_is_clean(self):
+        source = "{# @strict #}\n<button>{{ slot }}</button>\n"
+        assert "strict-with-attrs" not in _rules(source)
+
+    def test_attrs_without_strict_is_clean(self):
+        source = "<button {{ attrs }}>{{ slot }}</button>\n"
+        assert "strict-with-attrs" not in _rules(source)

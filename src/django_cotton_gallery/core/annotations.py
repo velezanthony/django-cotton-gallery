@@ -132,6 +132,8 @@ _SLOT = re.compile(r"\{#\s*@slot(?::(?P<name>[\w-]+))?\s*(?P<body>.*?)\s*#\}")
 _TRIGGER = re.compile(r"\{#\s*@trigger\s+(?P<content>.*?)(?:\s*—\s*(?P<desc>[^#]*))?\s*#\}")
 _DESCRIPTION = re.compile(r"\{#\s*@description\s+(.+?)\s*#\}")
 _ACCEPTS_ATTRS = re.compile(r'\{\{\s*attrs\b|:?attrs="attrs"|\battrs="attrs"')
+# Flag annotation — the whole comment is just `@strict`, nothing after it.
+_STRICT = re.compile(r"\{#\s*@strict\s*#\}")
 
 
 class AnnotationParser:
@@ -144,6 +146,7 @@ class AnnotationParser:
             trigger=self._extract_trigger(source),
             description=self.extract_description(source),
             accepts_attrs=bool(_ACCEPTS_ATTRS.search(source)),
+            strict=bool(_STRICT.search(source)),
         )
 
     @staticmethod

@@ -193,6 +193,24 @@ class TestAcceptsAttrs:
         assert parsed.accepts_attrs is False
 
 
+class TestStrict:
+    def test_strict_flag_present(self):
+        parsed = AnnotationParser().parse("{# @strict #}\n<button>{{ slot }}</button>")
+        assert parsed.strict is True
+
+    def test_strict_absent_defaults_false(self):
+        parsed = AnnotationParser().parse("{# @description X #}")
+        assert parsed.strict is False
+
+    def test_strict_tolerates_whitespace(self):
+        assert AnnotationParser().parse("{#   @strict   #}").strict is True
+
+    def test_strict_requires_exact_marker(self):
+        # Trailing content or a longer word must NOT count as @strict.
+        assert AnnotationParser().parse("{# @strictly #}").strict is False
+        assert AnnotationParser().parse("{# @strict now #}").strict is False
+
+
 class TestEmptySource:
     def test_empty_string(self):
         parsed = AnnotationParser().parse("")

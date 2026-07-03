@@ -48,6 +48,9 @@ class ParsedComponent:
     trigger: str = ""
     description: str = ""
     accepts_attrs: bool = False
+    # `{# @strict #}` — the component declares a closed prop set: anything not
+    # listed via `@prop` is unexpected. Surfaced as a badge and a lint rule.
+    strict: bool = False
 
     @property
     def has_slots(self) -> bool:

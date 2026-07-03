@@ -2464,6 +2464,45 @@ button.cg-detail__lint-badge:hover { filter: brightness(0.97); }
   color: #1d4ed8;
   border-color: rgba(37, 99, 235, 0.25);
 }
+
+/* `@strict` marker — a component with a closed prop set. Neutral (indigo)
+   so it reads as a semantic tag, not an error/warning. */
+.cg-detail__strict-badge {
+  display: inline-flex; align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid rgba(124, 58, 237, 0.30);
+  background: rgba(124, 58, 237, 0.10);
+  color: #6d28d9;
+  font-family: var(--cg-font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: default;
+}
+[data-theme="dark"] .cg-detail__strict-badge {
+  border-color: rgba(167, 139, 250, 0.30);
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b5fd;
+}
+
+/* @strict + {{ attrs }} conflict — the extra-attrs editor is shown disabled
+   and flagged red so the contradiction is visible where the user would type. */
+.cg-control--conflict {
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: var(--cg-radius-md);
+  padding: 0.5rem;
+  background: rgba(220, 38, 38, 0.04);
+}
+.cg-attrs--disabled { opacity: 0.5; pointer-events: none; user-select: none; }
+.cg-attrs__conflict {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #b91c1c;
+}
+.cg-attrs__conflict code { font-size: 0.6875rem; }
+[data-theme="dark"] .cg-control--conflict { border-color: rgba(248, 113, 113, 0.35); background: rgba(248, 113, 113, 0.06); }
+[data-theme="dark"] .cg-attrs__conflict { color: #fca5a5; }
 .cg-detail__lint-extra {
   font-weight: 500;
   opacity: 0.75;
