@@ -286,7 +286,7 @@ class TestMalformedPropFilter:
         assert "default" in issues[0].message
 
     def test_malformed_head_is_flagged(self):
-        source = "{# @prop garbage-no-type | description:\"d\" #}\n<c-vars x=\"1\" />\n"
+        source = '{# @prop garbage-no-type | description:"d" #}\n<c-vars x="1" />\n'
         issues = _by_rule(source, "malformed-prop-filter")
         assert len(issues) == 1
         assert issues[0].severity == "error"
@@ -311,10 +311,7 @@ class TestMalformedPropFilter:
 
 class TestUnknownPropFilter:
     def test_typo_filter_key_is_flagged(self):
-        source = (
-            '{# @prop x:text | default:"a" | descripton:"typo" #}\n'
-            '<c-vars x="a" />\n'
-        )
+        source = '{# @prop x:text | default:"a" | descripton:"typo" #}\n<c-vars x="a" />\n'
         issues = _by_rule(source, "unknown-prop-filter")
         assert len(issues) == 1
         assert issues[0].severity == "warning"
@@ -347,7 +344,7 @@ class TestStubSuggestionRoundTrip:
         assert len(issues) == 1
         stub = issues[0].suggestion
         assert stub is not None
-        prop = AnnotationParser().parse(stub + "\n<c-vars x=\"1\" />").props[0]
+        prop = AnnotationParser().parse(stub + '\n<c-vars x="1" />').props[0]
         assert prop.clean_name == "greeting"
         assert prop.default == 'Say "hi"'
         assert prop.has_default is True

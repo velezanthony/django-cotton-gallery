@@ -126,6 +126,8 @@ def match_filter_segment(segment: str) -> str | None:
 def head_is_valid(segment: str) -> bool:
     """Whether a `@prop` head segment (`name:type[...]`) is parseable."""
     return _HEAD.match(segment) is not None
+
+
 _SLOT = re.compile(r"\{#\s*@slot(?::(?P<name>[\w-]+))?\s*(?P<body>.*?)\s*#\}")
 _TRIGGER = re.compile(r"\{#\s*@trigger\s+(?P<content>.*?)(?:\s*—\s*(?P<desc>[^#]*))?\s*#\}")
 _DESCRIPTION = re.compile(r"\{#\s*@description\s+(.+?)\s*#\}")
@@ -166,9 +168,7 @@ class AnnotationParser:
         ptype: PropType = head_match.group(2)  # type: ignore[assignment]
         opts_str = head_match.group(3) or ""
         options = (
-            tuple(unescape_filter_value(o) for o in _OPTION.findall(opts_str))
-            if opts_str
-            else ()
+            tuple(unescape_filter_value(o) for o in _OPTION.findall(opts_str)) if opts_str else ()
         )
 
         attrs = self._parse_filters(segments[1:])

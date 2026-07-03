@@ -252,7 +252,9 @@ class TestDelimiterCollisions:
         assert prop.description == "Separator"
 
     def test_escaped_double_quote_in_default(self):
-        source = '{# @prop greeting:text | default:"Say \\"hello\\" now" | description:"Greeting" #}'
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hello\\" now" | description:"Greeting" #}'
+        )
         prop = AnnotationParser().parse(source).props[0]
         assert prop.default == 'Say "hello" now'
         assert prop.has_default is True

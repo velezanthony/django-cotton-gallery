@@ -40,24 +40,18 @@ def test_pin_persists_across_reload(page: Page, live_gallery):
     page.reload()
     # State is rehydrated from localStorage: star still pressed, entry present.
     expect(page.locator("[data-cg-pin-toggle]")).to_have_attribute("data-cg-pinned", "true")
-    expect(
-        page.locator("[data-cg-personal='pins'] [data-cg-component='button']")
-    ).to_have_count(1)
+    expect(page.locator("[data-cg-personal='pins'] [data-cg-component='button']")).to_have_count(1)
 
 
 def test_unpinning_removes_the_entry(page: Page, live_gallery):
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
     pin = page.locator("[data-cg-pin-toggle]")
     pin.click()  # pin
-    expect(
-        page.locator("[data-cg-personal='pins'] [data-cg-component='button']")
-    ).to_have_count(1)
+    expect(page.locator("[data-cg-personal='pins'] [data-cg-component='button']")).to_have_count(1)
     pin.click()  # unpin
     expect(pin).to_have_attribute("data-cg-pinned", "false")
     # The injected link is gone from the DOM entirely (section emptied).
-    expect(
-        page.locator("[data-cg-personal='pins'] [data-cg-component='button']")
-    ).to_have_count(0)
+    expect(page.locator("[data-cg-personal='pins'] [data-cg-component='button']")).to_have_count(0)
 
 
 def test_pinned_link_is_excluded_from_search(page: Page, live_gallery):
@@ -65,8 +59,6 @@ def test_pinned_link_is_excluded_from_search(page: Page, live_gallery):
     but search must still surface it exactly once (see sidebar.js dedupe)."""
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
     page.locator("[data-cg-pin-toggle]").click()
-    expect(
-        page.locator("[data-cg-personal='pins'] [data-cg-component='button']")
-    ).to_have_count(1)
+    expect(page.locator("[data-cg-personal='pins'] [data-cg-component='button']")).to_have_count(1)
     page.locator("[data-cg-search]").fill("but")
     expect(page.locator(".cg-sidebar__suggestion")).to_have_count(1)
