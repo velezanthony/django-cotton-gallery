@@ -80,3 +80,36 @@ class TestLineNumbers:
         attrs = {a.clean_name: a for a in block.attrs}
         assert attrs["variant"].line == 2
         assert attrs["size"].line == 3
+
+
+class TestSingleQuotedValues:
+    """Cotton's own attribute parser accepts single-quoted values
+    (`(["\'])(.*?)\\2` in compiler_regex.py) — ours must too, or a
+    perfectly valid component lints as garbage. Single quotes are also
+    how the builder wraps values that contain double quotes."""
+
+    def test_single_quoted_value(self):
+        block = parse_cvars("<c-vars tone='calm' />")
+        attr = block.attrs[0]
+        assert attr.clean_name == "tone"
+        assert attr.has_value is True
+        assert attr.value == "calm"
+
+    def test_single_quoted_value_containing_double_quotes(self):
+        block = parse_cvars("<c-vars greeting='Say \"hi\" now' />")
+        attr = block.attrs[0]
+        assert attr.value == 'Say "hi" now'
+
+    def test_single_quoted_empty_value(self):
+        block = parse_cvars("<c-vars label='' />")
+        attr = block.attrs[0]
+        assert attr.has_value is True
+        assert attr.value == ""
+
+    def test_mixed_quote_styles_in_one_tag(self):
+        block = parse_cvars("<c-vars a=\"x\" b='y' c=False d />")
+        attrs = {a.clean_name: a for a in block.attrs}
+        assert attrs["a"].value == "x"
+        assert attrs["b"].value == "y"
+        assert attrs["c"].value == "False"
+        assert attrs["d"].has_value is False

@@ -73,6 +73,20 @@ _LINT_MESSAGES: dict[RuleCode, Any] = {
             ),
         },
     ),
+    "malformed-prop-filter": (
+        "kind",
+        {
+            "head": _(
+                "`@prop` head `%(segment)s` is not parseable (expected `name:type`) — the whole annotation is ignored."
+            ),
+            "filter": _(
+                "`%(prop)s`: filter segment `%(segment)s` is malformed — it is silently ignored (check quotes and escapes)."
+            ),
+        },
+    ),
+    "unknown-prop-filter": _(
+        "`%(prop)s`: unknown filter `%(key)s` — expected one of default, description, required, deprecated, hidden, example."
+    ),
 }
 
 

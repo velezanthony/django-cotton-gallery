@@ -586,15 +586,24 @@ export const initAnnotationBuilder = (root = document) => {
   if (!entriesContainer || !tpl || !annotationsEl || !cvarsEl || !outputEl) return;
 
   const VALID_BOOL = new Set(['True', 'False', 'true', 'false', '1', '0']);
-  const escapeQuotes = (s) => String(s).replace(/"/g, '\\"');
+  // Annotation filter values are double-quoted with backslash escapes —
+  // the exact convention the @prop parser resolves (`\"` → `"`, `\\` → `\`).
+  const escapeQuotes = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   const escapeOptionsList = (raw) =>
     raw.split(',')
       .map((s) => s.trim())
       .filter(Boolean)
-      // Parser only matches single-quoted options; strip any embedded
-      // single quotes (rare) so the rendered list stays valid.
-      .map((s) => `'${s.replace(/'/g, '')}'`)
+      // Single-quoted options use the same escape convention (`\'`).
+      .map((s) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`)
       .join(', ');
+  // <c-vars> is HTML (no backslash escapes) — pick the quote style the value
+  // doesn't collide with. Both quote types → &quot; fallback + warning.
+  const quoteAttrValue = (s) => {
+    const v = String(s);
+    if (!v.includes('"')) return `"${v}"`;
+    if (!v.includes("'")) return `'${v}'`;
+    return `"${v.replace(/"/g, '&quot;')}"`;
+  };
 
   /**
    * Read every entry in DOM order and produce its `@prop` annotation line
@@ -651,12 +660,15 @@ export const initAnnotationBuilder = (root = document) => {
     } else if (type === 'boolean' || type === 'number') {
       cvar = `${propName}=${def || ''}`;
     } else {
-      cvar = `${propName}="${escapeQuotes(def)}"`;
+      cvar = `${propName}=${quoteAttrValue(def)}`;
     }
 
     // ── Collect warnings.
     const warnings = [];
     if (required && def !== '') warnings.push(`<code>${name}</code>: \`required\` cannot coexist with a default — pick one.`);
+    if (def.includes('"') && def.includes("'")) {
+      warnings.push(`<code>${name}</code>: default mixes both quote types — the &lt;c-vars&gt; line falls back to &amp;quot; entities; consider simplifying the value.`);
+    }
     if (type === 'select' && !options) warnings.push(`<code>${name}</code>: select needs an options list.`);
     if (type === 'select' && options && def !== '' && !options.split(',').map((s) => s.trim()).includes(def)) {
       warnings.push(`<code>${name}</code>: default "${def}" is not in the options list.`);

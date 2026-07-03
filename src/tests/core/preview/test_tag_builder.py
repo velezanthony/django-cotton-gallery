@@ -64,6 +64,26 @@ class TestBuildTag:
         )
         assert build_tag("atoms.btn", parsed, {}) == "<c-atoms.btn  />"
 
+    def test_boolean_default_true_turned_off_emits_explicit_false(self):
+        # A default-True boolean switched off must emit an explicit dynamic
+        # False, otherwise the component's own `<c-vars name=True />` default
+        # wins and the toggle can never be turned off in the preview.
+        parsed = _parsed(
+            props=(
+                Prop(
+                    name="bordered",
+                    clean_name="bordered",
+                    type="boolean",
+                    default=True,
+                    has_default=True,
+                ),
+            )
+        )
+        assert (
+            build_tag("molecules.data-table", parsed, {"bordered": "false"})
+            == '<c-molecules.data-table :bordered="False" />'
+        )
+
     def test_dynamic_prop_keeps_colon_in_output(self):
         parsed = _parsed(
             props=(
@@ -180,9 +200,36 @@ class TestPropValueEscaping:
             )
         )
         result = build_tag("atoms.btn", parsed, {"label": 'a" onclick="alert(1)'})
-        # The closing quote must be escaped; without that, Cotton sees a second attribute.
-        assert '" onclick=' not in result
-        assert "&quot;" in result
+        # `"` but no `'` → single-quoted attr; Cotton parses the whole
+        # payload as ONE attribute value, so no handler forms.
+        assert result == "<c-atoms.btn label='a\" onclick=\"alert(1)' />"
+
+    def test_value_with_both_quote_types_stays_double_quoted_and_escaped(self):
+        # `'` in the value rules out the single-quote wrap, so the classic
+        # double-quote + &quot; path guards the breakout exactly as before.
+        parsed = _parsed(
+            props=(
+                Prop(name="label", clean_name="label", type="text", default="", has_default=True),
+            )
+        )
+        result = build_tag("atoms.btn", parsed, {"label": "a\"b'c"})
+        assert result == '<c-atoms.btn label="a&quot;b\'c" />'
+
+    def test_double_quoted_value_round_trips_through_cotton(self):
+        # A plain quoted default — the copyable tag must carry REAL quotes
+        # (single-quoted attr), not &quot; entities Cotton won't decode.
+        parsed = _parsed(
+            props=(
+                Prop(
+                    name="greeting",
+                    clean_name="greeting",
+                    type="text",
+                    default='Say "hi" now',
+                    has_default=True,
+                ),
+            )
+        )
+        assert build_tag("atoms.btn", parsed, {}) == "<c-atoms.btn greeting='Say \"hi\" now' />"
 
     def test_single_quote_in_value_is_preserved(self):
         # Single quotes are NOT escaped: the attr boundary is `"`, so a
@@ -218,7 +265,7 @@ class TestPropValueEscaping:
         assert "Tom &amp; Jerry" in result
 
     def test_default_path_also_escapes(self):
-        """Defaults come from component source — usually trusted — but the escape path is the same."""
+        """Defaults come from component source — usually trusted — but the quoting path is the same."""
         parsed = _parsed(
             props=(
                 Prop(
@@ -226,4 +273,4 @@ class TestPropValueEscaping:
                 ),
             )
         )
-        assert build_default_tag("atoms.btn", parsed) == '<c-atoms.btn label="a&quot;b" />'
+        assert build_default_tag("atoms.btn", parsed) == "<c-atoms.btn label='a\"b' />"

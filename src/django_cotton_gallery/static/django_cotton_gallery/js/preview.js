@@ -723,7 +723,13 @@ const buildQueryString = (form) => {
   for (let i = 0; i < elements.length; i++) {
     const el = elements[i];
     if (!el.name) continue;
-    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
+    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
+    // bool would win server-side. Radios still serialize only when checked.
+    if (el.type === 'radio' && !el.checked) continue;
+    if (el.type === 'checkbox' && !el.checked) {
+      params.append(el.name, 'false');
+      continue;
+    }
     params.append(el.name, el.value);
   }
   return params.toString();
@@ -763,6 +769,13 @@ const applyUrlParamsToForm = (form) => {
       el.checked = value === 'true' || value === 'on' || value === '1';
     } else {
       el.value = value;
+      // Extra-attrs: `el` is the hidden mirror — paint the visible editor too,
+      // or the first keystroke (which reads textContent) wipes the attrs.
+      const attrsWrap = el.closest && el.closest('[data-cg-attrs]');
+      if (attrsWrap) {
+        const editor = attrsWrap.querySelector('[data-cg-attrs-input]');
+        if (editor) editor.textContent = value;
+      }
       // Custom dropdown — sync the trigger label and the option states
       // so the visible UI matches the param we just wrote.
       const dropdown = el.closest && el.closest('[data-cg-dropdown]');
@@ -1034,11 +1047,6 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
   const yAxis = findAxis(state.yName) || axes[0];
   const xAxis = state.xName ? findAxis(state.xName) : null;
 
-  // Skip rebuild if the same axes were already painted.
-  const key = yAxis.name + '|' + (xAxis ? xAxis.name : '');
-  if (state.lastBuiltKey === key) return;
-  state.lastBuiltKey = key;
-
   // Capture every other form value as base params.
   const baseParams = new URLSearchParams();
   const elements = form.elements;
@@ -1051,6 +1059,12 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
     if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
     baseParams.append(el.name, el.value);
   }
+
+  // Skip rebuild only when axes AND base params are unchanged — otherwise
+  // editing a non-axis prop left the grid showing the stale configuration.
+  const key = yAxis.name + '|' + (xAxis ? xAxis.name : '') + '|' + baseParams.toString();
+  if (state.lastBuiltKey === key) return;
+  state.lastBuiltKey = key;
 
   const labelFor = (axis, value) => {
     if (axis.type === 'boolean') return value === 'true' ? 'on' : 'off';
@@ -1321,5 +1335,15 @@ export const initFullscreenPreview = () => {
   closeBtns.forEach((b) => b.addEventListener('click', close));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && active) close();
+  });
+
+  // A SPA nav destroys the moved device AND its placeholder, so close()
+  // could never restore it and the modal stayed stuck open. Reset instead:
+  // the fresh page brings its own device.
+  document.addEventListener('cg-content-swapped', () => {
+    if (!active) return;
+    modal.setAttribute('hidden', '');
+    document.body.classList.remove('cg-modal-open');
+    active = null;
   });
 };

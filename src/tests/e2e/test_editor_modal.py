@@ -89,6 +89,26 @@ def test_modal_format_button_hidden_for_attrs(page: Page, live_gallery: str) -> 
     expect(page.locator("[data-cg-editor-modal-format]")).to_be_hidden()
 
 
+def test_modal_edit_refreshes_preview_on_close(page: Page, live_gallery: str) -> None:
+    """Editing inside the modal and closing must update the live preview.
+
+    The modal moves the editor OUT of the controls form, so its input events
+    don't reach the form-delegated preview debounce — close() has to flush the
+    change or the edit is silently dropped from the preview.
+    """
+    page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
+    stage = page.locator("[data-cg-preview-stage]")
+    expect(stage.locator("button")).to_be_attached()
+
+    # Maximize the attrs editor, add an attribute, close.
+    page.click(".cg-control--attrs [data-cg-editor-maximize]")
+    page.locator("[data-cg-editor-modal-slot] [data-cg-attrs-input]").fill('data-zz="marker"')
+    page.click("button[data-cg-editor-modal-close]")
+
+    # Preview reflects the edit made inside the modal.
+    expect(stage.locator("button")).to_have_attribute("data-zz", "marker")
+
+
 def test_modal_focus_trap_keeps_tab_inside(page: Page, live_gallery: str) -> None:
     """Tab from the last focusable in the modal wraps to the first."""
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")

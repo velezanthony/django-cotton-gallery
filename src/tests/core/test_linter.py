@@ -270,3 +270,81 @@ class TestReport:
         assert len(report.errors) >= 1
         assert len(report.warnings) >= 1
         assert report.is_clean is False
+
+
+class TestMalformedPropFilter:
+    def test_unescaped_quote_in_default_is_flagged(self):
+        # Raw inner quotes make the segment unparseable — before this rule
+        # the default was silently dropped with no trace.
+        source = (
+            '{# @prop greeting:text | default:"Say "hello" now" | description:"d" #}\n'
+            '<c-vars greeting="x" />\n'
+        )
+        issues = _by_rule(source, "malformed-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+        assert "default" in issues[0].message
+
+    def test_malformed_head_is_flagged(self):
+        source = '{# @prop garbage-no-type | description:"d" #}\n<c-vars x="1" />\n'
+        issues = _by_rule(source, "malformed-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
+    def test_clean_component_not_flagged(self):
+        assert _by_rule(CLEAN_COMPONENT, "malformed-prop-filter") == []
+
+    def test_escaped_quotes_are_valid_not_flagged(self):
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hi\\"" | description:"d" #}\n'
+            "<c-vars greeting='Say \"hi\"' />\n"
+        )
+        assert _by_rule(source, "malformed-prop-filter") == []
+
+    def test_pipe_inside_quotes_not_flagged(self):
+        source = (
+            '{# @prop size:text | default:"md" | description:"sm | md | lg" #}\n'
+            '<c-vars size="md" />\n'
+        )
+        assert _by_rule(source, "malformed-prop-filter") == []
+
+
+class TestUnknownPropFilter:
+    def test_typo_filter_key_is_flagged(self):
+        source = '{# @prop x:text | default:"a" | descripton:"typo" #}\n<c-vars x="a" />\n'
+        issues = _by_rule(source, "unknown-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "warning"
+        assert "descripton" in issues[0].message
+
+    def test_known_filters_not_flagged(self):
+        assert _by_rule(CLEAN_COMPONENT, "unknown-prop-filter") == []
+
+
+class TestQuotedValueRoundTrip:
+    def test_no_default_mismatch_with_single_quoted_cvars(self):
+        # Escaped annotation default must compare equal to the raw value of
+        # a single-quoted <c-vars> attribute (the builder's output pair).
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hi\\"" | description:"d" #}\n'
+            "<c-vars greeting='Say \"hi\"' />\n"
+        )
+        assert _by_rule(source, "default-mismatch") == []
+        assert _by_rule(source, "orphan-annotation") == []
+
+
+class TestStubSuggestionRoundTrip:
+    def test_missing_annotation_stub_with_quoted_value_is_parseable(self):
+        # The ready-to-paste @prop stub the linter suggests must survive its
+        # own parser — including when the <c-vars> value contains quotes.
+        from django_cotton_gallery.core.annotations import AnnotationParser
+
+        source = "<c-vars greeting='Say \"hi\"' />\n"
+        issues = _by_rule(source, "missing-annotation")
+        assert len(issues) == 1
+        stub = issues[0].suggestion
+        assert stub is not None
+        prop = AnnotationParser().parse(stub + '\n<c-vars x="1" />').props[0]
+        assert prop.clean_name == "greeting"
+        assert prop.default == 'Say "hi"'
+        assert prop.has_default is True

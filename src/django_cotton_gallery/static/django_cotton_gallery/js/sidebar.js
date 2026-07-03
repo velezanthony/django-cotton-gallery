@@ -514,8 +514,9 @@ const initSearch = (sidebar) => {
       }
       return;
     }
-    const hasMenu = suggestions && !suggestions.hasAttribute('hidden');
-    const first = hasMenu ? suggestions.querySelector('.cg-sidebar__suggestion') : null;
+    // Not gated on visibility: Tab collapses the dropdown but keeps the
+    // match node, so Enter must still be able to navigate to it.
+    const first = suggestions ? suggestions.querySelector('.cg-sidebar__suggestion') : null;
     const firstName = first ? first.getAttribute('data-cg-suggestion-name') : null;
 
     if (e.key === 'Tab' && firstName && !e.shiftKey) {
@@ -524,9 +525,14 @@ const initSearch = (sidebar) => {
         e.preventDefault();
         input.value = firstName;
         apply();
+        // Accept-and-collapse like the attrs autocomplete; the hidden match
+        // node keeps Enter working.
+        if (suggestions) suggestions.setAttribute('hidden', '');
       }
     } else if (e.key === 'ArrowDown' && first) {
       e.preventDefault();
+      // Re-open if a prior Tab collapsed the menu, then dive into the list.
+      if (suggestions.hasAttribute('hidden')) suggestions.removeAttribute('hidden');
       first.focus();
     } else if (e.key === 'Enter' && first) {
       e.preventDefault();
@@ -557,6 +563,15 @@ const initSearch = (sidebar) => {
     apply();
     input.focus();
   } : null;
+
+  // The SPA keeps the sidebar mounted, so reset the query AFTER the swap —
+  // resetting mid-click would detach the link and strand the navigation.
+  const onContentSwap = () => {
+    if (input.value !== '') {
+      input.value = '';
+      apply();
+    }
+  };
 
   const onSuggestionsKeydown = suggestions ? (e) => {
     const items = Array.from(suggestions.querySelectorAll('.cg-sidebar__suggestion'));
@@ -593,6 +608,7 @@ const initSearch = (sidebar) => {
   input.addEventListener('focus', onFocus);
   if (clearBtn && onClear) clearBtn.addEventListener('click', onClear);
   if (suggestions && onSuggestionsKeydown) suggestions.addEventListener('keydown', onSuggestionsKeydown);
+  document.addEventListener('cg-content-swapped', onContentSwap);
 
   apply();
 
@@ -603,6 +619,7 @@ const initSearch = (sidebar) => {
     input.removeEventListener('focus', onFocus);
     if (clearBtn && onClear) clearBtn.removeEventListener('click', onClear);
     if (suggestions && onSuggestionsKeydown) suggestions.removeEventListener('keydown', onSuggestionsKeydown);
+    document.removeEventListener('cg-content-swapped', onContentSwap);
   };
 };
 
@@ -613,20 +630,24 @@ const initSearch = (sidebar) => {
 let _componentsCache = null;
 const getAllComponents = (sidebar) => {
   if (_componentsCache) return _componentsCache;
+  // Skip pins/recents links: they duplicate catalog entries, which would
+  // double the suggestions and inflate the "X of N" count.
   const links = sidebar.querySelectorAll('a[data-cg-component]');
-  _componentsCache = Array.from(links, (a) => {
-    const catEl = a.closest('[data-cg-category]');
-    const subEl = a.closest('[data-cg-subcategory]');
-    const category = catEl ? catEl.querySelector('.cg-cat__name') : null;
-    const subcat = subEl ? subEl.querySelector('.cg-sub__name') : null;
-    return {
-      name: a.getAttribute('data-cg-component') || '',
-      href: a.getAttribute('href') || '',
-      description: a.getAttribute('title') || '',
-      category: category ? category.textContent.trim() : '',
-      subcategory: subcat ? subcat.textContent.trim() : '',
-    };
-  });
+  _componentsCache = Array.from(links)
+    .filter((a) => !a.closest('[data-cg-personal]'))
+    .map((a) => {
+      const catEl = a.closest('[data-cg-category]');
+      const subEl = a.closest('[data-cg-subcategory]');
+      const category = catEl ? catEl.querySelector('.cg-cat__name') : null;
+      const subcat = subEl ? subEl.querySelector('.cg-sub__name') : null;
+      return {
+        name: a.getAttribute('data-cg-component') || '',
+        href: a.getAttribute('href') || '',
+        description: a.getAttribute('title') || '',
+        category: category ? category.textContent.trim() : '',
+        subcategory: subcat ? subcat.textContent.trim() : '',
+      };
+    });
   return _componentsCache;
 };
 document.addEventListener('cg-content-swapped', () => { _componentsCache = null; });

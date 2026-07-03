@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from ..annotations import TRUTHY_TOKENS
+from ..annotations import TRUTHY_TOKENS, escape_filter_value
 from ..cvars import CVar, CVarsBlock
 from ..schemas import ParsedComponent, Prop
 from ._types import LintIssue
@@ -50,7 +50,7 @@ def build_prop_stub(cvar: CVar) -> str:
         if ptype in ("boolean", "number"):
             parts.append(f"default:{cvar.value}")
         else:
-            parts.append(f'default:"{cvar.value}"')
+            parts.append(f'default:"{escape_filter_value(cvar.value)}"')
     parts.append('description:""')
     return "{# @prop " + " | ".join(parts) + " #}"
 

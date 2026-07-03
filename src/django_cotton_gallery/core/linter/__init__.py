@@ -24,6 +24,10 @@ Rule catalog (severity in parens):
     enum-default-out-of-range (error)  default not listed in select['…'] options.
     type-default-mismatch   (error)    Default value doesn't match declared type.
     missing-description     (warning)  @prop without `| description`.
+    malformed-prop-filter   (error)    @prop head or filter segment the parser
+                                       silently drops (bad quotes/escapes).
+    unknown-prop-filter     (warning)  Valid syntax but unrecognized filter
+                                       key — almost always a typo.
     undeclared-template-var (hint)     `{{ x }}` reference not in <c-vars>.
                                        Heuristic — context-processor vars
                                        and {% with %} locals will trip it.
@@ -43,6 +47,7 @@ from ..cvars import parse_cvars
 from ..schemas import ParsedComponent
 from ._rules import lint_one
 from ._scanners import (
+    scan_malformed_prop_filters,
     scan_required_with_default,
     scan_type_default_mismatch,
     scan_undeclared_template_vars,
@@ -79,6 +84,7 @@ def lint_component(
     issues = list(lint_one(component_path, parsed, cvars))
     issues.extend(scan_type_default_mismatch(component_path, source))
     issues.extend(scan_required_with_default(component_path, source))
+    issues.extend(scan_malformed_prop_filters(component_path, source))
     issues.extend(scan_undeclared_template_vars(component_path, source, cvars))
     return ComponentReport(path=component_path, issues=tuple(issues))
 

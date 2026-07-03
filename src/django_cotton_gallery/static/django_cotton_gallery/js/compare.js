@@ -34,8 +34,9 @@ const initSharedViewport = (root = document) => {
     try { localStorage.setItem(STORAGE_VP, JSON.stringify(vp)); } catch (_) { /* ignore */ }
   };
 
-  // Initial state — read from storage, fall back to "full".
-  const stored = readJSON(STORAGE_VP) || 'full';
+  // Initial state — read from storage, fall back to "desktop" (matches the
+  // detail-page default in preview.js so the two don't diverge on ordering).
+  const stored = readJSON(STORAGE_VP) || 'desktop';
   apply(stored);
 
   switcher.querySelectorAll('[data-cg-viewport]').forEach((btn) => {
@@ -156,6 +157,10 @@ const initCombo = (combo) => {
   const groups = Array.from(list.querySelectorAll('[data-cg-combo-group]'));
   const placeholder = labelEl?.getAttribute('data-cg-combo-placeholder') || labelEl?.textContent || '';
 
+  // Points at the current selection on open, so Enter confirms it instead
+  // of the first visible entry (the "— None" clear option).
+  let highlighted = null;
+
   const setOpen = (next) => {
     panel.toggleAttribute('hidden', !next);
     trigger.setAttribute('aria-expanded', String(next));
@@ -163,6 +168,10 @@ const initCombo = (combo) => {
     if (next) {
       search.value = '';
       filter('');
+      const current = combo.getAttribute('data-cg-combo-value') || '';
+      highlighted = current
+        ? options.find((o) => (o.getAttribute('data-cg-combo-option') || '') === current) || null
+        : null;
       requestAnimationFrame(() => search.focus());
     }
   };
@@ -186,6 +195,13 @@ const initCombo = (combo) => {
   };
 
   const choose = (value) => {
+    // Unchanged pick — just close. Firing cg-combo-change would push a
+    // redundant history entry and refetch the identical panel.
+    if (value === (combo.getAttribute('data-cg-combo-value') || '')) {
+      setOpen(false);
+      trigger.focus();
+      return;
+    }
     combo.setAttribute('data-cg-combo-value', value);
     if (labelEl) {
       labelEl.textContent = value || placeholder;
@@ -203,7 +219,9 @@ const initCombo = (combo) => {
 
   trigger.addEventListener('click', () => setOpen(!isOpen()));
 
-  search.addEventListener('input', () => filter(search.value));
+  // Typing to filter drops the initial selection highlight so Enter picks
+  // the first match instead of the (now possibly hidden) current value.
+  search.addEventListener('input', () => { highlighted = null; filter(search.value); });
   search.addEventListener('keydown', (e) => {
     const visible = visibleOptions();
     if (e.key === 'Escape') {
@@ -212,10 +230,11 @@ const initCombo = (combo) => {
       trigger.focus();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      visible[0]?.focus();
+      (highlighted || visible[0])?.focus();
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (visible[0]) choose(visible[0].getAttribute('data-cg-combo-option') || '');
+      const target = highlighted || visible[0];
+      if (target) choose(target.getAttribute('data-cg-combo-option') || '');
     }
   });
 
@@ -287,7 +306,9 @@ const initPickers = (root = document, { bindContent } = {}) => {
   // Browser back/forward — sync combos and panels to the new URL state
   // without pushing yet another history entry.
   window.addEventListener('popstate', () => {
-    if (!document.querySelector('[data-cg-compare-pickers]')) return;
+    // Each SPA visit rebinds and stacks another listener — bail unless the
+    // live wrap is ours, so stale listeners over detached combos no-op.
+    if (document.querySelector('[data-cg-compare-pickers]') !== wrap) return;
     const params = new URLSearchParams(location.search);
     const a = params.get('a') || '';
     const b = params.get('b') || '';
@@ -352,20 +373,35 @@ const initComparePanels = (root = document) => {
       return params.toString();
     };
 
+    // Abort the in-flight fetch when a newer input supersedes it — a slow
+    // stale response must not clobber the panel or a detached stage.
+    let activeController = null;
+
     const fetchPreview = () => {
       const qs = buildQuery();
       const fullUrl = url + (qs ? '?' + qs : '');
-      fetch(fullUrl, { headers: { 'X-Requested-With': 'cg-compare' } })
+
+      if (activeController) activeController.abort();
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      activeController = controller;
+
+      const fetchOpts = { headers: { 'X-Requested-With': 'cg-compare' } };
+      if (controller) fetchOpts.signal = controller.signal;
+
+      fetch(fullUrl, fetchOpts)
         .then((res) => res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)))
         .then((data) => {
-          if (stage) stage.innerHTML = data.html || '';
-          if (tagEl) {
+          // Stage may have been swapped out between fetch start and resolve.
+          if (!stage || !stage.isConnected) return;
+          stage.innerHTML = data.html || '';
+          if (tagEl && tagEl.isConnected) {
             tagEl.textContent = data.tag || '';
             if (window.Prism) window.Prism.highlightElement(tagEl);
           }
         })
-        .catch(() => {
-          if (stage) stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
+        .catch((err) => {
+          if (err && err.name === 'AbortError') return;
+          if (stage && stage.isConnected) stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
         });
     };
 

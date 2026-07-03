@@ -16,6 +16,12 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
+from ..annotations import (
+    FILTER_KEYS,
+    head_is_valid,
+    match_filter_segment,
+    split_filter_segments,
+)
 from ..cvars import CVarsBlock
 from ._types import LintIssue
 
@@ -158,6 +164,64 @@ def scan_required_with_default(component_path: str, source: str) -> Iterable[Lin
             prop_name=name,
             params=(("prop", name),),
         )
+
+
+def scan_malformed_prop_filters(component_path: str, source: str) -> Iterable[LintIssue]:
+    """Flag `@prop` segments the main parser drops without a trace.
+
+    Re-scans with the parser's own splitting rules: malformed head or
+    filter segment → error (the data silently never reaches the catalog);
+    valid syntax with an unknown key → warning (typo like `descripton:`).
+    """
+    for match in _RAW_PROP.finditer(source):
+        body = match.group(1)
+        segments = split_filter_segments(body)
+        line = source.count("\n", 0, match.start()) + 1
+
+        head = segments[0]
+        if not head_is_valid(head):
+            yield LintIssue(
+                rule="malformed-prop-filter",
+                severity="error",
+                message=(
+                    f"`@prop` head `{head}` is not parseable (expected `name:type`) "
+                    "— the whole annotation is ignored."
+                ),
+                component_path=component_path,
+                line=line,
+                params=(("kind", "head"), ("segment", head)),
+            )
+            continue
+
+        name = _RAW_HEAD.match(head).group(1).lstrip(":")  # type: ignore[union-attr]
+        for seg in segments[1:]:
+            key = match_filter_segment(seg)
+            if key is None:
+                yield LintIssue(
+                    rule="malformed-prop-filter",
+                    severity="error",
+                    message=(
+                        f"`{name}`: filter segment `{seg}` is malformed — it is "
+                        "silently ignored (check quotes and escapes)."
+                    ),
+                    component_path=component_path,
+                    line=line,
+                    prop_name=name,
+                    params=(("kind", "filter"), ("prop", name), ("segment", seg)),
+                )
+            elif key not in FILTER_KEYS:
+                yield LintIssue(
+                    rule="unknown-prop-filter",
+                    severity="warning",
+                    message=(
+                        f"`{name}`: unknown filter `{key}` — expected one of "
+                        "default, description, required, deprecated, hidden, example."
+                    ),
+                    component_path=component_path,
+                    line=line,
+                    prop_name=name,
+                    params=(("prop", name), ("key", key)),
+                )
 
 
 def scan_undeclared_template_vars(
