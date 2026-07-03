@@ -12,7 +12,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
+    rev: v0.15.20   # keep in sync with CI (ruff >=0.15 resolves to 0.15.20)
     hooks:
       - id: ruff
         args: [--fix]
