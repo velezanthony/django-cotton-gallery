@@ -15,6 +15,7 @@ from .core.component_graph import build_graph, scan_external_users
 from .core.insights import compute_insights
 from .core.linter import lint_catalog, lint_component, lint_summary
 from .core.path_safety import UnsafePath
+from .core.schemas import ComponentSummary, SummaryCatalog
 from .core.source_reader import read_text
 from .factories import get_catalog_service, get_parser, get_preview_service
 from .setup_check import check_setup, has_blocking_errors
@@ -39,16 +40,31 @@ def _cached_lint_summary(catalog: CatalogService) -> dict[str, tuple[int, int, i
     return fresh
 
 
+def _summary_catalog(catalog: CatalogService) -> SummaryCatalog:
+    """Project the catalog to `ComponentSummary` — the source-free shape the
+    templates render. Keeps the ~130 component sources out of the template
+    context (and thus out of Debug Toolbar's per-render snapshot, which would
+    otherwise retain ~385 MB/request and OOM-kill the dev server).
+    """
+    return {
+        cat: {
+            sub: [ComponentSummary(c.name, c.path, c.tag_path, c.description) for c in comps]
+            for sub, comps in subcats.items()
+        }
+        for cat, subcats in catalog.get_catalog().items()
+    }
+
+
 def _sidebar_context(catalog: CatalogService) -> dict:
     """Context every view needs to render the sidebar correctly.
 
-    `lint_summary` powers the per-component error/warning/hint badges next
-    to each link. It's cached by catalog signature so subsequent navigations
-    skip the regex pass; cache invalidates the moment any component file's
-    mtime changes.
+    `categories` is the source-free `ComponentSummary` projection (sidebar,
+    index grid, and compare all read from it). `lint_summary` powers the
+    per-component badges — cached by catalog signature so navigations skip the
+    regex pass; both invalidate the moment any component file's mtime changes.
     """
     return {
-        "categories": catalog.get_catalog(),
+        "categories": _summary_catalog(catalog),
         "lint_summary": _cached_lint_summary(catalog),
     }
 
