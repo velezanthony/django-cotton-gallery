@@ -2084,7 +2084,7 @@ body.cg-modal-open { overflow: hidden; }
 .cg-source .token.alpine-attr,
 .cg-detail__tag-row .token.alpine-attr,
 .cg-preview__code .token.alpine-attr {
-  color: #ff8ac2;
+  color: #4fc1ff;
 }
 
 /* Consistency fix — Django tokens embedded inside an HTML attribute value
@@ -2197,21 +2197,33 @@ body.cg-modal-open { overflow: hidden; }
 .cg-source .language-javascript {
   color: #9cdcfe;
 }
-.cg-source .language-javascript .token.keyword {
+.cg-source .language-javascript .token.keyword,
+.cg-source .language-javascript .token.boolean {
   color: #569cd6;
 }
 .cg-source .language-javascript .token.function {
   color: #dcdcaa;
 }
-.cg-source .language-javascript .token.parameter {
+.cg-source .language-javascript .token.parameter,
+.cg-source .language-javascript .token.property {
   color: #9cdcfe;
 }
 .cg-source .language-javascript .token.class-name {
   color: #4ec9b0;
 }
-.cg-source .language-javascript .token.boolean,
 .cg-source .language-javascript .token.number {
   color: #b5cea8;
+}
+
+/* A Django `{% %}` / `{{ }}` tag nested inside an Alpine value (which we
+   JS-inject) must keep the Django palette — purple keywords, teal delimiters —
+   not the JS one. Higher specificity than the JS keyword rule above. */
+.cg-source .language-javascript .token.django .token.keyword,
+.cg-source .language-javascript .token.django .token.tag.keyword {
+  color: #c586c0;
+}
+.cg-source .language-javascript .token.django .token.delimiter.punctuation {
+  color: #4ec9b0;
 }
 
 /* Embedded CSS (`<style>` inside a component's source). Same story as JS — the
