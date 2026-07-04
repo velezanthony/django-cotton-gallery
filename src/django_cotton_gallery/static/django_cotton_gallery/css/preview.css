@@ -2065,6 +2065,46 @@ body.cg-modal-open { overflow: hidden; }
   font-style: italic;
 }
 
+/* Cotton-stack tokens (from js/prism-cotton-stack.js): Cotton component tags
+   and the HTMX / Alpine attribute vocabularies get their own hue so they read
+   as "framework directives", not plain tags/attributes. Same VSCode Dark+
+   family as above. */
+.cg-source .token.cotton-tag,
+.cg-detail__tag-row .token.cotton-tag,
+.cg-preview__code .token.cotton-tag {
+  color: #c586c0;
+}
+
+.cg-source .token.htmx-attr,
+.cg-detail__tag-row .token.htmx-attr,
+.cg-preview__code .token.htmx-attr {
+  color: #4fc1ff;
+}
+
+.cg-source .token.alpine-attr,
+.cg-detail__tag-row .token.alpine-attr,
+.cg-preview__code .token.alpine-attr {
+  color: #ff8ac2;
+}
+
+/* Consistency fix — Django tokens embedded inside an HTML attribute value
+   (e.g. class="…{% if %}…") nest under .token.tag, where the HTML-tag rules
+   (.token.tag .token.tag, .token.tag .token.punctuation) would otherwise win by
+   specificity and paint keywords blue / delimiters gray. Re-assert the Django
+   colors via the .token.django context (0,0,6 beats 0,0,5) so if/endif stay
+   purple and {% %}/{{ }} stay teal in every position — inside attrs or not. */
+.cg-source .token.django .token.tag.keyword,
+.cg-detail__tag-row .token.django .token.tag.keyword,
+.cg-preview__code .token.django .token.tag.keyword {
+  color: #c586c0;
+}
+
+.cg-source .token.django .token.delimiter.punctuation,
+.cg-detail__tag-row .token.django .token.delimiter.punctuation,
+.cg-preview__code .token.django .token.delimiter.punctuation {
+  color: #4ec9b0;
+}
+
 .cg-source .token.keyword,
 .cg-detail__tag-row .token.keyword,
 .cg-preview__code .token.keyword,
