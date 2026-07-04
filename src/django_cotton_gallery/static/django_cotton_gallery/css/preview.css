@@ -2087,6 +2087,13 @@ body.cg-modal-open { overflow: hidden; }
   color: #4fc1ff;
 }
 
+/* Python ALL_CAPS constants (INSTALLED_APPS, DEBUG, LANGUAGES…) — a constant
+   blue, not the plain near-white a regular name gets. Only Python emits this
+   token, and only in the docs/get-started .cg-source blocks. */
+.cg-source .token.constant {
+  color: #4fc1ff;
+}
+
 /* Consistency fix — Django tokens embedded inside an HTML attribute value
    (e.g. class="…{% if %}…") nest under .token.tag, where the HTML-tag rules
    (.token.tag .token.tag, .token.tag .token.punctuation) would otherwise win by

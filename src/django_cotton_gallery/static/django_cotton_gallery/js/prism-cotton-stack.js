@@ -110,4 +110,13 @@
       },
     });
   }
+
+  // Python ALL_CAPS names read as constants (Django settings like INSTALLED_APPS,
+  // DEBUG, …). Prism-python leaves them plain (near-white); tokenize them so the
+  // palette can color them. Appended last so keywords / booleans / builtins win
+  // first; the pattern only matches fully upper-case words (`\b…\b`), so mixed
+  // case like `HTTPServer` is untouched.
+  if (Prism.languages.python) {
+    Prism.languages.python.constant = { pattern: /\b[A-Z][A-Z0-9_]*\b/ };
+  }
 })(window.Prism);
