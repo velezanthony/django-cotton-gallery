@@ -1211,6 +1211,14 @@ div.cg-attrs__input[contenteditable].cg-attrs__input--expanded {
   overflow: hidden;
 }
 
+/* The Código tab holds a dark code block; the panel's surface (white in light
+   theme) otherwise peeks around it as a strip. Match the panel to the code bg
+   when it contains one. */
+.cg-tabs__panel:has(.cg-source) {
+  background: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .cg-app.cg-loading::before {
   opacity: 1;
   animation: cg-loading-bar 1s ease-in-out infinite;
