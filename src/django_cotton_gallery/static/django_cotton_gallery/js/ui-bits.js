@@ -585,6 +585,17 @@ export const initAnnotationBuilder = (root = document) => {
   const validationEl = builder.querySelector('[data-cg-bld-validation]');
   if (!entriesContainer || !tpl || !annotationsEl || !cvarsEl || !outputEl) return;
 
+  // Component-level fields (once) + slots (0..n) — the builder composes the
+  // whole annotation block, not just @prop lines.
+  const compDescEl = builder.querySelector('[data-cg-bld-comp-description]');
+  const strictEl = builder.querySelector('[data-cg-bld-strict]');
+  const ignoreUnusedEl = builder.querySelector('[data-cg-bld-ignore-unused]');
+  const triggerEl = builder.querySelector('[data-cg-bld-trigger]');
+  const triggerDescEl = builder.querySelector('[data-cg-bld-trigger-desc]');
+  const slotsContainer = builder.querySelector('[data-cg-builder-slots]');
+  const slotAddBtn = builder.querySelector('[data-cg-builder-slot-add]');
+  const slotTpl = builder.querySelector('[data-cg-bld-slot-tpl]');
+
   const VALID_BOOL = new Set(['True', 'False', 'true', 'false', '1', '0']);
   // Annotation filter values are double-quoted with backslash escapes —
   // the exact convention the @prop parser resolves (`\"` → `"`, `\\` → `\`).
@@ -682,33 +693,87 @@ export const initAnnotationBuilder = (root = document) => {
     return { annotation, cvar, warnings };
   };
 
+  /**
+   * Read one slot entry → its `@slot` line. Empty name = the default slot;
+   * otherwise `@slot:name`. Body is `content — description`, either side
+   * optional (description-only starts with the em-dash). A fully empty entry
+   * contributes nothing.
+   */
+  const composeSlot = (slot, index) => {
+    const get = (sel) => slot.querySelector(sel);
+    const name = (get('[data-cg-bld-slot-name]')?.value || '').trim();
+    const content = (get('[data-cg-bld-slot-content]')?.value || '').trim();
+    const desc = (get('[data-cg-bld-slot-desc]')?.value || '').trim();
+
+    const titleEl = get('[data-cg-bld-slot-title]');
+    if (titleEl) titleEl.textContent = name ? `:${name}` : (content || desc ? 'default' : `Slot #${index + 1}`);
+
+    if (!name && !content && !desc) return null;
+
+    const prefix = '@slot' + (name ? `:${name}` : '');
+    let body = '';
+    if (content && desc) body = `${content} — ${desc}`;
+    else if (content) body = content;
+    else if (desc) body = `— ${desc}`;
+    return `{# ${prefix}${body ? ' ' + body : ''} #}`;
+  };
+
   const render = () => {
-    const entries = Array.from(entriesContainer.querySelectorAll('[data-cg-bld-entry]'));
-    const annotations = [];
-    const cvarParts = [];
+    // The block is assembled in canonical order: flags, @description, @props,
+    // @slots, @trigger — then the matching <c-vars> line from the props.
+    const lines = [];
     const allWarnings = [];
 
+    if (strictEl?.checked) lines.push('{# @strict #}');
+    if (ignoreUnusedEl?.checked) lines.push('{# @ignore-unused #}');
+    const compDesc = (compDescEl?.value || '').trim();
+    if (compDesc) lines.push(`{# @description ${compDesc} #}`);
+
+    // ── Props → @prop lines + <c-vars> fragments.
+    const entries = Array.from(entriesContainer.querySelectorAll('[data-cg-bld-entry]'));
+    const cvarParts = [];
     entries.forEach((entry, i) => {
       const { annotation, cvar, warnings } = composeEntry(entry, i);
-      if (annotation) annotations.push(annotation);
+      if (annotation) lines.push(annotation);
       if (cvar) cvarParts.push(cvar);
       allWarnings.push(...warnings);
     });
 
-    // Detect duplicate names across entries — both the @prop and the
-    // <c-vars> would shadow each other in the same component.
+    // ── Slots → @slot lines.
+    const slots = slotsContainer
+      ? Array.from(slotsContainer.querySelectorAll('[data-cg-bld-slot]'))
+      : [];
+    slots.forEach((slot, i) => {
+      const line = composeSlot(slot, i);
+      if (line) lines.push(line);
+    });
+
+    // ── Trigger (last).
+    const trigger = (triggerEl?.value || '').trim();
+    const triggerDesc = (triggerDescEl?.value || '').trim();
+    if (trigger) lines.push(`{# @trigger ${trigger}${triggerDesc ? ' — ' + triggerDesc : ''} #}`);
+
+    // Detect duplicate prop names — both the @prop and the <c-vars> would
+    // shadow each other in the same component.
     const names = entries
       .map((e) => (e.querySelector('[data-cg-bld-name]')?.value || '').trim())
       .filter(Boolean);
     const dupes = names.filter((n, i) => names.indexOf(n) !== i);
     dupes.forEach((n) => allWarnings.push(`<code>${n}</code>: duplicate name — every prop must be unique.`));
 
-    const annotationsBlock = annotations.length
-      ? annotations.join('\n')
-      : '{# @prop name:text | description:"" #}';
-    const cvarsLine = cvarParts.length
-      ? `<c-vars ${cvarParts.join(' ')} />`
-      : '<c-vars name="" />';
+    // A `#}` in any field closes the Django comment early and CANNOT be
+    // escaped inside a `{# … #}` comment — warn so the block isn't silently
+    // broken. (Only live inputs are scanned; <template> content is inert.)
+    const hasTerminator = Array.from(builder.querySelectorAll('input[type="text"]'))
+      .some((el) => (el.value || '').includes('#}'));
+    if (hasTerminator) {
+      allWarnings.push('A field contains <code>#}</code>, which closes the annotation comment early — remove it (it can\'t be escaped inside a <code>{# … #}</code> comment).');
+    }
+
+    const annotationsBlock = lines.length
+      ? lines.join('\n')
+      : '{# @description Short component summary #}';
+    const cvarsLine = cvarParts.length ? `<c-vars ${cvarParts.join(' ')} />` : '<c-vars />';
 
     annotationsEl.textContent = annotationsBlock;
     cvarsEl.textContent = cvarsLine;
@@ -777,7 +842,37 @@ export const initAnnotationBuilder = (root = document) => {
 
   if (addBtn) addBtn.addEventListener('click', addEntry);
 
-  // Spawn the first entry on init (cleaner than rendering a fixed one
-  // server side that we'd then have to wire imperatively).
+  // ── Slots: mirror the prop-entry machinery, but with no minimum (a
+  // component may have zero slots, unlike the always-present first prop).
+  const wireSlot = (slot) => {
+    ['[data-cg-bld-slot-name]', '[data-cg-bld-slot-content]', '[data-cg-bld-slot-desc]'].forEach((sel) => {
+      const el = slot.querySelector(sel);
+      if (el) el.addEventListener('input', render);
+    });
+    const removeBtn = slot.querySelector('[data-cg-bld-slot-remove]');
+    if (removeBtn) removeBtn.addEventListener('click', () => { slot.remove(); render(); });
+  };
+
+  const addSlot = () => {
+    if (!slotsContainer || !slotTpl) return;
+    slotsContainer.appendChild(slotTpl.content.cloneNode(true));
+    const slot = slotsContainer.lastElementChild;
+    wireSlot(slot);
+    render();
+    slot.querySelector('[data-cg-bld-slot-name]')?.focus();
+    return slot;
+  };
+  if (slotAddBtn) slotAddBtn.addEventListener('click', addSlot);
+
+  // ── Component-level fields drive the render as well.
+  [compDescEl, triggerEl, triggerDescEl].forEach((el) => {
+    if (el) el.addEventListener('input', render);
+  });
+  [strictEl, ignoreUnusedEl].forEach((el) => {
+    if (el) el.addEventListener('change', render);
+  });
+
+  // Spawn the first prop entry on init (cleaner than rendering a fixed one
+  // server side that we'd then have to wire imperatively). Slots start empty.
   addEntry();
 };

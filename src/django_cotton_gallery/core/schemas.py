@@ -48,6 +48,12 @@ class ParsedComponent:
     trigger: str = ""
     description: str = ""
     accepts_attrs: bool = False
+    # `{# @strict #}` — the component declares a closed prop set: anything not
+    # listed via `@prop` is unexpected. Surfaced as a badge and a lint rule.
+    strict: bool = False
+    # `{# @ignore-unused #}` — the component is deliberately unreferenced in this
+    # workspace (e.g. a library component), so Insights excludes it from zombies.
+    ignore_unused: bool = False
 
     @property
     def has_slots(self) -> bool:

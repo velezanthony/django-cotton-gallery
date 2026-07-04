@@ -30,6 +30,7 @@ RuleCode = Literal[
     "malformed-prop-filter",
     "unknown-prop-filter",
     "undeclared-template-var",
+    "strict-with-attrs",
 ]
 
 

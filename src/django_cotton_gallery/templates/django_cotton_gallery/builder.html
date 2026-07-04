@@ -7,22 +7,68 @@
   <header class="cg-builder__header">
     <h1 class="cg-builder__title">{% trans "Annotation builder" %}</h1>
     <p class="cg-builder__intro">
-      {% blocktranslate %}Compose <code>@prop</code> annotations and the matching <code>&lt;c-vars&gt;</code> line interactively. Add as many props as you need, fill the fields, and copy the result into a new component template.{% endblocktranslate %}
+      {% blocktranslate %}Compose a component's <strong>whole annotation block</strong> interactively — the <code>@description</code>, <code>@strict</code> / <code>@ignore-unused</code> flags, <code>@prop</code>s, <code>@slot</code>s and <code>@trigger</code> — plus the matching <code>&lt;c-vars&gt;</code> line. Fill the fields and copy the result into a new component template.{% endblocktranslate %}
     </p>
   </header>
 
   <div class="cg-builder" data-cg-builder>
     <div class="cg-builder__grid">
 
-      {# ── Form (left): list of prop entries ── #}
+      {# ── Form (left): component-level fields, then props, then slots ── #}
       <div class="cg-builder__form-side">
-        <div class="cg-builder__entries" data-cg-builder-entries></div>
-        <button type="button" class="cg-builder__add" data-cg-builder-add>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 4.5v15m7.5-7.5h-15"/>
-          </svg>
-          <span>{% trans "Add prop" %}</span>
-        </button>
+
+        {# ── Component-level annotations (once) ── #}
+        <section class="cg-builder__group">
+          <h2 class="cg-builder__group-title">{% trans "Component" %}</h2>
+          <div class="cg-builder__field">
+            <label class="cg-builder__label">{% trans "Description" %}</label>
+            <p class="cg-builder__hint">{% trans "One-line summary — the @description annotation." %}</p>
+            <input type="text" class="cg-input" data-cg-bld-comp-description placeholder="{% trans 'Compact label for status or counts' %}">
+          </div>
+          <div class="cg-builder__field cg-builder__field--checks cg-builder__field--full">
+            <label class="cg-builder__check">
+              <input type="checkbox" data-cg-bld-strict>
+              <span><code>@strict</code> — {% trans "closed prop set" %}</span>
+            </label>
+            <label class="cg-builder__check">
+              <input type="checkbox" data-cg-bld-ignore-unused>
+              <span><code>@ignore-unused</code> — {% trans "skip zombie check" %}</span>
+            </label>
+          </div>
+          <div class="cg-builder__field">
+            <label class="cg-builder__label">{% trans "Trigger" %}</label>
+            <p class="cg-builder__hint">{% trans "For modals/drawers — the element that opens the component (@trigger)." %}</p>
+            <input type="text" class="cg-input" data-cg-bld-trigger placeholder="&lt;button&gt;Open&lt;/button&gt;">
+          </div>
+          <div class="cg-builder__field">
+            <label class="cg-builder__label">{% trans "Trigger description" %}</label>
+            <input type="text" class="cg-input" data-cg-bld-trigger-desc placeholder="{% trans 'Opens the dialog' %}">
+          </div>
+        </section>
+
+        {# ── Props (0..n) ── #}
+        <section class="cg-builder__group">
+          <h2 class="cg-builder__group-title">{% trans "Props" %}</h2>
+          <div class="cg-builder__entries" data-cg-builder-entries></div>
+          <button type="button" class="cg-builder__add" data-cg-builder-add>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            <span>{% trans "Add prop" %}</span>
+          </button>
+        </section>
+
+        {# ── Slots (0..n) ── #}
+        <section class="cg-builder__group">
+          <h2 class="cg-builder__group-title">{% trans "Slots" %}</h2>
+          <div class="cg-builder__entries" data-cg-builder-slots></div>
+          <button type="button" class="cg-builder__add" data-cg-builder-slot-add>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            <span>{% trans "Add slot" %}</span>
+          </button>
+        </section>
       </div>
 
       {# ── Live preview pane (right): @prop block + <c-vars> line ── #}
@@ -147,6 +193,38 @@
           <label class="cg-builder__label">{% trans "Example" %}</label>
           <p class="cg-builder__hint">{% trans "Optional usage hint for hover docs." %}</p>
           <input type="text" class="cg-input" data-cg-bld-example>
+        </div>
+      </div>
+    </div>
+  </template>
+
+    {% comment %}Slot entry template — cloned each time the user clicks "Add slot".{% endcomment %}
+    <template data-cg-bld-slot-tpl>
+    <div class="cg-builder__entry" data-cg-bld-slot>
+      <header class="cg-builder__entry-head">
+        <span class="cg-builder__entry-title" data-cg-bld-slot-title>{% trans "Slot" %}</span>
+        <button type="button" class="cg-builder__entry-remove" data-cg-bld-slot-remove aria-label="{% trans 'Remove this slot' %}" title="{% trans 'Remove' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>
+        </button>
+      </header>
+
+      <div class="cg-builder__entry-grid">
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Name" %}</label>
+          <p class="cg-builder__hint">{% trans "Empty = the default slot; otherwise a named slot (@slot:name)." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-slot-name placeholder="actions">
+        </div>
+
+        <div class="cg-builder__field">
+          <label class="cg-builder__label">{% trans "Default content" %}</label>
+          <p class="cg-builder__hint">{% trans "Shown in the gallery preview. Optional." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-slot-content placeholder="Click me">
+        </div>
+
+        <div class="cg-builder__field cg-builder__field--full">
+          <label class="cg-builder__label">{% trans "Description" %}</label>
+          <p class="cg-builder__hint">{% trans "Optional — rendered after a — separator." %}</p>
+          <input type="text" class="cg-input" data-cg-bld-slot-desc placeholder="{% trans 'Top-right action buttons' %}">
         </div>
       </div>
     </div>

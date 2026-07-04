@@ -247,6 +247,8 @@ def component_detail(request: HttpRequest, component_path: str) -> HttpResponse:
             "slots": parsed.slots,
             "has_slots": parsed.has_slots,
             "accepts_attrs": parsed.accepts_attrs,
+            "strict": parsed.strict,
+            "ignore_unused": parsed.ignore_unused,
             "lint": lint_report,
             "deps_uses": deps_uses,
             "deps_used_by": deps_used_by,
@@ -444,6 +446,10 @@ def props_index(request: HttpRequest) -> JsonResponse:
             "has_named_slots": any(s.name for s in parsed.slots),
             "has_default_slot": any(s.name is None for s in parsed.slots),
             "deprecated": any(p.deprecated for p in parsed.props),
+            # Fuels the `strict` switcher filter — closed prop set (@strict).
+            "strict": parsed.strict,
+            # Fuels the `ignore-unused` switcher filter (@ignore-unused).
+            "ignore_unused": parsed.ignore_unused,
         }
     return JsonResponse(out)
 

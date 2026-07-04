@@ -1,0 +1,10 @@
+{# @ignore-unused #}
+{# @description Work-in-progress panel — nothing renders it yet, but @ignore-unused keeps it out of the Insights zombie list. #}
+{# @prop title:text | default:"Draft" | description:"Panel title" #}
+
+<c-vars title="Draft" />
+
+<div class="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500" {{ attrs }}>
+  <strong>{{ title }}</strong>
+  {{ slot }}
+</div>

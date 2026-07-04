@@ -2464,6 +2464,89 @@ button.cg-detail__lint-badge:hover { filter: brightness(0.97); }
   color: #1d4ed8;
   border-color: rgba(37, 99, 235, 0.25);
 }
+
+/* `@strict` marker — a component with a closed prop set. Neutral (indigo)
+   so it reads as a semantic tag, not an error/warning. */
+.cg-detail__strict-badge {
+  display: inline-flex; align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid rgba(124, 58, 237, 0.30);
+  background: rgba(124, 58, 237, 0.10);
+  color: #6d28d9;
+  font-family: var(--cg-font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: default;
+}
+[data-theme="dark"] .cg-detail__strict-badge {
+  border-color: rgba(167, 139, 250, 0.30);
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b5fd;
+}
+
+/* `@ignore-unused` marker — muted/grey; it's an informational usage flag,
+   not a declaration that changes how the component renders. */
+.cg-detail__ignore-badge {
+  display: inline-flex; align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid var(--cg-gray-300, rgba(100, 116, 139, 0.30));
+  background: var(--cg-gray-100, rgba(100, 116, 139, 0.08));
+  color: var(--cg-text-muted, #64748b);
+  font-family: var(--cg-font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+[data-theme="dark"] .cg-detail__ignore-badge {
+  border-color: rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.10);
+  color: #94a3b8;
+}
+
+/* Dependencies-tab zombie banner. `--alert` (amber) when unreferenced and not
+   ignored; `--ignored` (muted) when @ignore-unused explains the absence. */
+.cg-deps__zombie {
+  grid-column: 1 / -1;
+  margin: 0 0 0.25rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid transparent;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.cg-deps__zombie code { font-size: 0.75rem; }
+.cg-deps__zombie--alert {
+  border-color: rgba(217, 119, 6, 0.30);
+  background: rgba(217, 119, 6, 0.08);
+  color: #b45309;
+}
+.cg-deps__zombie--ignored {
+  border-color: var(--cg-gray-300, rgba(100, 116, 139, 0.25));
+  background: var(--cg-gray-100, rgba(100, 116, 139, 0.06));
+  color: var(--cg-text-muted, #64748b);
+}
+[data-theme="dark"] .cg-deps__zombie--alert { border-color: rgba(251, 191, 36, 0.30); background: rgba(251, 191, 36, 0.08); color: #fbbf24; }
+[data-theme="dark"] .cg-deps__zombie--ignored { border-color: rgba(148, 163, 184, 0.22); background: rgba(148, 163, 184, 0.08); color: #94a3b8; }
+
+/* @strict + {{ attrs }} conflict — the extra-attrs editor is shown disabled
+   and flagged red so the contradiction is visible where the user would type. */
+.cg-control--conflict {
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: var(--cg-radius-md);
+  padding: 0.5rem;
+  background: rgba(220, 38, 38, 0.04);
+}
+.cg-attrs--disabled { opacity: 0.5; pointer-events: none; user-select: none; }
+.cg-attrs__conflict {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #b91c1c;
+}
+.cg-attrs__conflict code { font-size: 0.6875rem; }
+[data-theme="dark"] .cg-control--conflict { border-color: rgba(248, 113, 113, 0.35); background: rgba(248, 113, 113, 0.06); }
+[data-theme="dark"] .cg-attrs__conflict { color: #fca5a5; }
 .cg-detail__lint-extra {
   font-weight: 500;
   opacity: 0.75;
@@ -3499,8 +3582,18 @@ body.cg-modal-open { overflow: hidden; }
   .cg-builder__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 36rem); }
 }
 
-.cg-builder__form-side { display: flex; flex-direction: column; gap: 0.75rem; }
+.cg-builder__form-side { display: flex; flex-direction: column; gap: 1.25rem; }
 .cg-builder__entries { display: flex; flex-direction: column; gap: 0.75rem; }
+/* Section grouping — Component / Props / Slots. */
+.cg-builder__group { display: flex; flex-direction: column; gap: 0.75rem; }
+.cg-builder__group-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+}
 
 /* Field base — declared BEFORE the modifiers (`--checks`, `--full`) so
    modifier rules win the cascade. Living next to the entry CSS keeps the

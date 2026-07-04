@@ -442,7 +442,7 @@ filters in-memory.
   <div class="cg-switcher__panel">
     <div class="cg-switcher__input-wrap">
       <svg class="cg-switcher__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-      <input type="text" id="cg-switcher-search" name="cg-switcher-search" class="cg-switcher__input" data-cg-switcher-input placeholder="{% trans 'Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, deprecated' %}" aria-label="{% trans 'Search components' %}" autocomplete="off" spellcheck="false">
+      <input type="text" id="cg-switcher-search" name="cg-switcher-search" class="cg-switcher__input" data-cg-switcher-input placeholder="{% trans 'Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, deprecated, strict' %}" aria-label="{% trans 'Search components' %}" autocomplete="off" spellcheck="false">
       <kbd class="cg-switcher__kbd" aria-hidden="true">Esc</kbd>
     </div>
     <ul class="cg-switcher__list" data-cg-switcher-list role="listbox" aria-label="{% trans 'Components' %}"></ul>
@@ -463,6 +463,8 @@ filters in-memory.
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-named-slots ">has-named-slots</button>
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-default-slot ">has-default-slot</button>
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="deprecated ">deprecated</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="strict ">strict</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="ignore-unused ">ignore-unused</button>
     </div>
   </div>
 </div>

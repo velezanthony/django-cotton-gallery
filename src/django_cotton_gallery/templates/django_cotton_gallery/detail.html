@@ -47,6 +47,8 @@
 
     <div class="cg-detail__tag-row">
       <code class="cg-detail__tag" id="cg-detail-tag">&lt;c-{{ tag_path }} /&gt;</code>
+      {% if strict %}<span class="cg-detail__strict-badge" title="{% trans 'Closed prop set — only declared @props are accepted' %}">@strict</span>{% endif %}
+      {% if ignore_unused %}<span class="cg-detail__ignore-badge" title="{% trans 'Excluded from the Insights zombie check — intentionally unreferenced here' %}">@ignore-unused</span>{% endif %}
       <button type="button" class="cg-detail__tag-copy"
               data-cg-copy-target="#cg-detail-tag"
               aria-label="{% trans 'Copy component tag' %}">{% trans "Copy tag" %}</button>
@@ -278,11 +280,17 @@
             {% endfor %}
 
             {% if accepts_attrs %}
-              <div class="cg-control cg-control--attrs">
+              {% comment %}
+              A @strict component declares a closed prop set. When its source
+              still spreads attrs the two contradict — the editor is shown
+              disabled and flagged (the linter raises the same as an error).
+              {% endcomment %}
+              <div class="cg-control cg-control--attrs{% if strict %} cg-control--conflict{% endif %}">
                 <div class="cg-control__head">
                   <span class="cg-control__label">{% trans "Extra attributes" %}</span>
                   <span style="display:inline-flex;gap:0.25rem;align-items:center;">
                     <span class="cg-tag cg-tag--attrs">attrs</span>
+                    {% if not strict %}
                     <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Show details' %}">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="9"/>
@@ -302,8 +310,17 @@
                         <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/>
                       </svg>
                     </button>
+                    {% endif %}
                   </span>
                 </div>
+                {% if strict %}
+                <div class="cg-attrs cg-attrs--disabled">
+                  <div class="cg-input cg-attrs__input" aria-disabled="true" data-cg-placeholder='class="" disabled placeholder=""'></div>
+                </div>
+                <p class="cg-attrs__conflict" role="alert">
+                  {% blocktranslate %}Conflict — this component is <strong>@strict</strong> (closed prop set) but its source still spreads <code>&#123;&#123; attrs &#125;&#125;</code>. The two are incompatible: remove one.{% endblocktranslate %}
+                </p>
+                {% else %}
                 <div class="cg-attrs" data-cg-attrs data-cg-attrs-editor>
                   {% comment %}
                   A `<div contenteditable>` so syntax highlighting renders live AS you type
@@ -321,6 +338,7 @@
                   ></div>
                   <div class="cg-attrs__menu" data-cg-attrs-menu hidden role="listbox" aria-label="{% trans 'Attribute suggestions' %}"></div>
                 </div>
+                {% endif %}
               </div>
             {% endif %}
 
@@ -447,6 +465,21 @@
         sidebar-nav that may still have External-usage information.
       {% endcomment %}
       <div class="cg-deps">
+          {% comment %}
+          Zombie banner — a component nothing references (0 internal + 0 external,
+          only decidable when external scanning is on). @ignore-unused suppresses
+          the alert and explains itself; if it's set but the component IS used,
+          say the flag has no effect.
+          {% endcomment %}
+          {% if ignore_unused %}
+            {% if external_scan_enabled and not deps_used_by and not deps_external %}
+              <p class="cg-deps__zombie cg-deps__zombie--ignored">{% blocktranslate %}<code>@ignore-unused</code> — nothing references this component, but it's <strong>intentionally</strong> unreferenced here, so Insights won't flag it as a zombie.{% endblocktranslate %}</p>
+            {% else %}
+              <p class="cg-deps__zombie cg-deps__zombie--ignored">{% blocktranslate %}<code>@ignore-unused</code> is set, but this component <strong>is</strong> referenced — the flag has no effect here.{% endblocktranslate %}</p>
+            {% endif %}
+          {% elif external_scan_enabled and not deps_used_by and not deps_external %}
+            <p class="cg-deps__zombie cg-deps__zombie--alert" role="alert">{% blocktranslate %}<strong>Zombie</strong> — nothing in the catalog or your templates references this component. If that's intentional (a library or WIP component), add <code>&#123;# @ignore-unused #&#125;</code> to silence this.{% endblocktranslate %}</p>
+          {% endif %}
           <div class="cg-deps__col">
             <h3 class="cg-deps__title">
               {% trans "Uses" %}

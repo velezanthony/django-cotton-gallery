@@ -131,6 +131,8 @@ const parseSwitcherQuery = (raw) => {
     else if (lower === 'has-named-slots') filters.push({ kind: 'has-named-slots' });
     else if (lower === 'has-default-slot') filters.push({ kind: 'has-default-slot' });
     else if (lower === 'deprecated') filters.push({ kind: 'deprecated' });
+    else if (lower === 'strict') filters.push({ kind: 'strict' });
+    else if (lower === 'ignore-unused') filters.push({ kind: 'ignore-unused' });
     else if (lower.startsWith('prop:')) {
       const rest = tok.slice(5);
       // Empty value (just `prop:`) routes into the partial-name path so
@@ -161,6 +163,8 @@ const propsIndexMatches = (filter, propsData) => {
   if (filter.kind === 'has-named-slots') return !!propsData.has_named_slots;
   if (filter.kind === 'has-default-slot') return !!propsData.has_default_slot;
   if (filter.kind === 'deprecated') return !!propsData.deprecated;
+  if (filter.kind === 'strict') return !!propsData.strict;
+  if (filter.kind === 'ignore-unused') return !!propsData.ignore_unused;
   if (filter.kind === 'slot') {
     return (propsData.slots || []).some((s) => (s || '').toLowerCase().includes(filter.name));
   }
@@ -337,6 +341,8 @@ export const initQuickSwitcher = () => {
       if (f.kind === 'has-named-slots') return 'with at least one named slot';
       if (f.kind === 'has-default-slot') return 'with a default slot';
       if (f.kind === 'deprecated') return 'with deprecated props';
+      if (f.kind === 'strict') return 'that are @strict';
+      if (f.kind === 'ignore-unused') return 'marked @ignore-unused';
       return '';
     }).filter(Boolean);
     return 'Components ' + parts.join(' · ');

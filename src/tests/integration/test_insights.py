@@ -94,6 +94,10 @@ class TestPropsIndex:
         assert "accepts_attrs" in button
         assert "has_slots" in button
         assert "deprecated" in button
+        # `strict` fuels the switcher's `strict` filter; the button isn't @strict.
+        assert button["strict"] is False
+        # `ignore_unused` fuels the switcher's `ignore-unused` filter.
+        assert button["ignore_unused"] is False
         # The button fixture has a `label` prop so it should surface.
         assert any(p["name"] == "label" for p in button["props"])
 
@@ -294,3 +298,26 @@ class TestDiscoverTemplateRoots:
         # gallery_setup configures TEMPLATES with one DIRS entry — that
         # path must appear in the roots.
         assert any(str(gallery_setup) in str(r) for r in roots)
+
+
+class TestZombiesIgnoreUnused:
+    """`{# @ignore-unused #}` opts a component out of the zombie check — for
+    library components that are deliberately unreferenced in this workspace."""
+
+    def test_ignore_unused_excluded_from_zombies(self):
+        from django_cotton_gallery.core.annotations import AnnotationParser
+        from django_cotton_gallery.core.insights import compute_insights
+
+        # Both components have zero references; only one opts out.
+        lib = "{# @ignore-unused #}\n<div></div>\n"
+        orphan = "<div></div>\n"
+        report = compute_insights(
+            catalog={},
+            items=[("atoms/lib", lib), ("atoms/orphan", orphan)],
+            parser=AnnotationParser(),
+            scan_enabled=True,
+            used_by_map={},
+            external_map={},
+        )
+        assert "atoms/orphan" in report.zombies
+        assert "atoms/lib" not in report.zombies

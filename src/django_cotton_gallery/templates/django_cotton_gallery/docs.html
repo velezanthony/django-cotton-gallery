@@ -284,6 +284,20 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
 {# @trigger <button>Open</button> — Element that opens the dialog #}{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
+
+      <h2 class="cg-docs__h2">{% blocktranslate %}Strict components (<code>@strict</code>){% endblocktranslate %}</h2>
+      <p>{% blocktranslate %}Add <code>&#123;# @strict #&#125;</code> to declare a <em>closed prop set</em> — every prop is listed via <code>@prop</code>. The detail page shows a <code>@strict</code> badge, and the linter turns two things into errors: an undocumented <code>&lt;c-vars&gt;</code> prop, and a stray <code>&#123;&#123; attrs &#125;&#125;</code> (which would let arbitrary attributes through, contradicting the closed set).{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @strict #}{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
+
+      <h2 class="cg-docs__h2">{% blocktranslate %}Intentionally unused (<code>@ignore-unused</code>){% endblocktranslate %}</h2>
+      <p>{% blocktranslate %}Insights flags <em>zombies</em> — components nothing references (when scanning is on). Add <code>&#123;# @ignore-unused #&#125;</code> to a component that's deliberately unreferenced (a library component, a WIP) so it's excluded from the zombie list. Shows an <code>@ignore-unused</code> badge on the detail page.{% endblocktranslate %}</p>
+      <div class="cg-docs__code-wrap" data-cg-copy-wrap>
+<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @ignore-unused #}{% endverbatim %}{% endcodeblock %}</code></pre>
+        <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
+      </div>
     </section>
 
     <section id="playground" class="cg-docs__section">

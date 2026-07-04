@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from ..annotations import TRUTHY_TOKENS, escape_filter_value
 from ..cvars import CVar, CVarsBlock
 from ..schemas import ParsedComponent, Prop
-from ._types import LintIssue
+from ._types import LintIssue, Severity
 
 
 def _infer_prop_type(value: str, has_value: bool) -> str:
@@ -181,6 +181,23 @@ def lint_one(
 ) -> tuple[LintIssue, ...]:
     issues: list[LintIssue] = []
 
+    # `@strict` promises a closed prop set, but `{{ attrs }}` lets arbitrary
+    # attributes through — the two contradict, so the "closed" promise is a lie.
+    if parsed.strict and parsed.accepts_attrs:
+        issues.append(
+            LintIssue(
+                rule="strict-with-attrs",
+                severity="error",
+                message=(
+                    "Component is `@strict` (closed prop set) but also renders "
+                    "`{{ attrs }}`, so arbitrary attributes still pass through. "
+                    "Drop `@strict` or stop spreading `{{ attrs }}`."
+                ),
+                component_path=component_path,
+                params=(),
+            )
+        )
+
     has_props = bool(parsed.props)
     has_cvars = cvars is not None
 
@@ -225,18 +242,29 @@ def lint_one(
             continue
         issues.extend(check_prop_against_cvar(component_path, prop, cvar))
 
-    # Reverse direction: cvars without an @prop comment.
+    # Reverse direction: cvars without an @prop comment. Normally a warning,
+    # but under `@strict` (closed prop set) an undocumented prop is a hard
+    # contradiction — the component promised every prop is declared.
     if cvars:
         for cv in cvars.attrs:
             if cv.clean_name not in annotated:
+                if parsed.strict:
+                    severity: Severity = "error"
+                    message = (
+                        f"`{cv.clean_name}`: declared in <c-vars> but no `@prop` — "
+                        "the component is `@strict`, so every prop must be documented."
+                    )
+                else:
+                    severity = "warning"
+                    message = (
+                        f"`{cv.clean_name}`: declared in <c-vars> but no "
+                        "`@prop` comment documents it."
+                    )
                 issues.append(
                     LintIssue(
                         rule="missing-annotation",
-                        severity="warning",
-                        message=(
-                            f"`{cv.clean_name}`: declared in <c-vars> but no "
-                            "`@prop` comment documents it."
-                        ),
+                        severity=severity,
+                        message=message,
                         component_path=component_path,
                         line=cv.line,
                         prop_name=cv.clean_name,
