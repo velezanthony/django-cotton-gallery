@@ -463,7 +463,7 @@
 .cg-preview__device[data-cg-viewport="full"]    { max-width: 100%; }
 
 .cg-preview__code {
-  background: var(--cg-gray-950);
+  background: #2d2d2d; /* match the code pre inside (one shade, no two-tone) */
   padding: 0.625rem 1rem 0.75rem;
 }
 
