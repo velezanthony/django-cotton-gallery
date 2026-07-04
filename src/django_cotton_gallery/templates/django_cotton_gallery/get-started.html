@@ -58,7 +58,7 @@ if settings.DEBUG:
       <h2 class="cg-docs__h2">{% trans "2. Use a component" %}</h2>
       <p>{% blocktranslate %}Render any component by its kebab-case path. The folder structure becomes the dotted tag name — that's the whole convention.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}<c-atoms.ui.button variant="primary">Save</c-atoms.ui.button>
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}<c-atoms.ui.button variant="primary">Save</c-atoms.ui.button>
 
 <c-atoms.ui.alert variant="success">
   Your changes were saved.
@@ -72,7 +72,7 @@ if settings.DEBUG:
       <h2 class="cg-docs__h2">{% trans "3. Make your own" %}</h2>
       <p>{% blocktranslate %}Drop a new file under <code>templates/cotton/</code>. The gallery picks it up automatically — no registration, no rebuild. Add an <code>@prop</code> annotation comment and the controls panel builds itself.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# templates/cotton/atoms/hello.html #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# templates/cotton/atoms/hello.html #}
 {# @prop name:text | default:"World" | description:"Who to greet" #}
 <c-vars name="World" />
 
