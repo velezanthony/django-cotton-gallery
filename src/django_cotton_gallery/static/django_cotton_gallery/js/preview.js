@@ -1258,6 +1258,148 @@ export const initSyntaxHighlight = () => {
   }
 };
 
+/* ── Inline lint markers in the Source tab ──────────────────────────────
+ * Surfaces the component's lint issues — already rendered AND translated in
+ * the lint panel — directly on the source lines: a severity icon in a left
+ * gutter, a tinted line with a colored bar, and a hover tooltip carrying the
+ * message + a copy-fix. Issues are read straight from the lint-panel DOM, so
+ * all i18n / suggestion rendering is reused (no re-serialization). Positions
+ * are (re)computed when the Source tab is shown — a hidden tab has no layout
+ * to measure — and rebuilt on SPA swaps.
+ */
+const CG_SEV_SVG = {
+  error:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  warning:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v4M12 18h.01"/></svg>',
+  hint:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>',
+};
+
+export const initSourceLint = () => {
+  const RANK = { error: 3, warning: 2, hint: 1 };
+  let tip = null;
+  let hideTimer = 0;
+
+  const ensureTip = () => {
+    if (tip) return tip;
+    tip = document.createElement('div');
+    tip.className = 'cg-src-tip';
+    tip.hidden = true;
+    tip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    tip.addEventListener('mouseleave', hideTip);
+    document.body.appendChild(tip);
+    return tip;
+  };
+  const hideTip = () => {
+    hideTimer = setTimeout(() => {
+      if (tip) tip.hidden = true;
+    }, 140);
+  };
+  const showTip = (anchor, issues) => {
+    clearTimeout(hideTimer);
+    const t = ensureTip();
+    t.innerHTML = '';
+    issues.forEach((iss) => {
+      const row = document.createElement('div');
+      row.className = 'cg-src-tip__row cg-src-tip__row--' + iss.sev;
+      const msg = document.createElement('span');
+      msg.className = 'cg-src-tip__msg';
+      msg.textContent = iss.msg;
+      row.appendChild(msg);
+      if (iss.suggestion) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cg-src-tip__fix';
+        btn.textContent = (window.cgI18n && window.cgI18n.copyFix) || 'Copy fix';
+        btn.addEventListener('click', () => {
+          try {
+            navigator.clipboard.writeText(iss.suggestion);
+            btn.textContent = (window.cgI18n && window.cgI18n.copied) || 'Copied';
+          } catch (_) {
+            /* clipboard blocked — ignore */
+          }
+        });
+        row.appendChild(btn);
+      }
+      t.appendChild(row);
+    });
+    t.hidden = false;
+    const r = anchor.getBoundingClientRect();
+    t.style.left = r.right + 8 + 'px';
+    t.style.top = r.top + 'px';
+  };
+
+  const build = () => {
+    const code = document.querySelector('#cg-source-code');
+    if (!code) return;
+    const pre = code.closest('pre');
+    if (!pre || !pre.offsetHeight) return; // hidden / not laid out yet
+
+    pre.querySelectorAll('.cg-src-mark, .cg-src-gutter-icon').forEach((n) => n.remove());
+
+    const byLine = new Map();
+    document
+      .querySelectorAll('[data-cg-lint-panel] .cg-lint__issue[data-cg-issue-line]')
+      .forEach((li) => {
+        const line = parseInt(li.getAttribute('data-cg-issue-line'), 10);
+        if (!line) return; // issue without a line stays in the panel only
+        const sev = li.getAttribute('data-cg-issue-severity') || 'error';
+        const msgEl = li.querySelector('.cg-lint__msg');
+        const fix = li.querySelector('.cg-lint__fix');
+        if (!byLine.has(line)) byLine.set(line, []);
+        byLine.get(line).push({
+          sev,
+          msg: (msgEl ? msgEl.textContent : '').trim(),
+          suggestion: fix ? fix.getAttribute('data-cg-copy') : '',
+        });
+      });
+
+    if (byLine.size === 0) {
+      pre.classList.remove('cg-source--linted');
+      return;
+    }
+    pre.classList.add('cg-source--linted');
+
+    const cs = getComputedStyle(pre);
+    const lineH = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.5;
+    const top0 = parseFloat(cs.paddingTop) || 0;
+
+    byLine.forEach((issues, line) => {
+      const worst = issues.reduce((a, b) => (RANK[b.sev] > RANK[a.sev] ? b : a));
+      const y = top0 + (line - 1) * lineH;
+
+      const mark = document.createElement('div');
+      mark.className = 'cg-src-mark cg-src-mark--' + worst.sev;
+      mark.style.cssText = `top:${y}px;height:${lineH}px`;
+      pre.appendChild(mark);
+
+      const icon = document.createElement('button');
+      icon.type = 'button';
+      icon.className = 'cg-src-gutter-icon cg-src-gutter-icon--' + worst.sev;
+      icon.style.cssText = `top:${y}px;height:${lineH}px`;
+      icon.setAttribute('aria-label', worst.msg);
+      icon.innerHTML = CG_SEV_SVG[worst.sev] || CG_SEV_SVG.error;
+      icon.addEventListener('mouseenter', () => showTip(icon, issues));
+      icon.addEventListener('mouseleave', hideTip);
+      icon.addEventListener('focus', () => showTip(icon, issues));
+      icon.addEventListener('blur', hideTip);
+      pre.appendChild(icon);
+    });
+  };
+
+  // Bound once at boot: delegate the Source-tab click (the button is recreated
+  // on SPA swaps) and rebuild on every content swap. A hidden tab has no layout
+  // to measure, so defer to the next frame once it's shown.
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.closest && e.target.closest('[data-cg-tab="source"]')) {
+      requestAnimationFrame(build);
+    }
+  });
+  window.addEventListener('cg-content-swapped', () => requestAnimationFrame(build));
+  requestAnimationFrame(build); // in case the Source tab is already visible on load
+};
+
 /* ── Fullscreen preview modal ───────────────────────────────────────── */
 /**
  * Click on `[data-cg-preview-fullscreen]` MOVES the live preview device

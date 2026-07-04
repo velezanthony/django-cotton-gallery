@@ -2105,6 +2105,82 @@ body.cg-modal-open { overflow: hidden; }
   color: #4ec9b0;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Inline lint markers in the Source tab (js/preview.js — initSourceLint).
+   A left-gutter severity icon + a tinted line with a colored bar mark each
+   issue line; the translated message + copy-fix live in a hover tooltip.
+   Severity colors follow the VS Code editor palette.
+   ───────────────────────────────────────────────────────────────────────── */
+.cg-source pre { position: relative; }
+.cg-source pre.cg-source--linted { padding-left: 2.4em; }
+
+.cg-src-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.cg-src-mark--error { background: rgba(241, 76, 76, 0.12); box-shadow: inset 3px 0 0 #f14c4c; }
+.cg-src-mark--warning { background: rgba(204, 167, 0, 0.12); box-shadow: inset 3px 0 0 #cca700; }
+.cg-src-mark--hint { background: rgba(55, 148, 255, 0.12); box-shadow: inset 3px 0 0 #3794ff; }
+
+.cg-src-gutter-icon {
+  position: absolute;
+  left: 0;
+  width: 2.4em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+.cg-src-gutter-icon svg { width: 0.95em; height: 0.95em; }
+.cg-src-gutter-icon--error { color: #f14c4c; }
+.cg-src-gutter-icon--warning { color: #cca700; }
+.cg-src-gutter-icon--hint { color: #3794ff; }
+.cg-src-gutter-icon:hover { filter: brightness(1.25); }
+
+.cg-src-tip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 380px;
+  background: #252526;
+  color: #d4d4d4;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 4px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.cg-src-tip__row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 4px 8px;
+}
+.cg-src-tip__row + .cg-src-tip__row { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.cg-src-tip__msg { flex: 1 1 auto; }
+.cg-src-tip__row--error .cg-src-tip__msg { color: #f48771; }
+.cg-src-tip__row--warning .cg-src-tip__msg { color: #e2c08d; }
+.cg-src-tip__row--hint .cg-src-tip__msg { color: #9cdcfe; }
+.cg-src-tip__fix {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d4;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cg-src-tip__fix:hover { background: rgba(255, 255, 255, 0.12); }
+
 .cg-source .token.keyword,
 .cg-detail__tag-row .token.keyword,
 .cg-preview__code .token.keyword,
