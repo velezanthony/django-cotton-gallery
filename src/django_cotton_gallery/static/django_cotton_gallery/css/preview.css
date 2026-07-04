@@ -2383,6 +2383,13 @@ body.cg-modal-open { overflow: hidden; }
 [data-theme="dark"] .cg-slot-highlight .token.alpine-attr { color: #4fc1ff; }
 [data-theme="dark"] .cg-slot-highlight .token.comment { color: #6a9955; }
 
+/* Extra-attrs editor — its inline highlighter emits attr-name / attr-value /
+   punctuation tokens. Align them with the Source palette in dark mode only
+   (in light mode the input is light, where the dark palette wouldn't read). */
+[data-theme="dark"] .cg-attrs__input .token.attr-name { color: #9cdcfe; }
+[data-theme="dark"] .cg-attrs__input .token.attr-value { color: #ce9178; }
+[data-theme="dark"] .cg-attrs__input .token.punctuation { color: #d4d4d4; }
+
 /* ─────────────────────────────────────────────────────────────────────────
    Lint report page
    ───────────────────────────────────────────────────────────────────────── */
