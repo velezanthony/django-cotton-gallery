@@ -2376,6 +2376,12 @@ body.cg-modal-open { overflow: hidden; }
 [data-theme="dark"] .cg-slot-highlight .token.builtin { color: #c586c0; }
 [data-theme="dark"] .cg-slot-highlight .token.boolean,
 [data-theme="dark"] .cg-slot-highlight .token.number { color: #b5cea8; }
+/* Cotton / HTMX / Alpine attrs + comments — the stack tokens the base slot
+   palette was missing, so the overlay matches the Source tab in dark mode. */
+[data-theme="dark"] .cg-slot-highlight .token.cotton-tag { color: #c586c0; }
+[data-theme="dark"] .cg-slot-highlight .token.htmx-attr,
+[data-theme="dark"] .cg-slot-highlight .token.alpine-attr { color: #4fc1ff; }
+[data-theme="dark"] .cg-slot-highlight .token.comment { color: #6a9955; }
 
 /* ─────────────────────────────────────────────────────────────────────────
    Lint report page
