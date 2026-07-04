@@ -2214,6 +2214,39 @@ body.cg-modal-open { overflow: hidden; }
   color: #b5cea8;
 }
 
+/* Embedded CSS (`<style>` inside a component's source). Same story as JS — the
+   CSS grammar emits token types the template palette didn't cover, so they fell
+   back to the tomorrow theme (selectors purple, properties gold). Scope VS Code
+   Dark+ colors under `.token.style` (the markup wrapper for `<style>` bodies) so
+   the Django/HTML layer stays untouched. Prism's CSS grammar doesn't tokenize
+   numbers/units, so a base green stands in for the editor's numeric color on
+   the untokenized values (dimensions, `rgba()` args, `@media` bounds). */
+.cg-source .token.style {
+  color: #b5cea8;
+}
+.cg-source .token.style .token.atrule {
+  color: #b5cea8;
+}
+.cg-source .token.style .token.selector {
+  color: #d7ba7d;
+}
+.cg-source .token.style .token.property {
+  color: #9cdcfe;
+}
+.cg-source .token.style .token.function {
+  color: #dcdcaa;
+}
+.cg-source .token.style .token.rule {
+  color: #c586c0;
+}
+.cg-source .token.style .token.important {
+  color: #569cd6;
+}
+.cg-source .token.style .token.number,
+.cg-source .token.style .token.unit {
+  color: #b5cea8;
+}
+
 .cg-source .token.keyword,
 .cg-detail__tag-row .token.keyword,
 .cg-preview__code .token.keyword,
