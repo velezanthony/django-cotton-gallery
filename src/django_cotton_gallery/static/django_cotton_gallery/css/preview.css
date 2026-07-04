@@ -3582,8 +3582,18 @@ body.cg-modal-open { overflow: hidden; }
   .cg-builder__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 36rem); }
 }
 
-.cg-builder__form-side { display: flex; flex-direction: column; gap: 0.75rem; }
+.cg-builder__form-side { display: flex; flex-direction: column; gap: 1.25rem; }
 .cg-builder__entries { display: flex; flex-direction: column; gap: 0.75rem; }
+/* Section grouping — Component / Props / Slots. */
+.cg-builder__group { display: flex; flex-direction: column; gap: 0.75rem; }
+.cg-builder__group-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cg-text-muted);
+}
 
 /* Field base — declared BEFORE the modifiers (`--checks`, `--full`) so
    modifier rules win the cascade. Living next to the entry CSS keeps the

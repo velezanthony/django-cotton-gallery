@@ -268,7 +268,7 @@ The gallery owns its own URL prefix (`/django-cotton-gallery/`), so you mount it
 | `/django-cotton-gallery/lint/` | Annotation-lint report across the whole catalog. Errors, warnings, hints. |
 | `/django-cotton-gallery/insights/` | Catalog-health dashboard — stats, lint score, annotation coverage, deprecated, coverage gaps, zombies (when scanning is on), most-referenced (idem). |
 | `/django-cotton-gallery/compare/?a=&b=` | Side-by-side comparison of two components with shared viewport / background controls. |
-| `/django-cotton-gallery/builder/` | Interactive `@prop` annotation composer — fill the form, copy the snippet. |
+| `/django-cotton-gallery/builder/` | Interactive annotation composer — build a component's whole annotation block (`@description`, `@strict`/`@ignore-unused`, `@prop`s, `@slot`s, `@trigger`) + the `<c-vars>` line. |
 | `/django-cotton-gallery/get-started/` | In-app onboarding for first-time users. |
 | `/django-cotton-gallery/docs/` | Annotation grammar + setting reference, rendered in the gallery itself. |
 

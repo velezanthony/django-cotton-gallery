@@ -176,14 +176,15 @@ render without exploding.
 
 ---
 
-## Annotation builder — write `@prop` interactively
+## Annotation builder — write a whole component's annotation interactively
 
 **Skip the syntax memorisation.**
 
-A form-based editor for crafting `@prop` annotations: pick a type,
-fill in defaults, options, descriptions, and the matching `<c-vars>`
-line is generated for you. Copy and paste into a new component file —
-the gallery picks it up on next refresh.
+A form-based editor for crafting a component's **entire annotation block** —
+the `@description`, the `@strict` / `@ignore-unused` flags, every `@prop`
+(type, defaults, options, descriptions), every `@slot`, and the `@trigger` —
+with the matching `<c-vars>` line generated for you. Copy and paste into a new
+component file — the gallery picks it up on next refresh.
 
 ![Annotation builder — interactive @prop composer with live output](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-builder.png)
 
