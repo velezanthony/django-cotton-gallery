@@ -2094,6 +2094,16 @@ body.cg-modal-open { overflow: hidden; }
   color: #4fc1ff;
 }
 
+/* Bash command word (gold, like a callable) + CLI flags (light blue). Prism
+   leaves non-builtin commands plain, so these keep shell examples from looking
+   un-highlighted. */
+.cg-source .token.command {
+  color: #dcdcaa;
+}
+.cg-source .token.option {
+  color: #9cdcfe;
+}
+
 /* Consistency fix — Django tokens embedded inside an HTML attribute value
    (e.g. class="…{% if %}…") nest under .token.tag, where the HTML-tag rules
    (.token.tag .token.tag, .token.tag .token.punctuation) would otherwise win by

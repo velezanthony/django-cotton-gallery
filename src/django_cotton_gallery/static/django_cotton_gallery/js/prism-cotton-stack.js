@@ -119,4 +119,17 @@
   if (Prism.languages.python) {
     Prism.languages.python.constant = { pattern: /\b[A-Z][A-Z0-9_]*\b/ };
   }
+
+  // Bash: Prism only colors known builtins (ls, cd, …), so a `python manage.py
+  // …` invocation renders almost entirely plain — it reads as un-highlighted.
+  // Color the leading command word and CLI flags so it looks like real shell.
+  if (Prism.languages.bash) {
+    Prism.languages.insertBefore('bash', 'comment', {
+      // CLI flags first (-x, --warnings-as-errors) so `command` doesn't eat them.
+      'option': { pattern: /(^|\s)--?[a-z][\w-]*/im, lookbehind: true },
+      // Command words — first char is not a dash (Prism re-anchors `^` per text
+      // segment, so this colors each bare word of the invocation, flags aside).
+      'command': { pattern: /(^[ \t]*|[|&;]\s*)[\w./][\w./-]*/m, lookbehind: true },
+    });
+  }
 })(window.Prism);
