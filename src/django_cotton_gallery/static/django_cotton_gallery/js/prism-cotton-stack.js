@@ -58,4 +58,56 @@
   if (tagName) {
     tagName['cotton-tag'] = { pattern: /c-[\w.-]+/i };
   }
+
+  // The gallery's own annotation DSL — {# @prop name:type | default:… #},
+  // {# @slot … #}, {# @description … #}, {# @trigger <markup> #}. Color its
+  // parts instead of leaving it a flat comment; the CSS dims the whole token
+  // (it's metadata). Inserted before django's `comment` so @-annotations win;
+  // plain {# … #} comments fall through and stay green. (Multi-line
+  // {% comment %} annotation blocks are a v2 — they fight Prism's
+  // markup-templating engine, which extracts each {% %} before this grammar.)
+  if (Prism.languages.django && Prism.languages.markup) {
+    Prism.languages.insertBefore('django', 'comment', {
+      'annotation': {
+        pattern: /\{#\s*@[\s\S]*?#\}/,
+        greedy: true,
+        inside: {
+          'annotation-delimiter': { pattern: /^\{#|#\}$/, alias: 'comment' },
+          // @trigger injects real markup into the preview — highlight its body
+          // with the full markup grammar (HTML / Alpine / HTMX / Cotton).
+          'annotation-trigger': {
+            pattern: /@trigger[^#]*/,
+            inside: {
+              'annotation-directive': { pattern: /^@trigger/, alias: 'keyword' },
+              'annotation-markup': { pattern: /[\s\S]+/, inside: Prism.languages.markup },
+            },
+          },
+          // @description / @slot are free-text prose — plain-text color; only
+          // the directive keeps its keyword color.
+          'annotation-doc': {
+            pattern: /@(?:description|slot)(?::[\w-]+)?[^#]*/,
+            inside: { 'annotation-directive': { pattern: /^@[\w:-]+/, alias: 'keyword' } },
+          },
+          'annotation-directive': { pattern: /@[\w-]+/, alias: 'keyword' },
+          'annotation-string': {
+            pattern: /(["'])(?:\\.|(?!\1)[^\\\r\n])*\1/,
+            greedy: true,
+            alias: 'string',
+          },
+          'annotation-boolean': { pattern: /\b(?:True|False|None)\b/, alias: 'boolean' },
+          'annotation-filter': {
+            pattern: /\b(?:default|description|required|min|max)\b(?=\s*:)/,
+            alias: 'property',
+          },
+          'annotation-type': {
+            pattern: /(:)(?:select|text|number|boolean)\b/,
+            lookbehind: true,
+            alias: 'class-name',
+          },
+          'annotation-punctuation': { pattern: /[[\]|:,]/, alias: 'punctuation' },
+          'annotation-name': { pattern: /[\w-]+/, alias: 'attr-name' },
+        },
+      },
+    });
+  }
 })(window.Prism);

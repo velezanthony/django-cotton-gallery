@@ -2226,6 +2226,29 @@ body.cg-modal-open { overflow: hidden; }
   color: #4ec9b0;
 }
 
+/* The gallery's {# @prop … #} annotation DSL (js/prism-cotton-stack.js). It's
+   metadata, not component code, so dim the whole token; the parts reuse the
+   palette (@prop → keyword purple, names → attr blue, strings → orange) plus a
+   few annotation-only token colors below. */
+.cg-source .token.annotation,
+.cg-detail__tag-row .token.annotation,
+.cg-preview__code .token.annotation {
+  opacity: 0.72;
+}
+.cg-source .token.annotation .token.class-name {
+  color: #4ec9b0;
+}
+.cg-source .token.annotation .token.property {
+  color: #9cdcfe;
+}
+.cg-source .token.annotation .token.boolean {
+  color: #569cd6;
+}
+/* @description / @slot free-text prose reads as plain text, not a variable. */
+.cg-source .token.annotation .token.annotation-doc {
+  color: #d4d4d4;
+}
+
 /* Embedded CSS (`<style>` inside a component's source). Same story as JS — the
    CSS grammar emits token types the template palette didn't cover, so they fell
    back to the tomorrow theme (selectors purple, properties gold). Scope VS Code

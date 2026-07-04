@@ -2,6 +2,7 @@
 {# @prop url:text | default:"/search/" | description:"Endpoint HTMX queries for results" #}
 {# @prop placeholder:text | default:"Search…" | description:"Input placeholder text" #}
 {# @slot Default — empty-state shown before any results arrive #}
+{# @trigger <button @click="open = true" hx-get="/search/" class="rounded-lg border px-3 py-1">Open</button> — showcases @trigger markup highlighting #}
 
 <c-vars url="/search/" placeholder="Search…" />
 
