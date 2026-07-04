@@ -2181,6 +2181,39 @@ body.cg-modal-open { overflow: hidden; }
 }
 .cg-src-tip__fix:hover { background: rgba(255, 255, 255, 0.12); }
 
+/* Embedded JavaScript (`<script>` inside a component's source). Prism delegates
+   the script body to the JS grammar, which emits token types the template
+   palette doesn't cover — they were falling back to the tomorrow theme or going
+   uncolored (JS keywords rendered purple like Django, params colorless). Give
+   them VS Code Dark+ colors, scoped under `.language-javascript` so the
+   Django/HTML layer is untouched: JS keywords go blue like a real editor while
+   Django `{% %}` keywords stay purple. */
+
+/* Base color for the JS scope — plain identifiers and property accesses
+   (`document`, `console`, `count`, `event.detail.target`…) aren't tokenized by
+   Prism's regex grammar, so they inherit this. Set it to the VS Code variable
+   blue so they read like the editor's semantic highlighting; tokenized things
+   (keywords, functions, strings) override it below. */
+.cg-source .language-javascript {
+  color: #9cdcfe;
+}
+.cg-source .language-javascript .token.keyword {
+  color: #569cd6;
+}
+.cg-source .language-javascript .token.function {
+  color: #dcdcaa;
+}
+.cg-source .language-javascript .token.parameter {
+  color: #9cdcfe;
+}
+.cg-source .language-javascript .token.class-name {
+  color: #4ec9b0;
+}
+.cg-source .language-javascript .token.boolean,
+.cg-source .language-javascript .token.number {
+  color: #b5cea8;
+}
+
 .cg-source .token.keyword,
 .cg-detail__tag-row .token.keyword,
 .cg-preview__code .token.keyword,
