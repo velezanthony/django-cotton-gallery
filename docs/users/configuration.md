@@ -257,6 +257,19 @@ What's read and exposed:
 
 This is the only setting the gallery exposes that crosses the catalog boundary. If you'd rather not scan consumer code at all, leave it at the default.
 
+## Performance
+
+### `DJANGO_COTTON_GALLERY_SIGNATURE_TTL`
+
+Seconds the gallery reuses its cached catalog **signature** before walking `cotton/` again. The signature is a cheap `(component count, newest mtime)` fingerprint used to decide whether the catalog changed on disk; it's checked several times per request, so a short memo avoids re-walking the tree on every check. **Default: `0.5`**.
+
+```python
+DJANGO_COTTON_GALLERY_SIGNATURE_TTL = 0.5  # seconds; 0 disables the memo
+```
+
+- Raise it (e.g. `2.0`) on a large catalog or a slow filesystem (Docker bind-mounts) to walk less often — at the cost of taking up to that many seconds to notice a new or edited component.
+- Set it to `0` to disable the memo and re-walk on every check — the gallery does this in its own test suite so freshness is deterministic.
+
 ## Built-in pages
 
 The gallery owns its own URL prefix (`/django-cotton-gallery/`), so you mount it at `""` in your urls.py: `path("", include("django_cotton_gallery.urls"))`.
