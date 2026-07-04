@@ -23,14 +23,18 @@ def cotton_tree(tmp_path: Path) -> Path:
     cotton_dir = templates_dir / "cotton" / "atoms"
     cotton_dir.mkdir(parents=True)
     (cotton_dir / "broken.html").write_text(
-        "{# @description Undocumented prop trips missing-annotation #}\n"
+        "{# @description Undocumented prop + broken component reference #}\n"
         '<c-vars undocumented="x" />\n'
-        "<div {{ attrs }}>{{ slot }}</div>\n"
+        "<div {{ attrs }}>\n"
+        "  <c-atoms.ghost />\n"
+        "</div>\n"
     )
     return templates_dir
 
 
 def test_source_tab_marks_lint_issue_inline(page: Page, live_gallery):
+    """The Source tab renders a gutter marker on a lint issue's line, with a
+    hover tooltip carrying the translated message."""
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/broken/")
 
     # The lint panel carries the issue tagged with its source line (2).
@@ -49,3 +53,22 @@ def test_source_tab_marks_lint_issue_inline(page: Page, live_gallery):
     tip = page.locator(".cg-src-tip")
     expect(tip).to_be_visible()
     expect(tip).to_contain_text("undocumented")
+
+
+def test_unknown_component_reference_is_marked(page: Page, live_gallery):
+    """A `<c-...>` reference to a component absent from the catalog surfaces an
+    error marker on its line, naming the missing tag in the tooltip."""
+    page.goto(f"{live_gallery}/django-cotton-gallery/atoms/broken/")
+
+    # The new unknown-component rule fires on the broken reference.
+    issue = page.locator(
+        "[data-cg-lint-panel] .cg-lint__issue[data-cg-issue-rule='unknown-component']"
+    )
+    expect(issue.first).to_be_attached()
+
+    # It carries a line, so it renders as an inline error marker in the Source.
+    page.click("[data-cg-tab='source']")
+    marker = page.locator(".cg-src-gutter-icon--error").first
+    expect(marker).to_be_visible()
+    marker.hover()
+    expect(page.locator(".cg-src-tip")).to_contain_text("ghost")
