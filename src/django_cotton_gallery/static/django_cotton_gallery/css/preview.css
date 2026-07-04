@@ -494,8 +494,10 @@
   padding: 0.125rem 0.5rem;
   font-size: 0.6875rem;
   border-radius: var(--cg-radius-sm);
-  color: var(--cg-gray-500);
-  transition: background 0.15s, color 0.15s;
+  background: var(--cg-gray-800);
+  color: var(--cg-gray-300);
+  border: 1px solid var(--cg-gray-700);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .cg-preview__code-copy svg { width: 0.75rem; height: 0.75rem; }
