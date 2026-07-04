@@ -89,6 +89,22 @@ def test_builder_add_and_remove_slot(page: Page, live_gallery: str) -> None:
     assert "@slot:footer" not in _annotations(page)
 
 
+def test_builder_warns_on_comment_terminator(page: Page, live_gallery: str) -> None:
+    """A `#}` in any field closes the Django comment early and cannot be
+    escaped inside `{# … #}` — the builder must warn, not emit broken output.
+    """
+    page.goto(f"{live_gallery}/django-cotton-gallery/builder/")
+    page.wait_for_selector("[data-cg-bld-comp-description]")
+
+    validation = page.locator("[data-cg-bld-validation]")
+    page.fill("[data-cg-bld-comp-description]", "clean summary")
+    expect(validation).to_be_hidden()
+
+    page.fill("[data-cg-bld-comp-description]", "oops #} broken")
+    expect(validation).to_be_visible()
+    expect(validation).to_contain_text("#}")
+
+
 def test_builder_prop_only_regression(page: Page, live_gallery: str) -> None:
     """The original @prop-only flow still works — no stray component lines."""
     page.goto(f"{live_gallery}/django-cotton-gallery/builder/")

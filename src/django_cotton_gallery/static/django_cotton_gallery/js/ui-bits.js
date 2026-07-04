@@ -761,6 +761,15 @@ export const initAnnotationBuilder = (root = document) => {
     const dupes = names.filter((n, i) => names.indexOf(n) !== i);
     dupes.forEach((n) => allWarnings.push(`<code>${n}</code>: duplicate name — every prop must be unique.`));
 
+    // A `#}` in any field closes the Django comment early and CANNOT be
+    // escaped inside a `{# … #}` comment — warn so the block isn't silently
+    // broken. (Only live inputs are scanned; <template> content is inert.)
+    const hasTerminator = Array.from(builder.querySelectorAll('input[type="text"]'))
+      .some((el) => (el.value || '').includes('#}'));
+    if (hasTerminator) {
+      allWarnings.push('A field contains <code>#}</code>, which closes the annotation comment early — remove it (it can\'t be escaped inside a <code>{# … #}</code> comment).');
+    }
+
     const annotationsBlock = lines.length
       ? lines.join('\n')
       : '{# @description Short component summary #}';
