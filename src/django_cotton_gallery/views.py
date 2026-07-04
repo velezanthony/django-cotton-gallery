@@ -210,8 +210,9 @@ def component_detail(request: HttpRequest, component_path: str) -> HttpResponse:
         raise Http404(str(exc)) from exc
     parsed = get_parser().parse(source)
     name, category, subcategory = _split_component_path(component_path)
-    lint_report = lint_component(component_path, source)
     items = catalog.sources()
+    known_tags = frozenset(p.replace("/", ".") for p, _ in items)
+    lint_report = lint_component(component_path, source, known_tags=known_tags)
     graph = build_graph(items)
     deps_uses, deps_used_by = graph.for_component(component_path)
     # Transitive trees — same data the direct lists show, walked recursively

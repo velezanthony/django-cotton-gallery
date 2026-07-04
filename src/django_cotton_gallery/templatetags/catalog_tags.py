@@ -45,6 +45,9 @@ _LINT_MESSAGES: dict[RuleCode, Any] = {
     "missing-annotation": _(
         "`%(prop)s`: declared in <c-vars> but no `@prop` comment documents it."
     ),
+    "unknown-component": _(
+        "No component `%(tag)s` in the catalog — `<c-%(tag)s>` renders nothing."
+    ),
     "required-with-default": _(
         "`%(prop)s`: cannot use `| required` together with `| default:` — a required prop has no fallback."
     ),

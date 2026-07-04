@@ -293,3 +293,35 @@ def scan_undeclared_template_vars(
             prop_name=root,
             params=(("ref", root),),
         )
+
+
+# Component references `<c-foo.bar>`. Cotton's own meta-tags declare props,
+# fill slots or render dynamically — they are never catalog components.
+_COMPONENT_REF = re.compile(r"<c-([\w.-]+)\b")
+_COTTON_META = frozenset({"vars", "slot", "component"})
+
+
+def scan_unknown_components(
+    component_path: str, source: str, known_tags: frozenset[str]
+) -> Iterable[LintIssue]:
+    """Flag `<c-X.Y>` references to components absent from the catalog.
+
+    `known_tags` is the set of tag paths (`atoms.button`) for every catalog
+    component. A reference whose tag isn't in it points at a typo or a removed /
+    never-created component — Cotton silently renders nothing for it. Called
+    only when the caller knows the full catalog; the single-file CLI passes no
+    catalog, so the check is skipped there.
+    """
+    for m in _COMPONENT_REF.finditer(source):
+        tag = m.group(1)
+        if tag in _COTTON_META or tag in known_tags:
+            continue
+        line = source.count("\n", 0, m.start()) + 1
+        yield LintIssue(
+            rule="unknown-component",
+            severity="error",
+            message=f"No component `{tag}` in the catalog — `<c-{tag}>` renders nothing.",
+            component_path=component_path,
+            line=line,
+            params=(("tag", tag),),
+        )

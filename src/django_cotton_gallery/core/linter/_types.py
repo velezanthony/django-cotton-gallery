@@ -31,6 +31,7 @@ RuleCode = Literal[
     "unknown-prop-filter",
     "undeclared-template-var",
     "strict-with-attrs",
+    "unknown-component",
 ]
 
 
