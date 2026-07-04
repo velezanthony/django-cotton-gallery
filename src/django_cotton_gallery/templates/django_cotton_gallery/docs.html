@@ -163,7 +163,7 @@
       <h3 class="cg-docs__h3">{% blocktranslate %}Example: a working <code>settings.py</code>{% endblocktranslate %}</h3>
       <p>{% blocktranslate %}Only the gallery's own settings are shown — cotton's settings (<code>COTTON_SNAKE_CASED_NAMES</code>, <code>COTTON_DIR</code>) belong to django-cotton, not to this gallery, and are documented in cotton's docs.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py — django-cotton-gallery configuration
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# settings.py — django-cotton-gallery configuration
 
 DJANGO_COTTON_GALLERY_CATEGORY_ORDER = ["atoms", "molecules", "icons"]
 DJANGO_COTTON_GALLERY_SUBCATEGORY_ORDER = {
@@ -185,7 +185,7 @@ DJANGO_COTTON_GALLERY_EXTRA_JS = [
       <h3 class="cg-docs__h3">{% trans "Language switcher" %}</h3>
       <p>{% blocktranslate %}The gallery ships with translations for English, Spanish, Basque, and French. The dropdown in the sidebar footer only appears when your project has Django's i18n URL and middleware wired — without them, Django can't persist the chosen language, so the gallery hides the control to avoid a dead button.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# urls.py
 from django.urls import include, path
 
 urlpatterns = [
@@ -208,7 +208,7 @@ MIDDLEWARE = [
       <h3 class="cg-docs__h3">{% trans "Lint in CI" %}</h3>
       <p>{% blocktranslate %}The same lint engine that powers the in-app Lint report ships as a Django management command. Wire it into CI to fail builds on annotation regressions:{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}python manage.py cotton_lint                        # exit 1 if any errors
+<pre class="cg-docs__code cg-source"><code class="language-bash">{% codeblock %}{% verbatim %}python manage.py cotton_lint                        # exit 1 if any errors
 python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on warnings{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>

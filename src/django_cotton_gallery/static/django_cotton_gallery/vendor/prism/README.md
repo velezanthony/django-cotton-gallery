@@ -14,6 +14,8 @@ Vendored locally so highlighting works offline and isn't tied to a CDN.
 | `prism.min.js` | Core + `markup` (HTML, delegates `<script>`→JS / `<style>`→CSS) |
 | `prism-markup-templating.min.js` | Dependency for template languages |
 | `prism-django.min.js` | Django/Cotton template tags (`{% %}`, `{{ }}`, `{# #}`) |
+| `prism-python.min.js` | Python (docs `settings.py` / `urls.py` examples) |
+| `prism-bash.min.js` | Shell (docs `manage.py` command examples) |
 | `prism-tomorrow.min.css` | Base token theme (the gallery overrides tag/attr colors in `preview.css`) |
 
 The gallery's own HTMX / Alpine / Cotton token grammar lives in
@@ -21,6 +23,6 @@ The gallery's own HTMX / Alpine / Cotton token grammar lives in
 
 ## Updating
 
-Re-download the four files from the cdnjs URL above at the new version and
+Re-download the six files from the cdnjs URL above at the new version and
 bump the version here. Keep it pinned; the gallery's custom grammar targets
 the `markup`/`django` token structure.
