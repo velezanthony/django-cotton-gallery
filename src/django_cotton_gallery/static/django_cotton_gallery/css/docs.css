@@ -23,7 +23,7 @@
    code surface reads identically. A hairline border keeps the boundary against
    the dark page unambiguous. */
 [data-theme="dark"] .cg-docs__code {
-  background: #2d2d2d;
+  background: var(--cg-code-bg);
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--cg-text);
 }
@@ -174,7 +174,7 @@
 }
 
 .cg-docs__code {
-  background: #2d2d2d; /* match the Source / preview code tabs (Prism theme bg) */
+  background: var(--cg-code-bg); /* match the Source / preview code tabs (Prism theme bg) */
   color: var(--cg-gray-300);
   padding: 0.875rem 1rem;
   border-radius: var(--cg-radius-md);
