@@ -23,11 +23,13 @@ _CVARS_TAG = re.compile(r"<c-vars\b([^>]*?)\s*/?>", re.IGNORECASE)
 _DJANGO_COMMENT = re.compile(r"\{#.*?#\}", re.DOTALL)
 
 # Each attribute can be:
-#   name="value"   → quoted string
+#   name="value"   → double-quoted string
+#   name='value'   → single-quoted string (Cotton accepts both; a value
+#                    containing double quotes has to be wrapped this way)
 #   name=value     → unquoted token (e.g. False, 0, 1.5)
 #   name           → bare flag (default = "")
 # The optional leading `:` marks a dynamic prop.
-_ATTR = re.compile(r'(:?[A-Za-z_][\w-]*)(?:=(?:"([^"]*)"|([^\s"]+)))?')
+_ATTR = re.compile(r'(:?[A-Za-z_][\w-]*)(?:=(?:"([^"]*)"|\'([^\']*)\'|([^\s"\']+)))?')
 
 
 @dataclass(frozen=True)
@@ -77,6 +79,9 @@ def parse_cvars(source: str) -> CVarsBlock | None:
             has_value = True
         elif m.group(3) is not None:
             value = m.group(3)
+            has_value = True
+        elif m.group(4) is not None:
+            value = m.group(4)
             has_value = True
         else:
             value = ""

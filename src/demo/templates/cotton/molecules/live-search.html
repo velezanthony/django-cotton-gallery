@@ -1,0 +1,52 @@
+{# @description Live search — HTMX fetches results as you type, Alpine toggles the results panel. Doubles as the showcase for the gallery's HTMX / Alpine / Cotton syntax highlighting. #}
+{# @prop url:text | default:"/search/" | description:"Endpoint HTMX queries for results" #}
+{# @prop placeholder:text | default:"Search…" | description:"Input placeholder text" #}
+{# @slot Default — empty-state shown before any results arrive #}
+{# @trigger <button @click="open = true" hx-get="/search/" class="rounded-lg border px-3 py-1">Open</button> — showcases @trigger markup highlighting #}
+
+<c-vars url="/search/" placeholder="Search…" />
+
+<div x-data="{ open: false }" class="relative w-full max-w-sm">
+  <input
+    type="search"
+    placeholder="{{ placeholder }}"
+    hx-get="{{ url }}"
+    hx-trigger="keyup changed delay:300ms"
+    hx-target="#live-search-results"
+    hx-swap="innerHTML"
+    @focus="open = true"
+    @keydown.escape="open = false"
+    :class="open ? 'ring-2 ring-blue-400' : ''"
+    class="w-full rounded-lg border px-3 py-2 text-sm"
+    {{ attrs }}
+  >
+
+  <div id="live-search-results" x-show="open" @click.outside="open = false"
+       class="absolute mt-1 w-full rounded-lg border bg-white p-3 shadow-lg">
+    {% if slot %}
+      <p class="text-sm text-gray-500">{{ slot }}</p>
+    {% else %}
+      <c-atoms.spinner size="sm" label="Loading" />
+    {% endif %}
+  </div>
+
+  <script>
+    // Embedded JS: keywords, strings and comments should highlight too.
+    document.addEventListener('htmx:afterSwap', function (event) {
+      const count = event.detail.target.children.length;
+      console.log('live-search →', count, 'results');
+    });
+  </script>
+
+  <style>
+    /* Embedded CSS: selectors, properties, values and at-rules highlight too. */
+    .live-search__panel {
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    @media (max-width: 640px) {
+      .live-search__panel { inset: auto 0 0 0; }
+    }
+  </style>
+</div>

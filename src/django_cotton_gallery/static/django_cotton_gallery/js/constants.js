@@ -36,6 +36,7 @@ export const STORAGE_SIDEBAR_COLLAPSED = 'cg-sidebar-collapsed';
 export const STORAGE_HIDE_LINT = 'cg-sidebar-hide-lint';
 export const STORAGE_PERSONAL_FILTER = 'cg-sidebar-personal-filter';
 export const STORAGE_PREVIEW_BG = 'cg-preview-bg';
+export const STORAGE_PREVIEW_BG_COLORS = 'cg-preview-bg-colors';
 export const STORAGE_PREVIEW_VIEWPORT = 'cg-preview-viewport';
 export const STORAGE_LINT_PAGE_SIZE = 'cg-lint-page-size';
 export const STORAGE_RECENTS = 'cg-recent-components';

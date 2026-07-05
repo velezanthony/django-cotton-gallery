@@ -43,6 +43,41 @@ class TestOrphanAnnotation:
         assert issues[0].severity == "error"
 
 
+class TestUnknownComponent:
+    def test_reference_to_missing_component_is_flagged(self):
+        """A <c-X.Y> reference absent from the catalog is an error on its line."""
+        source = "{# @description X #}\n<div>\n  <c-atoms.ghost />\n</div>\n"
+        known = frozenset({"atoms.button", "molecules.card"})
+        issues = [
+            i
+            for i in lint_component("atoms/thing", source, known_tags=known).issues
+            if i.rule == "unknown-component"
+        ]
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+        assert issues[0].line == 3
+        assert dict(issues[0].params).get("tag") == "atoms.ghost"
+
+    def test_known_reference_is_not_flagged(self):
+        """A reference that resolves to a catalog component is not flagged."""
+        source = "<c-atoms.button />\n"
+        known = frozenset({"atoms.button"})
+        rules = [i.rule for i in lint_component("x/y", source, known_tags=known).issues]
+        assert "unknown-component" not in rules
+
+    def test_skipped_without_a_catalog(self):
+        """Without a catalog (single-file CLI) the rule stays quiet."""
+        source = "<c-atoms.ghost />\n"
+        rules = [i.rule for i in lint_component("x/y", source).issues]
+        assert "unknown-component" not in rules
+
+    def test_cotton_meta_tags_are_not_references(self):
+        """Cotton's own <c-vars> / <c-slot> / <c-component> tags are never flagged."""
+        source = '<c-vars foo="x" />\n<c-slot name="h">y</c-slot>\n<c-component is="a.b" />\n'
+        rules = [i.rule for i in lint_component("x/y", source, known_tags=frozenset()).issues]
+        assert "unknown-component" not in rules
+
+
 class TestMissingAnnotation:
     def test_cvars_attr_without_prop_is_warning(self):
         source = '<c-vars extra="x" />\n'
@@ -50,6 +85,14 @@ class TestMissingAnnotation:
         assert len(issues) == 1
         assert issues[0].prop_name == "extra"
         assert issues[0].severity == "warning"
+
+    def test_undocumented_cvar_escalates_to_error_under_strict(self):
+        # @strict declares a closed prop set, so an undocumented <c-vars> attr
+        # is a hard contradiction, not just a warning.
+        source = '{# @strict #}\n<c-vars extra="x" />\n'
+        issues = _by_rule(source, "missing-annotation")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
 
     def test_carries_paste_ready_stub(self):
         source = '<c-vars name="hello" />\n'
@@ -270,3 +313,97 @@ class TestReport:
         assert len(report.errors) >= 1
         assert len(report.warnings) >= 1
         assert report.is_clean is False
+
+
+class TestMalformedPropFilter:
+    def test_unescaped_quote_in_default_is_flagged(self):
+        # Raw inner quotes make the segment unparseable — before this rule
+        # the default was silently dropped with no trace.
+        source = (
+            '{# @prop greeting:text | default:"Say "hello" now" | description:"d" #}\n'
+            '<c-vars greeting="x" />\n'
+        )
+        issues = _by_rule(source, "malformed-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+        assert "default" in issues[0].message
+
+    def test_malformed_head_is_flagged(self):
+        source = '{# @prop garbage-no-type | description:"d" #}\n<c-vars x="1" />\n'
+        issues = _by_rule(source, "malformed-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
+    def test_clean_component_not_flagged(self):
+        assert _by_rule(CLEAN_COMPONENT, "malformed-prop-filter") == []
+
+    def test_escaped_quotes_are_valid_not_flagged(self):
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hi\\"" | description:"d" #}\n'
+            "<c-vars greeting='Say \"hi\"' />\n"
+        )
+        assert _by_rule(source, "malformed-prop-filter") == []
+
+    def test_pipe_inside_quotes_not_flagged(self):
+        source = (
+            '{# @prop size:text | default:"md" | description:"sm | md | lg" #}\n'
+            '<c-vars size="md" />\n'
+        )
+        assert _by_rule(source, "malformed-prop-filter") == []
+
+
+class TestUnknownPropFilter:
+    def test_typo_filter_key_is_flagged(self):
+        source = '{# @prop x:text | default:"a" | descripton:"typo" #}\n<c-vars x="a" />\n'
+        issues = _by_rule(source, "unknown-prop-filter")
+        assert len(issues) == 1
+        assert issues[0].severity == "warning"
+        assert "descripton" in issues[0].message
+
+    def test_known_filters_not_flagged(self):
+        assert _by_rule(CLEAN_COMPONENT, "unknown-prop-filter") == []
+
+
+class TestQuotedValueRoundTrip:
+    def test_no_default_mismatch_with_single_quoted_cvars(self):
+        # Escaped annotation default must compare equal to the raw value of
+        # a single-quoted <c-vars> attribute (the builder's output pair).
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hi\\"" | description:"d" #}\n'
+            "<c-vars greeting='Say \"hi\"' />\n"
+        )
+        assert _by_rule(source, "default-mismatch") == []
+        assert _by_rule(source, "orphan-annotation") == []
+
+
+class TestStubSuggestionRoundTrip:
+    def test_missing_annotation_stub_with_quoted_value_is_parseable(self):
+        # The ready-to-paste @prop stub the linter suggests must survive its
+        # own parser — including when the <c-vars> value contains quotes.
+        from django_cotton_gallery.core.annotations import AnnotationParser
+
+        source = "<c-vars greeting='Say \"hi\"' />\n"
+        issues = _by_rule(source, "missing-annotation")
+        assert len(issues) == 1
+        stub = issues[0].suggestion
+        assert stub is not None
+        prop = AnnotationParser().parse(stub + '\n<c-vars x="1" />').props[0]
+        assert prop.clean_name == "greeting"
+        assert prop.default == 'Say "hi"'
+        assert prop.has_default is True
+
+
+class TestStrictWithAttrs:
+    def test_strict_plus_attrs_warns(self):
+        source = "{# @strict #}\n<button {{ attrs }}>{{ slot }}</button>\n"
+        issues = _by_rule(source, "strict-with-attrs")
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
+    def test_strict_without_attrs_is_clean(self):
+        source = "{# @strict #}\n<button>{{ slot }}</button>\n"
+        assert "strict-with-attrs" not in _rules(source)
+
+    def test_attrs_without_strict_is_clean(self):
+        source = "<button {{ attrs }}>{{ slot }}</button>\n"
+        assert "strict-with-attrs" not in _rules(source)

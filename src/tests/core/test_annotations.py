@@ -193,6 +193,39 @@ class TestAcceptsAttrs:
         assert parsed.accepts_attrs is False
 
 
+class TestStrict:
+    def test_strict_flag_present(self):
+        parsed = AnnotationParser().parse("{# @strict #}\n<button>{{ slot }}</button>")
+        assert parsed.strict is True
+
+    def test_strict_absent_defaults_false(self):
+        parsed = AnnotationParser().parse("{# @description X #}")
+        assert parsed.strict is False
+
+    def test_strict_tolerates_whitespace(self):
+        assert AnnotationParser().parse("{#   @strict   #}").strict is True
+
+    def test_strict_requires_exact_marker(self):
+        # Trailing content or a longer word must NOT count as @strict.
+        assert AnnotationParser().parse("{# @strictly #}").strict is False
+        assert AnnotationParser().parse("{# @strict now #}").strict is False
+
+
+class TestIgnoreUnused:
+    def test_flag_present(self):
+        parsed = AnnotationParser().parse("{# @ignore-unused #}\n<div></div>")
+        assert parsed.ignore_unused is True
+
+    def test_absent_defaults_false(self):
+        assert AnnotationParser().parse("{# @description X #}").ignore_unused is False
+
+    def test_tolerates_whitespace(self):
+        assert AnnotationParser().parse("{#   @ignore-unused   #}").ignore_unused is True
+
+    def test_requires_exact_marker(self):
+        assert AnnotationParser().parse("{# @ignore-unusedx #}").ignore_unused is False
+
+
 class TestEmptySource:
     def test_empty_string(self):
         parsed = AnnotationParser().parse("")
@@ -229,3 +262,63 @@ class TestRealComponent:
         assert parsed.slots[0].content == "Click me"
         assert parsed.slots[0].description == "Button label"
         assert parsed.accepts_attrs is True
+
+
+class TestDelimiterCollisions:
+    """Values that contain the DSL's own delimiters (`|`, `"`, `'`).
+
+    Pipes inside a quoted value or inside select[...] are content, not
+    separators. Quotes inside quoted values / select options are escaped
+    with a backslash (the same convention the builder emits).
+    """
+
+    def test_pipe_inside_quoted_description(self):
+        source = '{# @prop size:text | default:"md" | description:"Sizes: sm | md | lg" #}'
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.default == "md"
+        assert prop.description == "Sizes: sm | md | lg"
+
+    def test_pipe_inside_quoted_default(self):
+        source = '{# @prop sep:text | default:"a | b" | description:"Separator" #}'
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.default == "a | b"
+        assert prop.description == "Separator"
+
+    def test_escaped_double_quote_in_default(self):
+        source = (
+            '{# @prop greeting:text | default:"Say \\"hello\\" now" | description:"Greeting" #}'
+        )
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.default == 'Say "hello" now'
+        assert prop.has_default is True
+        assert prop.description == "Greeting"
+
+    def test_escaped_double_quote_in_description(self):
+        source = '{# @prop x:text | description:"Shows a \\"hint\\" text" #}'
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.description == 'Shows a "hint" text'
+
+    def test_escaped_backslash_in_default(self):
+        source = '{# @prop path:text | default:"C:\\\\temp" | description:"Path" #}'
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.default == "C:\\temp"
+
+    def test_escaped_single_quote_in_select_option(self):
+        source = "{# @prop mood:select['it\\'s ok', 'bad'] | description:\"Mood\" #}"
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.options == ("it's ok", "bad")
+
+    def test_pipe_inside_select_options(self):
+        source = "{# @prop sep:select['a|b', 'c'] | description:\"Separator\" #}"
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.options == ("a|b", "c")
+        assert prop.description == "Separator"
+
+    def test_plain_annotations_are_unchanged(self):
+        # Regression guard: the escape machinery must not alter how
+        # ordinary escape-free annotations parse.
+        source = "{# @prop variant:select['primary', 'secondary'] | default:\"primary\" | description:\"Style\" #}"
+        prop = AnnotationParser().parse(source).props[0]
+        assert prop.default == "primary"
+        assert prop.description == "Style"
+        assert prop.options == ("primary", "secondary")

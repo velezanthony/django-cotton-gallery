@@ -5,6 +5,9 @@ from __future__ import annotations
 from django.conf import settings as django_settings
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.utils.safestring import SafeString, mark_safe
+from django.utils.translation import get_language
 
 from .conf import discover_template_roots, load
 from .context_processors import PACKAGE_LANGUAGES
@@ -15,6 +18,7 @@ from .core.component_graph import build_graph, scan_external_users
 from .core.insights import compute_insights
 from .core.linter import lint_catalog, lint_component, lint_summary
 from .core.path_safety import UnsafePath
+from .core.schemas import ComponentSummary, SummaryCatalog
 from .core.source_reader import read_text
 from .factories import get_catalog_service, get_parser, get_preview_service
 from .setup_check import check_setup, has_blocking_errors
@@ -39,17 +43,62 @@ def _cached_lint_summary(catalog: CatalogService) -> dict[str, tuple[int, int, i
     return fresh
 
 
+def _summary_catalog(catalog: CatalogService) -> SummaryCatalog:
+    """Project the catalog to `ComponentSummary` — the source-free shape the
+    templates render. Keeps the ~130 component sources out of the template
+    context (and thus out of Debug Toolbar's per-render snapshot, which would
+    otherwise retain ~385 MB/request and OOM-kill the dev server).
+    """
+    return {
+        cat: {
+            sub: [ComponentSummary(c.name, c.path, c.tag_path, c.description) for c in comps]
+            for sub, comps in subcats.items()
+        }
+        for cat, subcats in catalog.get_catalog().items()
+    }
+
+
+# Rendered sidebar-tree HTML, keyed by (signature, language). The tree has no
+# per-page state, so one render serves every navigation until a file changes.
+_sidebar_tree_cache: dict[tuple[tuple[int, float], str | None], SafeString] = {}
+
+
+def _cached_sidebar_tree(catalog: CatalogService) -> SafeString:
+    """Render the sidebar category tree once per (signature, language), cached.
+
+    The tree is 130+ nested includes. Rendered inline on every page, Debug
+    Toolbar's Templates panel snapshots each one per request, and browsing
+    detail pages piles that up until OOM. Pre-rendering to a single cached
+    string means the toolbar sees one variable, not the whole tree.
+    """
+    sig = signature(catalog.config)
+    key = (sig, get_language())
+    cached = _sidebar_tree_cache.get(key)
+    if cached is not None:
+        return cached
+    html = render_to_string(
+        "django_cotton_gallery/_sidebar_tree.html",
+        {
+            "categories": _summary_catalog(catalog),
+            "lint_summary": _cached_lint_summary(catalog),
+        },
+    )
+    _sidebar_tree_cache.clear()
+    _sidebar_tree_cache[key] = mark_safe(html)  # our own template output
+    return _sidebar_tree_cache[key]
+
+
 def _sidebar_context(catalog: CatalogService) -> dict:
     """Context every view needs to render the sidebar correctly.
 
-    `lint_summary` powers the per-component error/warning/hint badges next
-    to each link. It's cached by catalog signature so subsequent navigations
-    skip the regex pass; cache invalidates the moment any component file's
-    mtime changes.
+    `sidebar_tree` is the pre-rendered (cached) category tree. `categories`
+    (source-free `ComponentSummary`) stays for the footer count, empty-state
+    check, and the index/compare grids that still iterate it.
     """
     return {
-        "categories": catalog.get_catalog(),
+        "categories": _summary_catalog(catalog),
         "lint_summary": _cached_lint_summary(catalog),
+        "sidebar_tree": _cached_sidebar_tree(catalog),
     }
 
 
@@ -161,8 +210,9 @@ def component_detail(request: HttpRequest, component_path: str) -> HttpResponse:
         raise Http404(str(exc)) from exc
     parsed = get_parser().parse(source)
     name, category, subcategory = _split_component_path(component_path)
-    lint_report = lint_component(component_path, source)
     items = catalog.sources()
+    known_tags = frozenset(p.replace("/", ".") for p, _ in items)
+    lint_report = lint_component(component_path, source, known_tags=known_tags)
     graph = build_graph(items)
     deps_uses, deps_used_by = graph.for_component(component_path)
     # Transitive trees — same data the direct lists show, walked recursively
@@ -198,6 +248,8 @@ def component_detail(request: HttpRequest, component_path: str) -> HttpResponse:
             "slots": parsed.slots,
             "has_slots": parsed.has_slots,
             "accepts_attrs": parsed.accepts_attrs,
+            "strict": parsed.strict,
+            "ignore_unused": parsed.ignore_unused,
             "lint": lint_report,
             "deps_uses": deps_uses,
             "deps_used_by": deps_used_by,
@@ -395,6 +447,10 @@ def props_index(request: HttpRequest) -> JsonResponse:
             "has_named_slots": any(s.name for s in parsed.slots),
             "has_default_slot": any(s.name is None for s in parsed.slots),
             "deprecated": any(p.deprecated for p in parsed.props),
+            # Fuels the `strict` switcher filter — closed prop set (@strict).
+            "strict": parsed.strict,
+            # Fuels the `ignore-unused` switcher filter (@ignore-unused).
+            "ignore_unused": parsed.ignore_unused,
         }
     return JsonResponse(out)
 

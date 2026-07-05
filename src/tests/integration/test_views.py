@@ -75,11 +75,15 @@ class TestXSSReflection:
         )
         assert response.status_code == 200
         body = json.loads(response.content)
-        # The runaway-quote pattern that Cotton would parse as a second attribute
-        # must not appear in either the cotton tag string or the rendered HTML.
-        # `" onclick=` is the exact substring that escapes the value before the fix.
-        assert '" onclick=' not in body["tag"]
+        # The value contains `"` but no `'`, so the tag wraps it in single
+        # quotes — Cotton parses the whole payload as ONE attribute value
+        # (breakout would need a `'`, which that quoting branch forbids).
+        assert "label='a\" onclick=\"alert(1)'" in body["tag"]
+        # The rendered HTML must never carry a live handler — the payload
+        # only survives autoescaped inside text/attr content (&quot;).
         assert '" onclick=' not in body["html"]
+        assert 'onclick="alert' not in body["html"]
+        assert "onclick='alert" not in body["html"]
 
     def test_prop_value_does_not_inject_script_tag(self, client):
         response = client.get(

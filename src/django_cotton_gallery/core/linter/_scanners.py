@@ -16,6 +16,12 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
+from ..annotations import (
+    FILTER_KEYS,
+    head_is_valid,
+    match_filter_segment,
+    split_filter_segments,
+)
 from ..cvars import CVarsBlock
 from ._types import LintIssue
 
@@ -160,6 +166,64 @@ def scan_required_with_default(component_path: str, source: str) -> Iterable[Lin
         )
 
 
+def scan_malformed_prop_filters(component_path: str, source: str) -> Iterable[LintIssue]:
+    """Flag `@prop` segments the main parser drops without a trace.
+
+    Re-scans with the parser's own splitting rules: malformed head or
+    filter segment → error (the data silently never reaches the catalog);
+    valid syntax with an unknown key → warning (typo like `descripton:`).
+    """
+    for match in _RAW_PROP.finditer(source):
+        body = match.group(1)
+        segments = split_filter_segments(body)
+        line = source.count("\n", 0, match.start()) + 1
+
+        head = segments[0]
+        if not head_is_valid(head):
+            yield LintIssue(
+                rule="malformed-prop-filter",
+                severity="error",
+                message=(
+                    f"`@prop` head `{head}` is not parseable (expected `name:type`) "
+                    "— the whole annotation is ignored."
+                ),
+                component_path=component_path,
+                line=line,
+                params=(("kind", "head"), ("segment", head)),
+            )
+            continue
+
+        name = _RAW_HEAD.match(head).group(1).lstrip(":")  # type: ignore[union-attr]
+        for seg in segments[1:]:
+            key = match_filter_segment(seg)
+            if key is None:
+                yield LintIssue(
+                    rule="malformed-prop-filter",
+                    severity="error",
+                    message=(
+                        f"`{name}`: filter segment `{seg}` is malformed — it is "
+                        "silently ignored (check quotes and escapes)."
+                    ),
+                    component_path=component_path,
+                    line=line,
+                    prop_name=name,
+                    params=(("kind", "filter"), ("prop", name), ("segment", seg)),
+                )
+            elif key not in FILTER_KEYS:
+                yield LintIssue(
+                    rule="unknown-prop-filter",
+                    severity="warning",
+                    message=(
+                        f"`{name}`: unknown filter `{key}` — expected one of "
+                        "default, description, required, deprecated, hidden, example."
+                    ),
+                    component_path=component_path,
+                    line=line,
+                    prop_name=name,
+                    params=(("prop", name), ("key", key)),
+                )
+
+
 def scan_undeclared_template_vars(
     component_path: str,
     source: str,
@@ -228,4 +292,36 @@ def scan_undeclared_template_vars(
             line=line,
             prop_name=root,
             params=(("ref", root),),
+        )
+
+
+# Component references `<c-foo.bar>`. Cotton's own meta-tags declare props,
+# fill slots or render dynamically — they are never catalog components.
+_COMPONENT_REF = re.compile(r"<c-([\w.-]+)\b")
+_COTTON_META = frozenset({"vars", "slot", "component"})
+
+
+def scan_unknown_components(
+    component_path: str, source: str, known_tags: frozenset[str]
+) -> Iterable[LintIssue]:
+    """Flag `<c-X.Y>` references to components absent from the catalog.
+
+    `known_tags` is the set of tag paths (`atoms.button`) for every catalog
+    component. A reference whose tag isn't in it points at a typo or a removed /
+    never-created component — Cotton silently renders nothing for it. Called
+    only when the caller knows the full catalog; the single-file CLI passes no
+    catalog, so the check is skipped there.
+    """
+    for m in _COMPONENT_REF.finditer(source):
+        tag = m.group(1)
+        if tag in _COTTON_META or tag in known_tags:
+            continue
+        line = source.count("\n", 0, m.start()) + 1
+        yield LintIssue(
+            rule="unknown-component",
+            severity="error",
+            message=f"No component `{tag}` in the catalog — `<c-{tag}>` renders nothing.",
+            component_path=component_path,
+            line=line,
+            params=(("tag", tag),),
         )

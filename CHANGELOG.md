@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-07-05
+
+### Added
+
+- `@strict` — `{# @strict #}` declares a closed prop set (badge, switcher filter, stricter lint).
+- `@ignore-unused` — exclude a component from the Insights zombie list (badge, filter, banner).
+- Language-aware syntax highlighting across the Source, preview, compare, slot editor and docs. Prism vendored locally.
+- Inline lint on the Source tab — gutter markers with a tooltip.
+- `unknown-component` lint rule — flag `<c-…>` refs missing from the catalog.
+- Editable preview backgrounds — swatches become color pickers (draft/commit; Reset restores defaults).
+- `DJANGO_COTTON_GALLERY_SIGNATURE_TTL` setting (default `0.5`; `0` disables).
+
+### Changed
+
+- Annotation builder composes the whole annotation block, not just `@prop`.
+- Catalog signature uses `os.scandir` + a TTL memo (~1 `cotton/` walk per request).
+- Debug Toolbar coexistence — source-free `ComponentSummary` projection avoids the OOM.
+- One code backdrop everywhere — shared `--cg-code-bg` + token palette.
+
+### Tests
+
+- E2E for inline lint, the background switcher, and highlighting.
+
 ## [0.1.0] - 2026-07-01
 
 Initial public release.
@@ -64,4 +87,5 @@ Initial public release.
 - **Folder layout flexibility** explained: components without a category folder, `<dir>/index.html` as the entry, and how naming maps to URL/tag.
 - **Full audit + reorganization + screenshot regeneration** of public docs.
 
+[0.2.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/velezanthony/django-cotton-gallery/releases/tag/v0.1.0

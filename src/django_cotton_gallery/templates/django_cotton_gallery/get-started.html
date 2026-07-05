@@ -28,7 +28,7 @@
       <h2 class="cg-docs__h2">{% trans "1. Install" %}</h2>
       <p>{% blocktranslate %}Install both apps with pip, register them in <code>settings.py</code>, then mount the gallery URLs behind a <code>DEBUG</code> guard. Plug and play — no other configuration needed for first run.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# settings.py
 INSTALLED_APPS = [
     # ...
     "django_cotton",
@@ -40,7 +40,7 @@ COTTON_SNAKE_CASED_NAMES = False  # cotton's setting; both styles work, see Docu
       </div>
       <p>{% blocktranslate %}Then mount the gallery URLs in your project's <code>urls.py</code> — gated by <code>DEBUG</code> so the routes never reach production:{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# urls.py
 from django.conf import settings
 from django.urls import include, path
 
@@ -58,7 +58,7 @@ if settings.DEBUG:
       <h2 class="cg-docs__h2">{% trans "2. Use a component" %}</h2>
       <p>{% blocktranslate %}Render any component by its kebab-case path. The folder structure becomes the dotted tag name — that's the whole convention.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}<c-atoms.ui.button variant="primary">Save</c-atoms.ui.button>
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}<c-atoms.ui.button variant="primary">Save</c-atoms.ui.button>
 
 <c-atoms.ui.alert variant="success">
   Your changes were saved.
@@ -72,7 +72,7 @@ if settings.DEBUG:
       <h2 class="cg-docs__h2">{% trans "3. Make your own" %}</h2>
       <p>{% blocktranslate %}Drop a new file under <code>templates/cotton/</code>. The gallery picks it up automatically — no registration, no rebuild. Add an <code>@prop</code> annotation comment and the controls panel builds itself.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# templates/cotton/atoms/hello.html #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# templates/cotton/atoms/hello.html #}
 {# @prop name:text | default:"World" | description:"Who to greet" #}
 <c-vars name="World" />
 
@@ -89,7 +89,7 @@ if settings.DEBUG:
       <p>{% blocktranslate %}The gallery ships with translations for English, Spanish, Basque, and French. The dropdown in the sidebar footer only appears when your project has Django's i18n URL and middleware wired — without them, Django can't persist the chosen language, so the gallery hides the control to avoid a dead button.{% endblocktranslate %}</p>
       <p>{% blocktranslate %}Two changes in your project to enable it. First, mount the i18n URLs:{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# urls.py
 from django.urls import include, path
 
 urlpatterns = [
@@ -100,7 +100,7 @@ urlpatterns = [
       </div>
       <p>{% blocktranslate %}Second, add <code>LocaleMiddleware</code> to the middleware stack. Order matters: it must come <strong>after</strong> <code>SessionMiddleware</code> and <strong>before</strong> <code>CommonMiddleware</code>:{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# settings.py
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

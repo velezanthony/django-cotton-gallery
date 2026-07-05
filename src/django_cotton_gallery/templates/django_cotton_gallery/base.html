@@ -36,7 +36,9 @@
     noCssPropsMatch:"{% trans 'No CSS properties match' %}",
     noHtmlAttrsMatch:"{% trans 'No HTML attributes match' %}",
     noPropsOn:"{% trans 'No props on' %}",
-    noMatchingProps:"{% trans 'No matching props' %}"
+    noMatchingProps:"{% trans 'No matching props' %}",
+    copyFix:"{% trans 'Copy fix' %}",
+    copied:"{% trans 'Copied' %}"
   };</script>
   {# type="module" implies defer; main.js imports every feature module from ./js/ #}
   <script src="{% static 'django_cotton_gallery/js/main.js' %}" type="module"></script>
@@ -57,10 +59,13 @@
   don't block first paint, and gallery.js re-runs Prism on SPA swaps
   via Prism.highlightAllUnder on bindContent.
   {% endcomment %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-django.min.js" defer></script>
+  <link rel="stylesheet" href="{% static 'django_cotton_gallery/vendor/prism/prism-tomorrow.min.css' %}">
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism.min.js' %}" data-manual defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-markup-templating.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-django.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-python.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-bash.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/js/prism-cotton-stack.js' %}" defer></script>
 
   {% comment %}
   Consumer-injected assets — the gallery is stack-agnostic, so any
@@ -246,61 +251,7 @@
         <p class="cg-sidebar__empty-search-msg">{% trans "No matches for" %} <code class="cg-sidebar__empty-search-query" data-cg-empty-search-query></code></p>
       </div>
 
-      {% for cat_name, subcategories in categories.items %}
-        <div data-cg-category>
-          <button type="button" class="cg-cat__toggle" data-cg-toggle="{{ cat_name|default:'_uncategorized' }}">
-            <span style="display:flex;align-items:center;gap:0.5rem;">
-              <span class="cg-cat__name">{% if cat_name %}{{ cat_name }}{% else %}{% trans "Components" %}{% endif %}</span>
-              <span class="cg-cat__count">{{ subcategories|component_count }}</span>
-            </span>
-            <svg class="cg-cat__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-            </svg>
-          </button>
-          <div data-cg-collapse="{{ cat_name|default:'_uncategorized' }}">
-            {% for sub_name, components in subcategories.items %}
-              {% if sub_name %}
-                <div data-cg-subcategory>
-                  <button type="button" class="cg-sub__toggle" data-cg-toggle="{{ cat_name }}/{{ sub_name }}">
-                    <span class="cg-sub__name-wrap">
-                      <span class="cg-sub__name">{{ sub_name }}</span>
-                      <span class="cg-sub__count">{{ components|length }}</span>
-                    </span>
-                    <svg class="cg-sub__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                    </svg>
-                  </button>
-                  <div data-cg-collapse="{{ cat_name }}/{{ sub_name }}">
-                    {% for comp in components %}
-                      {% with counts=lint_summary|lint_counts:comp.path %}
-                        <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
-                           class="cg-link cg-link--nested"
-                           data-cg-component="{{ comp.name }}"
-                           title="{{ comp.description }}">
-                          <span class="cg-link__name">{{ comp.name }}</span>
-                          {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
-                        </a>
-                      {% endwith %}
-                    {% endfor %}
-                  </div>
-                </div>
-              {% else %}
-                {% for comp in components %}
-                  {% with counts=lint_summary|lint_counts:comp.path %}
-                    <a href="{% url 'django_cotton_gallery:component_detail' comp.path %}"
-                       class="cg-link"
-                       data-cg-component="{{ comp.name }}"
-                       title="{{ comp.description }}">
-                      <span class="cg-link__name">{{ comp.name }}</span>
-                      {% if counts %}{% include "django_cotton_gallery/_lint_badges.html" with counts=counts %}{% endif %}
-                    </a>
-                  {% endwith %}
-                {% endfor %}
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      {% endfor %}
+      {{ sidebar_tree }}
     </nav>
 
     <div class="cg-sidebar__footer">
@@ -496,7 +447,7 @@ filters in-memory.
   <div class="cg-switcher__panel">
     <div class="cg-switcher__input-wrap">
       <svg class="cg-switcher__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-      <input type="text" class="cg-switcher__input" data-cg-switcher-input placeholder="{% trans 'Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, deprecated' %}" autocomplete="off" spellcheck="false">
+      <input type="text" id="cg-switcher-search" name="cg-switcher-search" class="cg-switcher__input" data-cg-switcher-input placeholder="{% trans 'Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, deprecated, strict' %}" aria-label="{% trans 'Search components' %}" autocomplete="off" spellcheck="false">
       <kbd class="cg-switcher__kbd" aria-hidden="true">Esc</kbd>
     </div>
     <ul class="cg-switcher__list" data-cg-switcher-list role="listbox" aria-label="{% trans 'Components' %}"></ul>
@@ -517,6 +468,8 @@ filters in-memory.
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-named-slots ">has-named-slots</button>
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="has-default-slot ">has-default-slot</button>
       <button type="button" class="cg-switcher__hint" data-cg-hint-insert="deprecated ">deprecated</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="strict ">strict</button>
+      <button type="button" class="cg-switcher__hint" data-cg-hint-insert="ignore-unused ">ignore-unused</button>
     </div>
   </div>
 </div>

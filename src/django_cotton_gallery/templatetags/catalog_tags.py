@@ -45,6 +45,9 @@ _LINT_MESSAGES: dict[RuleCode, Any] = {
     "missing-annotation": _(
         "`%(prop)s`: declared in <c-vars> but no `@prop` comment documents it."
     ),
+    "unknown-component": _(
+        "No component `%(tag)s` in the catalog — `<c-%(tag)s>` renders nothing."
+    ),
     "required-with-default": _(
         "`%(prop)s`: cannot use `| required` together with `| default:` — a required prop has no fallback."
     ),
@@ -72,6 +75,20 @@ _LINT_MESSAGES: dict[RuleCode, Any] = {
                 "`%(prop)s`: type is `number` but default `%(raw)s` is not a valid number."
             ),
         },
+    ),
+    "malformed-prop-filter": (
+        "kind",
+        {
+            "head": _(
+                "`@prop` head `%(segment)s` is not parseable (expected `name:type`) — the whole annotation is ignored."
+            ),
+            "filter": _(
+                "`%(prop)s`: filter segment `%(segment)s` is malformed — it is silently ignored (check quotes and escapes)."
+            ),
+        },
+    ),
+    "unknown-prop-filter": _(
+        "`%(prop)s`: unknown filter `%(key)s` — expected one of default, description, required, deprecated, hidden, example."
     ),
 }
 

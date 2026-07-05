@@ -37,7 +37,8 @@ transparency but do NOT subtract from the Insights health score.
     {% for issue in issues %}
       <li class="cg-lint__issue cg-lint__issue--{{ issue.severity }}"
           data-cg-issue-severity="{{ issue.severity }}"
-          data-cg-issue-rule="{{ issue.rule }}">
+          data-cg-issue-rule="{{ issue.rule }}"
+          data-cg-issue-line="{{ issue.line|default:'' }}">
         <span class="cg-lint__icon cg-lint__icon--{{ issue.severity }}" aria-hidden="true">
           {% if issue.severity == 'error' %}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">

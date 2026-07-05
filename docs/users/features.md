@@ -36,6 +36,15 @@ numbers become inputs, slots become editors. The preview re-renders on
 every change. Copy the `<c-tag />` line, the source, or jump into the
 raw view — all from the same page.
 
+The **Source** tab is language-aware: it colours the whole template stack —
+HTML, Django tags and filters, Cotton components (`<c-…>`), HTMX (`hx-*`) and
+Alpine (`x-*` / `@` / `:`) attributes, embedded `<script>` JS and `<style>`
+CSS, and the `{# @… #}` annotation DSL — and surfaces lint issues inline as
+gutter markers with a hover tooltip. The **preview backdrop** bar switches
+between checkered / white / dark / brand, and an **Edit** mode turns the last
+three swatches into color pickers so you can recolour them to your app's theme
+(saved locally, restorable to the defaults).
+
 ![Component detail: preview, controls, source, slots](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-detail.png)
 
 **Where:** Click any card on the index, or jump via the switcher.
@@ -111,6 +120,9 @@ its actual `<c-vars>` declaration. It catches:
 - `dynamic-prefix-mismatch` — `:prop` on one side, plain on the other
 - `undeclared-template-var` — heuristic hint for `{{ x }}` references
   not in `<c-vars>` (ignore if it comes from a context processor)
+- `unknown-component` — a `<c-…>` reference to a component absent from the
+  catalog; Cotton silently renders nothing for it, so the linter flags it as an
+  error and names the missing tag (also shown inline on the Source tab)
 
 Filter by severity (errors / warnings / hints), search by component
 or rule, and copy stubs straight from the report.
@@ -176,14 +188,15 @@ render without exploding.
 
 ---
 
-## Annotation builder — write `@prop` interactively
+## Annotation builder — write a whole component's annotation interactively
 
 **Skip the syntax memorisation.**
 
-A form-based editor for crafting `@prop` annotations: pick a type,
-fill in defaults, options, descriptions, and the matching `<c-vars>`
-line is generated for you. Copy and paste into a new component file —
-the gallery picks it up on next refresh.
+A form-based editor for crafting a component's **entire annotation block** —
+the `@description`, the `@strict` / `@ignore-unused` flags, every `@prop`
+(type, defaults, options, descriptions), every `@slot`, and the `@trigger` —
+with the matching `<c-vars>` line generated for you. Copy and paste into a new
+component file — the gallery picks it up on next refresh.
 
 ![Annotation builder — interactive @prop composer with live output](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-builder.png)
 

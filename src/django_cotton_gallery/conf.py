@@ -32,8 +32,12 @@ SETTING_SUBCATEGORY_SORT = "DJANGO_COTTON_GALLERY_SUBCATEGORY_SORT"
 SETTING_EXTRA_CSS = "DJANGO_COTTON_GALLERY_EXTRA_CSS"
 SETTING_EXTRA_JS = "DJANGO_COTTON_GALLERY_EXTRA_JS"
 SETTING_SCAN_EXTERNAL_USERS = "DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS"
+SETTING_SIGNATURE_TTL = "DJANGO_COTTON_GALLERY_SIGNATURE_TTL"
 
 DEFAULT_COTTON_SUBFOLDER = "cotton"
+# Seconds a catalog signature is reused before re-walking cotton/. Small enough
+# that edits show up near-instantly; large enough to dedup the walks per request.
+DEFAULT_SIGNATURE_TTL = 0.5
 
 SortMode = Literal["asc", "desc"]
 
@@ -54,6 +58,7 @@ class GallerySettings:
     subcategory_sort: SortMode = "asc"
     extra_css: tuple[str, ...] = ()
     extra_js: tuple[str, ...] = ()
+    signature_ttl: float = DEFAULT_SIGNATURE_TTL  # see DEFAULT_SIGNATURE_TTL
     # Opt-in scanning of consumer templates (TEMPLATES.DIRS + each app's
     # templates/) to discover external references to catalog components.
     # Default `False` — the gallery only reads the consumer's codebase when
@@ -81,6 +86,7 @@ def load() -> GallerySettings:
         subcategory_sort=getattr(settings, SETTING_SUBCATEGORY_SORT, "asc"),
         extra_css=tuple(getattr(settings, SETTING_EXTRA_CSS, ())),
         extra_js=tuple(getattr(settings, SETTING_EXTRA_JS, ())),
+        signature_ttl=float(getattr(settings, SETTING_SIGNATURE_TTL, DEFAULT_SIGNATURE_TTL)),
         scan_external_users=bool(getattr(settings, SETTING_SCAN_EXTERNAL_USERS, False)),
     )
 
