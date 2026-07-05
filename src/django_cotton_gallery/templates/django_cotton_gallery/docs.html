@@ -308,6 +308,9 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <p>{% blocktranslate %}Switch the preview into a grid that renders <strong>every combination</strong> of the component's discrete props at once. The first two enum or boolean props become the Y/X axes; everything else stays consistent across cells. Useful for QA, visual regression, and seeing the whole API at a glance.{% endblocktranslate %}</p>
       <p class="cg-docs__callout">{% blocktranslate %}Toggle via the <strong>View</strong> switcher in the preview toolbar (single-frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense matrices don't fire 30 fetches at once.{% endblocktranslate %}</p>
 
+      <h3 class="cg-docs__h3">{% trans "Preview background" %}</h3>
+      <p>{% blocktranslate %}The <strong>Bg</strong> bar in the preview toolbar switches the backdrop between checkered, white, dark, and brand. Hit <strong>Edit</strong> to turn the last three swatches into color pickers and recolour them to your app's theme — the choice previews live and is only saved on <strong>Done</strong> (persisted in <code>localStorage</code>); <strong>Reset</strong> restores the defaults.{% endblocktranslate %}</p>
+
       <h3 class="cg-docs__h3">{% trans "Shareable URL state" %}</h3>
       <p>{% blocktranslate %}Every change in the controls panel writes the non-default values to the URL via <code>history.replaceState</code>. Copy the URL, send it, and the recipient lands on the same component with the exact same configuration — no description needed for bug reports or design reviews.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
@@ -324,8 +327,8 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h3 class="cg-docs__h3">{% trans "Sidebar typeahead" %}</h3>
       <p>{% blocktranslate %}Press <kbd>/</kbd> from anywhere to focus the search. Start typing — a dropdown appears with name + path + description for every match. Hit <kbd>Tab</kbd> to autocomplete the input with the first match (or with whatever suggestion you've focused via <kbd>↓</kbd>). <kbd>Enter</kbd> activates the first match; <kbd>Esc</kbd> clears.{% endblocktranslate %}</p>
 
-      <h3 class="cg-docs__h3">{% trans "Live syntax highlighting" %}</h3>
-      <p>{% blocktranslate %}Both the slot textarea and the extra-attrs editor render token colors AS you type — HTML tags, Cotton component names, attribute names, strings, Django <code>&#123;%&nbsp;%&#125;</code> blocks, and CSS properties inside <code>style="…"</code> all get their own color. The slot editor uses an overlay technique; the attrs field is a <code>contenteditable</code> div so the cursor sits on top of the colored text directly.{% endblocktranslate %}</p>
+      <h3 class="cg-docs__h3">{% trans "Language-aware syntax highlighting" %}</h3>
+      <p>{% blocktranslate %}The Source tab, the Cotton-tag preview, and the live editors (slot textarea + extra-attrs field) all colour the full template stack: HTML tags, Cotton component names (<code>&lt;c-…&gt;</code>), Django <code>&#123;%&nbsp;%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> blocks and filters, HTMX (<code>hx-*</code>) and Alpine (<code>x-*</code> / <code>@</code> / <code>:</code>) attributes — with the Alpine value tokenised as JavaScript — embedded <code>&lt;script&gt;</code> JS and <code>&lt;style&gt;</code> CSS, and the <code>&#123;# @… #&#125;</code> annotation DSL. The slot editor uses an overlay technique; the attrs field is a <code>contenteditable</code> div so the cursor sits on top of the colored text directly.{% endblocktranslate %}</p>
 
       <h3 class="cg-docs__h3">{% trans "CSS autocomplete inside style attributes" %}</h3>
       <p>{% blocktranslate %}When the caret enters a <code>style="…"</code> attribute, the popover switches from HTML-attribute suggestions to CSS-aware ones. It detects three contexts:{% endblocktranslate %}</p>

@@ -36,6 +36,15 @@ numbers become inputs, slots become editors. The preview re-renders on
 every change. Copy the `<c-tag />` line, the source, or jump into the
 raw view — all from the same page.
 
+The **Source** tab is language-aware: it colours the whole template stack —
+HTML, Django tags and filters, Cotton components (`<c-…>`), HTMX (`hx-*`) and
+Alpine (`x-*` / `@` / `:`) attributes, embedded `<script>` JS and `<style>`
+CSS, and the `{# @… #}` annotation DSL — and surfaces lint issues inline as
+gutter markers with a hover tooltip. The **preview backdrop** bar switches
+between checkered / white / dark / brand, and an **Edit** mode turns the last
+three swatches into color pickers so you can recolour them to your app's theme
+(saved locally, restorable to the defaults).
+
 ![Component detail: preview, controls, source, slots](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-detail.png)
 
 **Where:** Click any card on the index, or jump via the switcher.
@@ -111,6 +120,9 @@ its actual `<c-vars>` declaration. It catches:
 - `dynamic-prefix-mismatch` — `:prop` on one side, plain on the other
 - `undeclared-template-var` — heuristic hint for `{{ x }}` references
   not in `<c-vars>` (ignore if it comes from a context processor)
+- `unknown-component` — a `<c-…>` reference to a component absent from the
+  catalog; Cotton silently renders nothing for it, so the linter flags it as an
+  error and names the missing tag (also shown inline on the Source tab)
 
 Filter by severity (errors / warnings / hints), search by component
 or rule, and copy stubs straight from the report.

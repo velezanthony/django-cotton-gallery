@@ -5,20 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2026-07-05
 
 ### Added
 
-- **`@strict` annotation** — `{# @strict #}` declares a **closed prop set**: every prop the component accepts is documented with `@prop`. Shows a `@strict` badge on the detail page and adds a `strict` filter to the Ctrl+K quick switcher. Under `@strict` the linter tightens: an undocumented `<c-vars>` prop escalates from warning to **error** (`missing-annotation`), and a component that also spreads `{{ attrs }}` raises the new `strict-with-attrs` **error** (the "Extra attrs" editor is shown disabled and flagged) — the two contradict, since arbitrary attributes would keep the set open.
-- **`@ignore-unused` annotation** — `{# @ignore-unused #}` excludes a component from the Insights **zombie** list (components referenced nowhere, surfaced only when `DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS` is on). For deliberately unreferenced components — a published library atom, a work-in-progress. Adds an `@ignore-unused` badge, an `ignore-unused` switcher filter, and a Dependencies-tab banner.
-- **`DJANGO_COTTON_GALLERY_SIGNATURE_TTL`** setting — seconds to reuse the catalog signature snapshot before re-walking `cotton/` (**default `0.5`**; `0` disables, e.g. in tests).
-- **Demo catalog** now showcases the new annotations — `atoms/status-dot`, `lint/strict-000`, `molecules/wip-panel`.
+- `@strict` — `{# @strict #}` declares a closed prop set (badge, switcher filter, stricter lint).
+- `@ignore-unused` — exclude a component from the Insights zombie list (badge, filter, banner).
+- Language-aware syntax highlighting across the Source, preview, compare, slot editor and docs. Prism vendored locally.
+- Inline lint on the Source tab — gutter markers with a tooltip.
+- `unknown-component` lint rule — flag `<c-…>` refs missing from the catalog.
+- Editable preview backgrounds — swatches become color pickers (draft/commit; Reset restores defaults).
+- `DJANGO_COTTON_GALLERY_SIGNATURE_TTL` setting (default `0.5`; `0` disables).
 
 ### Changed
 
-- **Annotation builder** (`/django-cotton-gallery/builder/`) now composes a component's **whole annotation block** — `@description`, the `@strict` / `@ignore-unused` flags, every `@prop`, `@slot` (0..n) and `@trigger` — not just the `@prop` lines. The output round-trips through the parser.
-- **Catalog signature walk** now uses `os.scandir` (not `Path.rglob`) plus a TTL memo — roughly one walk per request instead of 3–4, fewer syscalls, faster warm renders (noticeably so on Docker bind-mounts).
-- **Debug Toolbar coexistence** — template contexts get a source-free `ComponentSummary` projection and the sidebar tree is pre-rendered and cached, so the toolbar no longer snapshots `Component.source` per render and OOM-kills the dev server while browsing.
+- Annotation builder composes the whole annotation block, not just `@prop`.
+- Catalog signature uses `os.scandir` + a TTL memo (~1 `cotton/` walk per request).
+- Debug Toolbar coexistence — source-free `ComponentSummary` projection avoids the OOM.
+- One code backdrop everywhere — shared `--cg-code-bg` + token palette.
+
+### Tests
+
+- E2E for inline lint, the background switcher, and highlighting.
 
 ## [0.1.0] - 2026-07-01
 
@@ -79,4 +87,5 @@ Initial public release.
 - **Folder layout flexibility** explained: components without a category folder, `<dir>/index.html` as the entry, and how naming maps to URL/tag.
 - **Full audit + reorganization + screenshot regeneration** of public docs.
 
+[0.2.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/velezanthony/django-cotton-gallery/releases/tag/v0.1.0
