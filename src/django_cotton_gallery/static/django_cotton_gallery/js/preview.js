@@ -21,6 +21,7 @@ import {
 import {
   PREVIEW_DEBOUNCE_MS,
   STORAGE_PREVIEW_BG,
+  STORAGE_PREVIEW_BG_COLORS,
   STORAGE_PREVIEW_VIEWPORT,
   MATRIX_CELL_ROOT_MARGIN,
 } from './constants.js';
@@ -40,9 +41,38 @@ import { ATTR_SUGGESTIONS, tokenName, writtenAttrNames } from './html-attrs.js';
 // with the toolbar state. Without this, only the first stage gets the
 // attribute and side B falls back to its default (no bg, no theme tint).
 export const initPreviewBgSwitcher = () => {
-  const buttons = document.querySelectorAll('.cg-bg-btn');
+  const buttons = document.querySelectorAll('.cg-bg-btn[data-cg-bg]');
   if (!buttons.length) return;
 
+  // Edit controls live on the detail page only; the compare view reuses the
+  // same swatches without them, so everything below degrades to null/empty.
+  const editBtn = document.querySelector('[data-cg-bg-editcmd="edit"]');
+  const doneBtn = document.querySelector('[data-cg-bg-editcmd="done"]');
+  const resetBtn = document.querySelector('[data-cg-bg-editcmd="reset"]');
+  const editInputs = document.querySelectorAll('[data-cg-bg-edit]');
+  const switcher = editBtn ? editBtn.closest('.cg-preview__bg-switcher') : null;
+  const DEFAULTS = { white: '#ffffff', dark: '#111827', brand: '#ff9d0a' };
+
+  // Unsaved swatch-color edits. Null outside edit mode; while editing it holds
+  // the working colors — they only reach localStorage when the user hits Done.
+  let draft = null;
+
+  // Push a color map into the CSS vars (or clear back to the CSS defaults) and
+  // sync each picker's value.
+  const applyColors = (colors) => {
+    editInputs.forEach((inp) => {
+      const name = inp.getAttribute('data-cg-bg-edit');
+      if (colors[name]) {
+        document.documentElement.style.setProperty('--cg-bg-' + name, colors[name]);
+        inp.value = colors[name];
+      } else {
+        document.documentElement.style.removeProperty('--cg-bg-' + name);
+        inp.value = DEFAULTS[name] || '#ffffff';
+      }
+    });
+  };
+
+  // Re-query stages on every apply so compare's two stages stay in sync.
   const applyBg = (value) => {
     document
       .querySelectorAll('[data-cg-preview-stage]')
@@ -54,17 +84,63 @@ export const initPreviewBgSwitcher = () => {
     });
   };
 
-  const saved = readJSON(STORAGE_PREVIEW_BG) || 'checkered';
-  applyBg(saved);
+  applyColors(readJSON(STORAGE_PREVIEW_BG_COLORS) || {});
+  applyBg(readJSON(STORAGE_PREVIEW_BG) || 'checkered');
 
+  // A swatch selects that background; in edit mode an editable swatch also
+  // opens its color picker (guard against the programmatic click bubbling back).
   buttons.forEach((btn) => {
     if (!bindOnce(btn, 'bg')) return;
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      const input = btn.querySelector('[data-cg-bg-edit]');
+      if (e.target === input) return;
       const value = btn.getAttribute('data-cg-bg');
       applyBg(value);
       writeJSON(STORAGE_PREVIEW_BG, value);
+      if (switcher && switcher.classList.contains('cg-editing') && input) input.click();
     });
   });
+
+  // Picking a color previews it live and stages it in the draft — not saved
+  // until Done.
+  editInputs.forEach((inp) => {
+    if (!bindOnce(inp, 'bg')) return;
+    inp.addEventListener('input', () => {
+      const name = inp.getAttribute('data-cg-bg-edit');
+      document.documentElement.style.setProperty('--cg-bg-' + name, inp.value);
+      if (draft) draft[name] = inp.value;
+    });
+  });
+
+  const setEditing = (on) => {
+    if (switcher) switcher.classList.toggle('cg-editing', on);
+    if (editBtn) editBtn.hidden = on;
+    if (doneBtn) doneBtn.hidden = !on;
+    if (resetBtn) resetBtn.hidden = !on;
+  };
+
+  // Enter edit mode with a working copy of the saved colors.
+  if (editBtn && bindOnce(editBtn, 'bg')) {
+    editBtn.addEventListener('click', () => {
+      draft = { ...(readJSON(STORAGE_PREVIEW_BG_COLORS) || {}) };
+      setEditing(true);
+    });
+  }
+  // Done commits the draft; leaving without it keeps localStorage untouched.
+  if (doneBtn && bindOnce(doneBtn, 'bg')) {
+    doneBtn.addEventListener('click', () => {
+      if (draft) writeJSON(STORAGE_PREVIEW_BG_COLORS, draft);
+      draft = null;
+      setEditing(false);
+    });
+  }
+  // Reset stages a return to the CSS defaults (still only saved on Done).
+  if (resetBtn && bindOnce(resetBtn, 'bg')) {
+    resetBtn.addEventListener('click', () => {
+      draft = {};
+      applyColors({});
+    });
+  }
 };
 
 /* ── Preview viewport switcher ──────────────────────────────────────── */

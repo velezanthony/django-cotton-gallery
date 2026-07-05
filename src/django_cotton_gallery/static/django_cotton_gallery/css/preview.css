@@ -144,11 +144,48 @@
   background-position: 0 0, 0 4px, 4px -4px, -4px 0;
 }
 
-.cg-bg-btn[data-cg-bg="white"] { background: white; }
+.cg-bg-btn[data-cg-bg="white"] { background: var(--cg-bg-white, white); }
 
-.cg-bg-btn[data-cg-bg="dark"]  { background: var(--cg-gray-900); }
+.cg-bg-btn[data-cg-bg="dark"]  { background: var(--cg-bg-dark, var(--cg-gray-900)); }
 
-.cg-bg-btn[data-cg-bg="brand"] { background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600)); }
+.cg-bg-btn[data-cg-bg="brand"] { background: var(--cg-bg-brand, linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600))); }
+
+/* Editable swatches (white/dark/brand). The color input is an invisible click
+   target inside the swatch, opened programmatically only in edit mode. */
+.cg-bg-edit-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Edit mode: ring the editable swatches so they read as "click to recolor". */
+.cg-preview__bg-switcher.cg-editing .cg-bg-btn--editable {
+  box-shadow: 0 0 0 2px var(--cg-brand-500);
+  cursor: copy;
+}
+/* Edit / Done / Reset command buttons. */
+.cg-preview__bg-editbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid var(--cg-border-strong);
+  border-radius: var(--cg-radius-sm);
+  background: var(--cg-gray-50);
+  color: var(--cg-text-subtle);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.cg-preview__bg-editbtn svg { width: 0.75rem; height: 0.75rem; }
+.cg-preview__bg-editbtn:hover { color: var(--cg-text); background: var(--cg-gray-100); }
 
 /* Viewport size buttons */
 .cg-vp-btn {
@@ -439,17 +476,17 @@
 }
 
 .cg-preview__stage[data-cg-bg="white"] {
-  background: white;
+  background: var(--cg-bg-white, white);
   border-color: var(--cg-border);
 }
 
 .cg-preview__stage[data-cg-bg="dark"] {
-  background: var(--cg-gray-900);
+  background: var(--cg-bg-dark, var(--cg-gray-900));
   border-color: var(--cg-gray-800);
 }
 
 .cg-preview__stage[data-cg-bg="brand"] {
-  background: linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600));
+  background: var(--cg-bg-brand, linear-gradient(135deg, var(--cg-brand-500), var(--cg-brand-600)));
   border-color: var(--cg-brand-700);
 }
 
@@ -463,7 +500,7 @@
 .cg-preview__device[data-cg-viewport="full"]    { max-width: 100%; }
 
 .cg-preview__code {
-  background: #2d2d2d; /* match the code pre inside (one shade, no two-tone) */
+  background: var(--cg-code-bg); /* match the code pre inside (one shade, no two-tone) */
   padding: 0.625rem 1rem 0.75rem;
 }
 
@@ -1215,7 +1252,7 @@ div.cg-attrs__input[contenteditable].cg-attrs__input--expanded {
    theme) otherwise peeks around it as a strip. Match the panel to the code bg
    when it contains one. */
 .cg-tabs__panel:has(.cg-source) {
-  background: #2d2d2d;
+  background: var(--cg-code-bg);
   border-color: rgba(255, 255, 255, 0.08);
 }
 
