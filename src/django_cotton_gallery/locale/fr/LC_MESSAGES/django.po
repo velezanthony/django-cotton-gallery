@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cotton-gallery 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-05 11:26+0200\n"
+"POT-Creation-Date: 2026-07-05 12:25+0200\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -15,7 +15,7 @@ msgstr ""
 msgid "django-cotton is not installed"
 msgstr "django-cotton n'est pas installé"
 
-#: setup_check.py:44
+#: setup_check.py:45
 msgid ""
 "django-cotton-gallery is built on top of django-cotton. Install and "
 "configure cotton in your Django project, then refresh this page. The cotton "
@@ -27,7 +27,7 @@ msgstr ""
 "démarrage rapide de cotton vous guide à travers l'installation, l'entrée "
 "INSTALLED_APPS et la configuration du template loader en quelques étapes."
 
-#: setup_check.py:50
+#: setup_check.py:52
 msgid "Open the cotton quickstart"
 msgstr "Ouvrir le démarrage rapide de cotton"
 
@@ -41,18 +41,18 @@ msgstr ""
 "strong> ci-dessus pour commencer à comparer."
 
 #: templates/django_cotton_gallery/_compare_panel.html:12
-#: templates/django_cotton_gallery/detail.html:167
+#: templates/django_cotton_gallery/detail.html:172
 msgid "Preview view"
 msgstr "Vue de prévisualisation"
 
 #: templates/django_cotton_gallery/_compare_panel.html:13
-#: templates/django_cotton_gallery/detail.html:169
+#: templates/django_cotton_gallery/detail.html:174
 msgid "Single preview"
 msgstr "Vue unique"
 
 #: templates/django_cotton_gallery/_compare_panel.html:18
-#: templates/django_cotton_gallery/detail.html:174
-#: templates/django_cotton_gallery/docs.html:293
+#: templates/django_cotton_gallery/detail.html:179
+#: templates/django_cotton_gallery/docs.html:307
 msgid "Variants matrix"
 msgstr "Matrice de variantes"
 
@@ -61,29 +61,29 @@ msgid "Open detail page"
 msgstr "Ouvrir la page de détail"
 
 #: templates/django_cotton_gallery/_compare_panel.html:50
-#: templates/django_cotton_gallery/detail.html:195
+#: templates/django_cotton_gallery/detail.html:200
 msgid "Loading preview…"
 msgstr "Chargement de la prévisualisation…"
 
 #: templates/django_cotton_gallery/_compare_panel.html:63
-#: templates/django_cotton_gallery/builder.html:34
-#: templates/django_cotton_gallery/detail.html:208
-#: templates/django_cotton_gallery/detail.html:546
+#: templates/django_cotton_gallery/builder.html:80
+#: templates/django_cotton_gallery/detail.html:213
+#: templates/django_cotton_gallery/detail.html:584
 msgid "Copy"
 msgstr "Copier"
 
 #: templates/django_cotton_gallery/_compare_panel.html:71
-#: templates/django_cotton_gallery/detail.html:216
+#: templates/django_cotton_gallery/detail.html:221
 msgid "Component controls"
 msgstr "Contrôles du composant"
 
 #: templates/django_cotton_gallery/_compare_panel.html:73
-#: templates/django_cotton_gallery/detail.html:218
+#: templates/django_cotton_gallery/detail.html:223
 msgid "Controls"
 msgstr "Contrôles"
 
 #: templates/django_cotton_gallery/_compare_panel.html:74
-#: templates/django_cotton_gallery/detail.html:219
+#: templates/django_cotton_gallery/detail.html:224
 #, python-format
 msgid "%(counter)s prop"
 msgid_plural "%(counter)s props"
@@ -92,18 +92,18 @@ msgstr[1] "%(counter)s props"
 
 #: templates/django_cotton_gallery/_compare_panel.html:114
 #: templates/django_cotton_gallery/_compare_panel.html:131
-#: templates/django_cotton_gallery/detail.html:286
-#: templates/django_cotton_gallery/detail.html:303
+#: templates/django_cotton_gallery/detail.html:297
+#: templates/django_cotton_gallery/detail.html:315
 msgid "Extra attributes"
 msgstr "Attributs supplémentaires"
 
 #: templates/django_cotton_gallery/_compare_panel.html:117
-#: templates/django_cotton_gallery/detail.html:289
+#: templates/django_cotton_gallery/detail.html:301
 msgid "Show details"
 msgstr "Afficher les détails"
 
 #: templates/django_cotton_gallery/_compare_panel.html:123
-#: templates/django_cotton_gallery/detail.html:295
+#: templates/django_cotton_gallery/detail.html:307
 msgid ""
 "<code>&#123;&#123; attrs &#125;&#125;</code> pass-through — anything you "
 "type lands on the rendered HTML. Try <code>disabled</code>, <code>id=\"…\"</"
@@ -119,59 +119,59 @@ msgstr ""
 
 #: templates/django_cotton_gallery/_compare_panel.html:126
 #: templates/django_cotton_gallery/_compare_panel.html:165
-#: templates/django_cotton_gallery/detail.html:298
-#: templates/django_cotton_gallery/detail.html:347
+#: templates/django_cotton_gallery/detail.html:310
+#: templates/django_cotton_gallery/detail.html:369
 msgid "Expand editor"
 msgstr "Étendre l'éditeur"
 
 #: templates/django_cotton_gallery/_compare_panel.html:126
 #: templates/django_cotton_gallery/_compare_panel.html:165
-#: templates/django_cotton_gallery/detail.html:298
-#: templates/django_cotton_gallery/detail.html:347
+#: templates/django_cotton_gallery/detail.html:310
+#: templates/django_cotton_gallery/detail.html:369
 msgid "Toggle editor height"
 msgstr "Changer la hauteur de l'éditeur"
 
 #: templates/django_cotton_gallery/_compare_panel.html:131
 #: templates/django_cotton_gallery/_compare_panel.html:170
-#: templates/django_cotton_gallery/detail.html:303
-#: templates/django_cotton_gallery/detail.html:352
+#: templates/django_cotton_gallery/detail.html:315
+#: templates/django_cotton_gallery/detail.html:374
 msgid "Open in modal"
 msgstr "Ouvrir dans une modal"
 
 #: templates/django_cotton_gallery/_compare_panel.html:131
 #: templates/django_cotton_gallery/_compare_panel.html:170
-#: templates/django_cotton_gallery/detail.html:303
-#: templates/django_cotton_gallery/detail.html:352
+#: templates/django_cotton_gallery/detail.html:315
+#: templates/django_cotton_gallery/detail.html:374
 msgid "Open editor in modal"
 msgstr "Ouvrir l'éditeur dans une modal"
 
 #: templates/django_cotton_gallery/_compare_panel.html:144
-#: templates/django_cotton_gallery/detail.html:326
+#: templates/django_cotton_gallery/detail.html:347
 msgid "Attribute suggestions"
 msgstr "Suggestions d'attributs"
 
 #: templates/django_cotton_gallery/_compare_panel.html:155
-#: templates/django_cotton_gallery/detail.html:337
+#: templates/django_cotton_gallery/detail.html:359
 msgid "Format HTML (Shift+Alt+F)"
 msgstr "Formater le HTML (Shift+Alt+F)"
 
 #: templates/django_cotton_gallery/_compare_panel.html:155
-#: templates/django_cotton_gallery/detail.html:337
+#: templates/django_cotton_gallery/detail.html:359
 msgid "Format HTML"
 msgstr "Formater le HTML"
 
 #: templates/django_cotton_gallery/_compare_panel.html:160
-#: templates/django_cotton_gallery/detail.html:342
+#: templates/django_cotton_gallery/detail.html:364
 msgid "Minify HTML (Shift+Alt+M)"
 msgstr "Minifier le HTML (Maj+Alt+M)"
 
 #: templates/django_cotton_gallery/_compare_panel.html:160
-#: templates/django_cotton_gallery/detail.html:342
+#: templates/django_cotton_gallery/detail.html:364
 msgid "Minify HTML"
 msgstr "Minifier le HTML"
 
 #: templates/django_cotton_gallery/_compare_panel.html:180
-#: templates/django_cotton_gallery/detail.html:362
+#: templates/django_cotton_gallery/detail.html:384
 msgid "Tag suggestions"
 msgstr "Suggestions de balises"
 
@@ -245,30 +245,39 @@ msgstr "Indices"
 msgid "Filter rule…"
 msgstr "Filtrer la règle…"
 
-#: templates/django_cotton_gallery/_lint_issues.html:56
+#: templates/django_cotton_gallery/_lint_issues.html:57
 #: templates/django_cotton_gallery/lint.html:124
 msgid "Click to filter by this rule"
 msgstr "Cliquer pour filtrer par cette règle"
 
-#: templates/django_cotton_gallery/_lint_issues.html:59
+#: templates/django_cotton_gallery/_lint_issues.html:60
 #: templates/django_cotton_gallery/lint.html:127
 msgid "Copy suggested fix"
 msgstr "Copier la correction suggérée"
 
-#: templates/django_cotton_gallery/_lint_issues.html:61
+#: templates/django_cotton_gallery/_lint_issues.html:62
 #: templates/django_cotton_gallery/lint.html:129
 msgid "Copy stub"
 msgstr "Copier le stub"
 
-#: templates/django_cotton_gallery/_lint_issues.html:64
+#: templates/django_cotton_gallery/_lint_issues.html:65
 #: templates/django_cotton_gallery/lint.html:132
 #, python-format
 msgid "Line %(n)s of the component file"
 msgstr "Ligne %(n)s du fichier du composant"
 
-#: templates/django_cotton_gallery/_lint_issues.html:69
+#: templates/django_cotton_gallery/_lint_issues.html:70
 msgid "No issues match this filter."
 msgstr "Aucun problème ne correspond à ce filtre."
+
+#: templates/django_cotton_gallery/_sidebar_tree.html:13
+#: templates/django_cotton_gallery/base.html:213
+#: templates/django_cotton_gallery/base.html:463
+#: templates/django_cotton_gallery/compare.html:22
+#: templates/django_cotton_gallery/index.html:40
+#: templates/django_cotton_gallery/index.html:125
+msgid "Components"
+msgstr "Composants"
 
 #: templates/django_cotton_gallery/base.html:6
 msgid "Component Gallery"
@@ -301,7 +310,7 @@ msgstr "correspondant à"
 
 #: templates/django_cotton_gallery/base.html:37
 #: templates/django_cotton_gallery/compare.html:38
-#: templates/django_cotton_gallery/detail.html:265
+#: templates/django_cotton_gallery/detail.html:270
 msgid "No matches"
 msgstr "Aucun résultat"
 
@@ -321,323 +330,325 @@ msgstr "Aucun prop sur"
 msgid "No matching props"
 msgstr "Aucun prop correspondant"
 
-#: templates/django_cotton_gallery/base.html:79
+#: templates/django_cotton_gallery/base.html:42
+#| msgid "Copy"
+msgid "Copy fix"
+msgstr "Copier le correctif"
+
+#: templates/django_cotton_gallery/base.html:43
+msgid "Copied"
+msgstr "Copié"
+
+#: templates/django_cotton_gallery/base.html:94
 msgid "Toggle navigation"
 msgstr "Basculer la navigation"
 
-#: templates/django_cotton_gallery/base.html:103
+#: templates/django_cotton_gallery/base.html:118
 msgid "Component playground"
 msgstr "Aire de jeu de composants"
 
-#: templates/django_cotton_gallery/base.html:113
+#: templates/django_cotton_gallery/base.html:128
 msgid "Search components…"
 msgstr "Rechercher des composants…"
 
-#: templates/django_cotton_gallery/base.html:113
+#: templates/django_cotton_gallery/base.html:128
+#: templates/django_cotton_gallery/base.html:460
 msgid "Search components"
 msgstr "Rechercher des composants"
 
-#: templates/django_cotton_gallery/base.html:115
+#: templates/django_cotton_gallery/base.html:130
 msgid "Clear search"
 msgstr "Effacer la recherche"
 
-#: templates/django_cotton_gallery/base.html:127
+#: templates/django_cotton_gallery/base.html:142
 msgid "Search suggestions"
 msgstr "Suggestions de recherche"
 
-#: templates/django_cotton_gallery/base.html:131
+#: templates/django_cotton_gallery/base.html:146
 #, python-brace-format
 msgid "{visible} of {total} components"
 msgstr "{visible} sur {total} composants"
 
-#: templates/django_cotton_gallery/base.html:149
+#: templates/django_cotton_gallery/base.html:164
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/django_cotton_gallery/base.html:154
+#: templates/django_cotton_gallery/base.html:169
 msgid "Gallery menu"
 msgstr "Menu de la galerie"
 
-#: templates/django_cotton_gallery/base.html:159
+#: templates/django_cotton_gallery/base.html:174
 #: templates/django_cotton_gallery/get-started.html:4
 #: templates/django_cotton_gallery/get-started.html:10
 #: templates/django_cotton_gallery/index.html:20
 msgid "Get started"
 msgstr "Commencer"
 
-#: templates/django_cotton_gallery/base.html:165
+#: templates/django_cotton_gallery/base.html:180
 #: templates/django_cotton_gallery/docs.html:4
 #: templates/django_cotton_gallery/docs.html:11
 msgid "Documentation"
 msgstr "Documentation"
 
-#: templates/django_cotton_gallery/base.html:172
+#: templates/django_cotton_gallery/base.html:187
 #: templates/django_cotton_gallery/compare.html:8
-#: templates/django_cotton_gallery/detail.html:64
+#: templates/django_cotton_gallery/detail.html:66
 msgid "Compare"
 msgstr "Comparer"
 
-#: templates/django_cotton_gallery/base.html:178
+#: templates/django_cotton_gallery/base.html:193
 #: templates/django_cotton_gallery/lint.html:4
 msgid "Lint"
 msgstr "Lint"
 
-#: templates/django_cotton_gallery/base.html:184
+#: templates/django_cotton_gallery/base.html:199
 #: templates/django_cotton_gallery/insights.html:4
 msgid "Insights"
 msgstr "Aperçu"
 
-#: templates/django_cotton_gallery/base.html:190
+#: templates/django_cotton_gallery/base.html:205
 msgid "Builder"
 msgstr "Constructeur"
 
-#: templates/django_cotton_gallery/base.html:198
-#: templates/django_cotton_gallery/base.html:250
-#: templates/django_cotton_gallery/base.html:502
-#: templates/django_cotton_gallery/compare.html:22
-#: templates/django_cotton_gallery/index.html:40
-#: templates/django_cotton_gallery/index.html:125
-msgid "Components"
-msgstr "Composants"
-
-#: templates/django_cotton_gallery/base.html:200
+#: templates/django_cotton_gallery/base.html:215
 msgid "Show only pinned"
 msgstr "Épinglés seulement"
 
-#: templates/django_cotton_gallery/base.html:200
+#: templates/django_cotton_gallery/base.html:215
 msgid "Show only pinned components"
 msgstr "Afficher uniquement les composants épinglés"
 
-#: templates/django_cotton_gallery/base.html:208
+#: templates/django_cotton_gallery/base.html:223
 msgid "Show only recent"
 msgstr "Récents seulement"
 
-#: templates/django_cotton_gallery/base.html:208
+#: templates/django_cotton_gallery/base.html:223
 msgid "Show only recent components"
 msgstr "Afficher uniquement les composants récents"
 
-#: templates/django_cotton_gallery/base.html:218
+#: templates/django_cotton_gallery/base.html:233
 msgid "Toggle issue badges"
 msgstr "Basculer les badges d'issues"
 
-#: templates/django_cotton_gallery/base.html:227
+#: templates/django_cotton_gallery/base.html:242
 msgid "Expand or collapse all"
 msgstr "Tout développer ou réduire"
 
-#: templates/django_cotton_gallery/base.html:227
+#: templates/django_cotton_gallery/base.html:242
 msgid "Expand or collapse all categories"
 msgstr "Développer ou réduire toutes les catégories"
 
-#: templates/django_cotton_gallery/base.html:235
+#: templates/django_cotton_gallery/base.html:250
 msgid "No components found"
 msgstr "Aucun composant trouvé"
 
-#: templates/django_cotton_gallery/base.html:243
+#: templates/django_cotton_gallery/base.html:258
 msgid "No matches for"
 msgstr "Aucun résultat pour"
 
-#: templates/django_cotton_gallery/base.html:307
+#: templates/django_cotton_gallery/base.html:268
 #, python-format
 msgid "<strong>%(counter)s</strong> component · live"
 msgid_plural "<strong>%(counter)s</strong> components · live"
 msgstr[0] "<strong>%(counter)s</strong> composant · en direct"
 msgstr[1] "<strong>%(counter)s</strong> composants · en direct"
 
-#: templates/django_cotton_gallery/base.html:328
+#: templates/django_cotton_gallery/base.html:289
 #: templates/django_cotton_gallery/setup_guide.html:369
 msgid "Change language"
 msgstr "Changer de langue"
 
-#: templates/django_cotton_gallery/base.html:350
+#: templates/django_cotton_gallery/base.html:311
 msgid "Toggle theme"
 msgstr "Changer de thème"
 
-#: templates/django_cotton_gallery/base.html:350
+#: templates/django_cotton_gallery/base.html:311
 #: templates/django_cotton_gallery/setup_guide.html:391
 msgid "Toggle dark/light theme"
 msgstr "Basculer entre thème clair et sombre"
 
-#: templates/django_cotton_gallery/base.html:359
+#: templates/django_cotton_gallery/base.html:320
 msgid "GitHub repository"
 msgstr "Dépôt GitHub"
 
-#: templates/django_cotton_gallery/base.html:377
+#: templates/django_cotton_gallery/base.html:338
 msgid "Collapse sidebar"
 msgstr "Réduire la barre latérale"
 
-#: templates/django_cotton_gallery/base.html:396
+#: templates/django_cotton_gallery/base.html:357
 msgid "Open keyboard shortcuts"
 msgstr "Ouvrir les raccourcis clavier"
 
-#: templates/django_cotton_gallery/base.html:403
+#: templates/django_cotton_gallery/base.html:364
 msgid "Need help?"
 msgstr "Besoin d'aide ?"
 
-#: templates/django_cotton_gallery/base.html:404
+#: templates/django_cotton_gallery/base.html:365
 msgid "Press"
 msgstr "Appuyez sur"
 
-#: templates/django_cotton_gallery/base.html:404
+#: templates/django_cotton_gallery/base.html:365
 msgid "or click here"
 msgstr "ou cliquez ici"
 
-#: templates/django_cotton_gallery/base.html:405
+#: templates/django_cotton_gallery/base.html:366
 msgid "keyboard shortcuts &amp; tips"
 msgstr "raccourcis clavier &amp; astuces"
 
-#: templates/django_cotton_gallery/base.html:408
+#: templates/django_cotton_gallery/base.html:369
 msgid "search"
 msgstr "rechercher"
 
-#: templates/django_cotton_gallery/base.html:409
+#: templates/django_cotton_gallery/base.html:370
 msgid "switch"
 msgstr "basculer"
 
-#: templates/django_cotton_gallery/base.html:410
-#: templates/django_cotton_gallery/base.html:469
+#: templates/django_cotton_gallery/base.html:371
+#: templates/django_cotton_gallery/base.html:430
 msgid "close"
 msgstr "fermer"
 
-#: templates/django_cotton_gallery/base.html:423
+#: templates/django_cotton_gallery/base.html:384
 msgid "Expanded editor"
 msgstr "Éditeur agrandi"
 
-#: templates/django_cotton_gallery/base.html:427
+#: templates/django_cotton_gallery/base.html:388
 msgid "Editor"
 msgstr "Éditeur"
 
-#: templates/django_cotton_gallery/base.html:433
+#: templates/django_cotton_gallery/base.html:394
 msgid "Format"
 msgstr "Formater"
 
-#: templates/django_cotton_gallery/base.html:439
+#: templates/django_cotton_gallery/base.html:400
 msgid "Minify"
 msgstr "Minifier"
 
-#: templates/django_cotton_gallery/base.html:445
+#: templates/django_cotton_gallery/base.html:406
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: templates/django_cotton_gallery/base.html:448
-#: templates/django_cotton_gallery/base.html:530
+#: templates/django_cotton_gallery/base.html:409
+#: templates/django_cotton_gallery/base.html:493
 msgid "Close"
 msgstr "Fermer"
 
-#: templates/django_cotton_gallery/base.html:448
-#: templates/django_cotton_gallery/base.html:530
-#: templates/django_cotton_gallery/base.html:568
+#: templates/django_cotton_gallery/base.html:409
+#: templates/django_cotton_gallery/base.html:493
+#: templates/django_cotton_gallery/base.html:531
 msgid "Close (Esc)"
 msgstr "Fermer (Esc)"
 
-#: templates/django_cotton_gallery/base.html:458
+#: templates/django_cotton_gallery/base.html:419
 msgid "chars"
 msgstr "caractères"
 
-#: templates/django_cotton_gallery/base.html:460
+#: templates/django_cotton_gallery/base.html:421
 msgid "lines"
 msgstr "lignes"
 
-#: templates/django_cotton_gallery/base.html:463
+#: templates/django_cotton_gallery/base.html:424
 msgid "format"
 msgstr "formater"
 
-#: templates/django_cotton_gallery/base.html:465
+#: templates/django_cotton_gallery/base.html:426
 msgid "minify"
 msgstr "minifier"
 
-#: templates/django_cotton_gallery/base.html:467
+#: templates/django_cotton_gallery/base.html:428
 msgid "indent"
 msgstr "indenter"
 
-#: templates/django_cotton_gallery/base.html:494
+#: templates/django_cotton_gallery/base.html:455
 msgid "Quick switcher"
 msgstr "Sélecteur rapide"
 
-#: templates/django_cotton_gallery/base.html:499
+#: templates/django_cotton_gallery/base.html:460
+#| msgid ""
+#| "Jump to a component… try prop:size, slot:actions, accepts-attrs, has-"
+#| "slots, deprecated"
 msgid ""
 "Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, "
-"deprecated"
-msgstr ""
-"Aller à un composant… essayez prop:size, slot:actions, accepts-attrs, has-"
-"slots, deprecated"
+"deprecated, strict"
+msgstr "Aller à un composant… essayez prop:size, slot:actions, accepts-attrs, has-slots, deprecated, strict"
 
-#: templates/django_cotton_gallery/base.html:503
+#: templates/django_cotton_gallery/base.html:464
 msgid "No matches."
 msgstr "Aucune correspondance."
 
-#: templates/django_cotton_gallery/base.html:504
+#: templates/django_cotton_gallery/base.html:465
 msgid "Loading prop index…"
 msgstr "Chargement de l'index des props…"
 
-#: templates/django_cotton_gallery/base.html:513
-#: templates/django_cotton_gallery/base.html:514
-#: templates/django_cotton_gallery/base.html:515
+#: templates/django_cotton_gallery/base.html:474
+#: templates/django_cotton_gallery/base.html:475
+#: templates/django_cotton_gallery/base.html:476
 msgid "Click to insert prefix"
 msgstr "Cliquer pour insérer le préfixe"
 
-#: templates/django_cotton_gallery/base.html:525
-#: templates/django_cotton_gallery/base.html:529
+#: templates/django_cotton_gallery/base.html:488
+#: templates/django_cotton_gallery/base.html:492
 msgid "Keyboard shortcuts"
 msgstr "Raccourcis clavier"
 
-#: templates/django_cotton_gallery/base.html:536
+#: templates/django_cotton_gallery/base.html:499
 msgid "Navigation"
 msgstr "Navigation"
 
-#: templates/django_cotton_gallery/base.html:538
+#: templates/django_cotton_gallery/base.html:501
 msgid "Focus catalog search"
 msgstr "Focus recherche du catalogue"
 
-#: templates/django_cotton_gallery/base.html:539
+#: templates/django_cotton_gallery/base.html:502
 msgid "Quick switcher — fuzzy-find any component"
 msgstr "Sélecteur rapide — recherche floue de n'importe quel composant"
 
-#: templates/django_cotton_gallery/base.html:540
+#: templates/django_cotton_gallery/base.html:503
 msgid "Open this cheatsheet"
 msgstr "Ouvrir cette antisèche"
 
-#: templates/django_cotton_gallery/base.html:541
+#: templates/django_cotton_gallery/base.html:504
 msgid "Close any open modal / dropdown"
 msgstr "Fermer n'importe quel modal / menu déroulant"
 
-#: templates/django_cotton_gallery/base.html:545
+#: templates/django_cotton_gallery/base.html:508
 msgid "Slot editor"
 msgstr "Éditeur de slots"
 
-#: templates/django_cotton_gallery/base.html:547
+#: templates/django_cotton_gallery/base.html:510
 msgid "Format HTML (multi-line, indented)"
 msgstr "Formater le HTML (multi-ligne, indenté)"
 
-#: templates/django_cotton_gallery/base.html:548
+#: templates/django_cotton_gallery/base.html:511
 msgid "Minify HTML (single line)"
 msgstr "Minifier le HTML (une ligne)"
 
-#: templates/django_cotton_gallery/base.html:549
+#: templates/django_cotton_gallery/base.html:512
 msgid "Indent / outdent the current line or selection"
 msgstr "Indenter / désindenter la ligne ou la sélection"
 
-#: templates/django_cotton_gallery/base.html:553
+#: templates/django_cotton_gallery/base.html:516
 msgid "Lists & dropdowns"
 msgstr "Listes et menus déroulants"
 
-#: templates/django_cotton_gallery/base.html:555
+#: templates/django_cotton_gallery/base.html:518
 msgid "Move highlight in any popover (search, mini-select, intellisense)"
 msgstr "Déplacer la sélection dans n'importe quel popover"
 
-#: templates/django_cotton_gallery/base.html:556
+#: templates/django_cotton_gallery/base.html:519
 msgid "Accept the highlighted suggestion"
 msgstr "Accepter la suggestion mise en évidence"
 
-#: templates/django_cotton_gallery/base.html:557
+#: templates/django_cotton_gallery/base.html:520
 msgid "Autocomplete in catalog search / accept intellisense"
 msgstr "Auto-complétion dans la recherche du catalogue"
 
-#: templates/django_cotton_gallery/base.html:564
-#: templates/django_cotton_gallery/base.html:566
+#: templates/django_cotton_gallery/base.html:527
+#: templates/django_cotton_gallery/base.html:529
 msgid "Fullscreen preview"
 msgstr "Aperçu plein écran"
 
-#: templates/django_cotton_gallery/base.html:567
+#: templates/django_cotton_gallery/base.html:530
 msgid "Resize the browser window — media queries fire on the real viewport."
 msgstr ""
 "Redimensionnez la fenêtre du navigateur — les media queries se déclenchent "
@@ -650,55 +661,129 @@ msgstr "Constructeur d'annotations"
 
 #: templates/django_cotton_gallery/builder.html:10
 msgid ""
-"Compose <code>@prop</code> annotations and the matching <code>&lt;c-vars&gt;"
-"</code> line interactively. Add as many props as you need, fill the fields, "
-"and copy the result into a new component template."
+"Compose a component's <strong>whole annotation block</strong> interactively "
+"— the <code>@description</code>, <code>@strict</code> / <code>@ignore-"
+"unused</code> flags, <code>@prop</code>s, <code>@slot</code>s and "
+"<code>@trigger</code> — plus the matching <code>&lt;c-vars&gt;</code> line. "
+"Fill the fields and copy the result into a new component template."
 msgstr ""
-"Composez les annotations <code>@prop</code> et la ligne <code>&lt;c-vars&gt;"
-"</code> correspondante de manière interactive."
+"Composez le <strong>bloc d'annotations complet</strong> d'un composant de "
+"façon interactive — le <code>@description</code>, les indicateurs "
+"<code>@strict</code> / <code>@ignore-unused</code>, les <code>@prop</code>, "
+"les <code>@slot</code> et le <code>@trigger</code> — plus la ligne <code>&lt;"
+"c-vars&gt;</code> correspondante. Remplissez les champs et copiez le "
+"résultat dans un nouveau gabarit de composant."
+
+#: templates/django_cotton_gallery/builder.html:22
+#| msgid "Components"
+msgid "Component"
+msgstr "Composant"
 
 #: templates/django_cotton_gallery/builder.html:24
+#: templates/django_cotton_gallery/builder.html:172
+#: templates/django_cotton_gallery/builder.html:228
+#: templates/django_cotton_gallery/detail.html:416
+#: templates/django_cotton_gallery/detail.html:452
+#: templates/django_cotton_gallery/docs.html:37
+#: templates/django_cotton_gallery/docs.html:59
+#: templates/django_cotton_gallery/docs.html:99
+msgid "Description"
+msgstr "Description"
+
+#: templates/django_cotton_gallery/builder.html:25
+msgid "One-line summary — the @description annotation."
+msgstr "Résumé d'une ligne — l'annotation @description."
+
+#: templates/django_cotton_gallery/builder.html:26
+msgid "Compact label for status or counts"
+msgstr "Étiquette compacte pour statut ou décomptes"
+
+#: templates/django_cotton_gallery/builder.html:31
+msgid "closed prop set"
+msgstr "ensemble de props fermé"
+
+#: templates/django_cotton_gallery/builder.html:35
+msgid "skip zombie check"
+msgstr "ignorer la vérification des zombies"
+
+#: templates/django_cotton_gallery/builder.html:39
+msgid "Trigger"
+msgstr "Déclencheur"
+
+#: templates/django_cotton_gallery/builder.html:40
+msgid "For modals/drawers — the element that opens the component (@trigger)."
+msgstr ""
+"Pour les modales/tiroirs — l'élément qui ouvre le composant (@trigger)."
+
+#: templates/django_cotton_gallery/builder.html:44
+#| msgid "Description"
+msgid "Trigger description"
+msgstr "Description du déclencheur"
+
+#: templates/django_cotton_gallery/builder.html:45
+#| msgid "Open in modal"
+msgid "Opens the dialog"
+msgstr "Ouvre la boîte de dialogue"
+
+#: templates/django_cotton_gallery/builder.html:51
+#: templates/django_cotton_gallery/detail.html:397
+msgid "Props"
+msgstr "Props"
+
+#: templates/django_cotton_gallery/builder.html:57
 msgid "Add prop"
 msgstr "Ajouter une prop"
 
-#: templates/django_cotton_gallery/builder.html:31
+#: templates/django_cotton_gallery/builder.html:63
+#: templates/django_cotton_gallery/detail.html:400
+msgid "Slots"
+msgstr "Slots"
+
+#: templates/django_cotton_gallery/builder.html:69
+#| msgid "Add prop"
+msgid "Add slot"
+msgstr "Ajouter un slot"
+
+#: templates/django_cotton_gallery/builder.html:77
 msgid "Result"
 msgstr "Résultat"
 
-#: templates/django_cotton_gallery/builder.html:39
+#: templates/django_cotton_gallery/builder.html:85
 #: templates/django_cotton_gallery/docs.html:19
 #: templates/django_cotton_gallery/docs.html:219
 msgid "Annotations"
 msgstr "Annotations"
 
-#: templates/django_cotton_gallery/builder.html:44
+#: templates/django_cotton_gallery/builder.html:90
 msgid "<c-vars> line"
 msgstr "Ligne <c-vars>"
 
-#: templates/django_cotton_gallery/builder.html:71
-#: templates/django_cotton_gallery/detail.html:394
+#: templates/django_cotton_gallery/builder.html:117
+#: templates/django_cotton_gallery/detail.html:416
 msgid "Prop"
 msgstr "Prop"
 
-#: templates/django_cotton_gallery/builder.html:72
+#: templates/django_cotton_gallery/builder.html:118
 msgid "Remove this prop"
 msgstr "Supprimer cette prop"
 
-#: templates/django_cotton_gallery/builder.html:72
+#: templates/django_cotton_gallery/builder.html:118
+#: templates/django_cotton_gallery/builder.html:209
 msgid "Remove"
 msgstr "Supprimer"
 
-#: templates/django_cotton_gallery/builder.html:79
+#: templates/django_cotton_gallery/builder.html:125
+#: templates/django_cotton_gallery/builder.html:216
 msgid "Name"
 msgstr "Nom"
 
-#: templates/django_cotton_gallery/builder.html:80
+#: templates/django_cotton_gallery/builder.html:126
 msgid "Identifier — appears on both <c-vars> and @prop."
 msgstr "Identifiant — apparaît dans <c-vars> et @prop."
 
-#: templates/django_cotton_gallery/builder.html:85
-#: templates/django_cotton_gallery/detail.html:394
-#: templates/django_cotton_gallery/detail.html:430
+#: templates/django_cotton_gallery/builder.html:131
+#: templates/django_cotton_gallery/detail.html:416
+#: templates/django_cotton_gallery/detail.html:452
 #: templates/django_cotton_gallery/docs.html:37
 #: templates/django_cotton_gallery/docs.html:59
 #: templates/django_cotton_gallery/docs.html:99
@@ -706,73 +791,95 @@ msgstr "Identifiant — apparaît dans <c-vars> et @prop."
 msgid "Type"
 msgstr "Type"
 
-#: templates/django_cotton_gallery/builder.html:86
+#: templates/django_cotton_gallery/builder.html:132
 msgid "Drives the controls UI on the detail page."
 msgstr "Contrôle l'interface des contrôles sur la page de détail."
 
-#: templates/django_cotton_gallery/builder.html:114
+#: templates/django_cotton_gallery/builder.html:160
 msgid "Options"
 msgstr "Options"
 
-#: templates/django_cotton_gallery/builder.html:115
+#: templates/django_cotton_gallery/builder.html:161
 msgid "Comma-separated — e.g. info, success, warn, danger."
 msgstr "Séparés par virgules — ex. info, success, warn, danger."
 
-#: templates/django_cotton_gallery/builder.html:120
-#: templates/django_cotton_gallery/detail.html:394
+#: templates/django_cotton_gallery/builder.html:166
+#: templates/django_cotton_gallery/detail.html:416
 #: templates/django_cotton_gallery/docs.html:37
 #: templates/django_cotton_gallery/docs.html:59
 #: templates/django_cotton_gallery/docs.html:99
 msgid "Default"
 msgstr "Par défaut"
 
-#: templates/django_cotton_gallery/builder.html:121
+#: templates/django_cotton_gallery/builder.html:167
 msgid "Fallback value. Leave empty to omit."
 msgstr "Valeur par défaut. Laisser vide pour omettre."
 
-#: templates/django_cotton_gallery/builder.html:126
-#: templates/django_cotton_gallery/detail.html:394
-#: templates/django_cotton_gallery/detail.html:430
-#: templates/django_cotton_gallery/docs.html:37
-#: templates/django_cotton_gallery/docs.html:59
-#: templates/django_cotton_gallery/docs.html:99
-msgid "Description"
-msgstr "Description"
-
-#: templates/django_cotton_gallery/builder.html:127
+#: templates/django_cotton_gallery/builder.html:173
 msgid "One-line summary for hover docs."
 msgstr "Résumé d'une ligne pour les info-bulles."
 
-#: templates/django_cotton_gallery/builder.html:128
+#: templates/django_cotton_gallery/builder.html:174
 msgid "Semantic tone"
 msgstr "Ton sémantique"
 
-#: templates/django_cotton_gallery/builder.html:134
+#: templates/django_cotton_gallery/builder.html:180
 msgid "Dynamic"
 msgstr "Dynamique"
 
-#: templates/django_cotton_gallery/builder.html:138
+#: templates/django_cotton_gallery/builder.html:184
 msgid "Required"
 msgstr "Obligatoire"
 
-#: templates/django_cotton_gallery/builder.html:143
+#: templates/django_cotton_gallery/builder.html:189
 #: templates/django_cotton_gallery/insights.html:241
 msgid "Deprecated"
 msgstr "Obsolètes"
 
-#: templates/django_cotton_gallery/builder.html:144
+#: templates/django_cotton_gallery/builder.html:190
 msgid "Optional message — e.g. \\"
 msgstr "Message optionnel — p. ex. \\"
 
-#: templates/django_cotton_gallery/builder.html:149
+#: templates/django_cotton_gallery/builder.html:195
 #: templates/django_cotton_gallery/docs.html:240
 #: templates/django_cotton_gallery/docs.html:256
 msgid "Example"
 msgstr "Exemple"
 
-#: templates/django_cotton_gallery/builder.html:150
+#: templates/django_cotton_gallery/builder.html:196
 msgid "Optional usage hint for hover docs."
 msgstr "Indice d'utilisation optionnel pour la documentation au survol."
+
+#: templates/django_cotton_gallery/builder.html:208
+#: templates/django_cotton_gallery/detail.html:452
+msgid "Slot"
+msgstr "Slot"
+
+#: templates/django_cotton_gallery/builder.html:209
+#| msgid "Remove this prop"
+msgid "Remove this slot"
+msgstr "Supprimer ce slot"
+
+#: templates/django_cotton_gallery/builder.html:217
+msgid "Empty = the default slot; otherwise a named slot (@slot:name)."
+msgstr "Vide = le slot par défaut ; sinon un slot nommé (@slot:name)."
+
+#: templates/django_cotton_gallery/builder.html:222
+#: templates/django_cotton_gallery/detail.html:452
+msgid "Default content"
+msgstr "Contenu par défaut"
+
+#: templates/django_cotton_gallery/builder.html:223
+msgid "Shown in the gallery preview. Optional."
+msgstr "Affiché dans l'aperçu de la galerie. Optionnel."
+
+#: templates/django_cotton_gallery/builder.html:229
+msgid "Optional — rendered after a — separator."
+msgstr "Optionnel — rendu après un séparateur —."
+
+#: templates/django_cotton_gallery/builder.html:230
+msgid "Top-right action buttons"
+msgstr "Boutons d'action en haut à droite"
 
 #: templates/django_cotton_gallery/compare.html:4
 msgid "Compare components"
@@ -799,27 +906,27 @@ msgid "Swap A and B"
 msgstr "Échanger A et B"
 
 #: templates/django_cotton_gallery/compare.html:59
-#: templates/django_cotton_gallery/detail.html:145
+#: templates/django_cotton_gallery/detail.html:147
 msgid "Preview viewport"
 msgstr "Fenêtre de prévisualisation"
 
 #: templates/django_cotton_gallery/compare.html:60
-#: templates/django_cotton_gallery/detail.html:146
+#: templates/django_cotton_gallery/detail.html:148
 msgid "Viewport"
 msgstr "Fenêtre"
 
 #: templates/django_cotton_gallery/compare.html:61
-#: templates/django_cotton_gallery/detail.html:147
+#: templates/django_cotton_gallery/detail.html:149
 msgid "Mobile"
 msgstr "Mobile"
 
 #: templates/django_cotton_gallery/compare.html:64
-#: templates/django_cotton_gallery/detail.html:150
+#: templates/django_cotton_gallery/detail.html:152
 msgid "Tablet"
 msgstr "Tablette"
 
 #: templates/django_cotton_gallery/compare.html:67
-#: templates/django_cotton_gallery/detail.html:153
+#: templates/django_cotton_gallery/detail.html:155
 msgid "Desktop"
 msgstr "Bureau"
 
@@ -828,32 +935,33 @@ msgid "Full width"
 msgstr "Pleine largeur"
 
 #: templates/django_cotton_gallery/compare.html:74
-#: templates/django_cotton_gallery/detail.html:160
+#: templates/django_cotton_gallery/detail.html:162
+#: templates/django_cotton_gallery/docs.html:311
 msgid "Preview background"
 msgstr "Arrière-plan de la prévisualisation"
 
 #: templates/django_cotton_gallery/compare.html:75
-#: templates/django_cotton_gallery/detail.html:161
+#: templates/django_cotton_gallery/detail.html:163
 msgid "Bg"
 msgstr "Fond"
 
 #: templates/django_cotton_gallery/compare.html:76
-#: templates/django_cotton_gallery/detail.html:162
+#: templates/django_cotton_gallery/detail.html:164
 msgid "Checkered"
 msgstr "Damier"
 
 #: templates/django_cotton_gallery/compare.html:77
-#: templates/django_cotton_gallery/detail.html:163
+#: templates/django_cotton_gallery/detail.html:165
 msgid "White"
 msgstr "Blanc"
 
 #: templates/django_cotton_gallery/compare.html:78
-#: templates/django_cotton_gallery/detail.html:164
+#: templates/django_cotton_gallery/detail.html:166
 msgid "Dark"
 msgstr "Sombre"
 
 #: templates/django_cotton_gallery/compare.html:79
-#: templates/django_cotton_gallery/detail.html:165
+#: templates/django_cotton_gallery/detail.html:167
 msgid "Brand"
 msgstr "Marque"
 
@@ -884,60 +992,71 @@ msgstr ""
 msgid "See full report"
 msgstr "Voir le rapport complet"
 
-#: templates/django_cotton_gallery/detail.html:53
+#: templates/django_cotton_gallery/detail.html:51
+msgid "Closed prop set — only declared @props are accepted"
+msgstr "Ensemble de props fermé — seuls les @props déclarés sont acceptés"
+
+#: templates/django_cotton_gallery/detail.html:52
+msgid ""
+"Excluded from the Insights zombie check — intentionally unreferenced here"
+msgstr ""
+"Exclu de la vérification des zombies d'Insights — non référencé "
+"intentionnellement ici"
+
+#: templates/django_cotton_gallery/detail.html:55
 msgid "Copy component tag"
 msgstr "Copier l'étiquette du composant"
 
-#: templates/django_cotton_gallery/detail.html:53
+#: templates/django_cotton_gallery/detail.html:55
 msgid "Copy tag"
 msgstr "Copier l'étiquette"
 
-#: templates/django_cotton_gallery/detail.html:54
+#: templates/django_cotton_gallery/detail.html:56
 msgid "Open in raw view"
 msgstr "Ouvrir en vue raw"
 
-#: templates/django_cotton_gallery/detail.html:54
+#: templates/django_cotton_gallery/detail.html:56
 msgid "Open in raw view (no gallery chrome)"
 msgstr "Ouvrir en vue raw (sans chrome de galerie)"
 
-#: templates/django_cotton_gallery/detail.html:58
+#: templates/django_cotton_gallery/detail.html:60
 msgid "Raw"
 msgstr "Raw"
 
-#: templates/django_cotton_gallery/detail.html:60
+#: templates/django_cotton_gallery/detail.html:62
 msgid "Compare with another component"
 msgstr "Comparer avec un autre composant"
 
-#: templates/django_cotton_gallery/detail.html:74
+#: templates/django_cotton_gallery/detail.html:76
 msgid "Pin this component to the sidebar"
 msgstr "Épingler ce composant à la barre latérale"
 
-#: templates/django_cotton_gallery/detail.html:74
+#: templates/django_cotton_gallery/detail.html:76
 msgid "Pin to sidebar"
 msgstr "Épingler"
 
-#: templates/django_cotton_gallery/detail.html:78
+#: templates/django_cotton_gallery/detail.html:80
 msgid "Pin"
 msgstr "Épingler"
 
-#: templates/django_cotton_gallery/detail.html:80
+#: templates/django_cotton_gallery/detail.html:82
 msgid "Copy a share link to the current configuration"
 msgstr "Copier un lien vers la configuration actuelle"
 
-#: templates/django_cotton_gallery/detail.html:80
+#: templates/django_cotton_gallery/detail.html:82
 msgid "Copy share link"
 msgstr "Copier le lien de partage"
 
-#: templates/django_cotton_gallery/detail.html:84
+#: templates/django_cotton_gallery/detail.html:86
 msgid "Share"
 msgstr "Partager"
 
-#: templates/django_cotton_gallery/detail.html:94
-#: templates/django_cotton_gallery/detail.html:103
+#: templates/django_cotton_gallery/detail.html:96
+#: templates/django_cotton_gallery/detail.html:105
 msgid "Annotation issues"
 msgstr "Problèmes d'annotation"
 
-#: templates/django_cotton_gallery/detail.html:98
+#: templates/django_cotton_gallery/detail.html:100
 #: templates/django_cotton_gallery/insights.html:51
 #: templates/django_cotton_gallery/lint.html:19
 msgid "error"
@@ -945,16 +1064,16 @@ msgid_plural "errors"
 msgstr[0] "erreur"
 msgstr[1] "erreurs"
 
-#: templates/django_cotton_gallery/detail.html:99
+#: templates/django_cotton_gallery/detail.html:101
 #: templates/django_cotton_gallery/lint.html:100
 msgid "warn"
 msgid_plural "warn"
 msgstr[0] "avt"
 msgstr[1] "avt"
 
-#: templates/django_cotton_gallery/detail.html:100
-#: templates/django_cotton_gallery/detail.html:108
-#: templates/django_cotton_gallery/detail.html:116
+#: templates/django_cotton_gallery/detail.html:102
+#: templates/django_cotton_gallery/detail.html:110
+#: templates/django_cotton_gallery/detail.html:118
 #: templates/django_cotton_gallery/insights.html:56
 #: templates/django_cotton_gallery/lint.html:28
 #: templates/django_cotton_gallery/lint.html:101
@@ -963,7 +1082,7 @@ msgid_plural "hints"
 msgstr[0] "indice"
 msgstr[1] "indices"
 
-#: templates/django_cotton_gallery/detail.html:107
+#: templates/django_cotton_gallery/detail.html:109
 #: templates/django_cotton_gallery/insights.html:53
 #: templates/django_cotton_gallery/lint.html:23
 msgid "warning"
@@ -971,20 +1090,20 @@ msgid_plural "warnings"
 msgstr[0] "avertissement"
 msgstr[1] "avertissements"
 
-#: templates/django_cotton_gallery/detail.html:111
+#: templates/django_cotton_gallery/detail.html:113
 msgid "No errors or warnings"
 msgstr "Aucune erreur ni avertissement"
 
-#: templates/django_cotton_gallery/detail.html:115
-#: templates/django_cotton_gallery/detail.html:123
+#: templates/django_cotton_gallery/detail.html:117
+#: templates/django_cotton_gallery/detail.html:125
 msgid "Lint clean"
 msgstr "Lint propre"
 
-#: templates/django_cotton_gallery/detail.html:119
+#: templates/django_cotton_gallery/detail.html:121
 msgid "No annotation issues"
 msgstr "Aucun problème d'annotation"
 
-#: templates/django_cotton_gallery/detail.html:133
+#: templates/django_cotton_gallery/detail.html:135
 #, python-format
 msgid ""
 "Open the full <a href=\"%(lint_url)s\">Lint report</a> to see issues across "
@@ -993,95 +1112,144 @@ msgstr ""
 "Ouvrir le <a href=\"%(lint_url)s\">rapport de lint</a> complet pour voir les "
 "problèmes du catalogue."
 
-#: templates/django_cotton_gallery/detail.html:147
+#: templates/django_cotton_gallery/detail.html:149
 msgid "Mobile (375px)"
 msgstr "Mobile (375px)"
 
-#: templates/django_cotton_gallery/detail.html:150
+#: templates/django_cotton_gallery/detail.html:152
 msgid "Tablet (768px)"
 msgstr "Tablette (768px)"
 
-#: templates/django_cotton_gallery/detail.html:153
+#: templates/django_cotton_gallery/detail.html:155
 msgid "Desktop (1280px)"
 msgstr "Bureau (1280px)"
 
-#: templates/django_cotton_gallery/detail.html:156
+#: templates/django_cotton_gallery/detail.html:158
 msgid "Open in fullscreen — real browser viewport"
 msgstr "Ouvrir en plein écran — viewport réel du navigateur"
 
-#: templates/django_cotton_gallery/detail.html:156
+#: templates/django_cotton_gallery/detail.html:158
 msgid "Open in fullscreen"
 msgstr "Ouvrir en plein écran"
 
-#: templates/django_cotton_gallery/detail.html:156
+#: templates/django_cotton_gallery/detail.html:158
 msgid "real viewport for media queries"
 msgstr "viewport réel pour les media queries"
 
-#: templates/django_cotton_gallery/detail.html:162
+#: templates/django_cotton_gallery/detail.html:164
 msgid "Checkered background"
 msgstr "Arrière-plan à damier"
 
-#: templates/django_cotton_gallery/detail.html:163
+#: templates/django_cotton_gallery/detail.html:165
 msgid "White background"
 msgstr "Arrière-plan blanc"
 
-#: templates/django_cotton_gallery/detail.html:164
+#: templates/django_cotton_gallery/detail.html:166
 msgid "Dark background"
 msgstr "Arrière-plan sombre"
 
-#: templates/django_cotton_gallery/detail.html:165
+#: templates/django_cotton_gallery/detail.html:167
 msgid "Brand background"
 msgstr "Arrière-plan de marque"
 
 #: templates/django_cotton_gallery/detail.html:168
+#| msgid "White background"
+msgid "Edit background colors"
+msgstr "Modifier les couleurs de fond"
+
+#: templates/django_cotton_gallery/detail.html:168
+#| msgid "Editor"
+msgid "Edit colors"
+msgstr "Modifier les couleurs"
+
+#: templates/django_cotton_gallery/detail.html:169
+msgid "Done editing colors"
+msgstr "Terminer l'édition des couleurs"
+
+#: templates/django_cotton_gallery/detail.html:169
+msgid "Done"
+msgstr "Terminé"
+
+#: templates/django_cotton_gallery/detail.html:170
+msgid "Reset colors to default"
+msgstr "Réinitialiser les couleurs par défaut"
+
+#: templates/django_cotton_gallery/detail.html:170
+msgid "Reset colors"
+msgstr "Réinitialiser les couleurs"
+
+#: templates/django_cotton_gallery/detail.html:173
 msgid "View"
 msgstr "Vue"
 
-#: templates/django_cotton_gallery/detail.html:206
+#: templates/django_cotton_gallery/detail.html:211
 msgid "Copy Cotton tag"
 msgstr "Copier l'étiquette Cotton"
 
-#: templates/django_cotton_gallery/detail.html:252
+#: templates/django_cotton_gallery/detail.html:257
 msgid "Search…"
 msgstr "Rechercher…"
 
-#: templates/django_cotton_gallery/detail.html:375
-msgid "Props"
-msgstr "Props"
+#: templates/django_cotton_gallery/detail.html:328
+msgid ""
+"Conflict — this component is <strong>@strict</strong> (closed prop set) but "
+"its source still spreads <code>&#123;&#123; attrs &#125;&#125;</code>. The "
+"two are incompatible: remove one."
+msgstr ""
+"Conflit — ce composant est <strong>@strict</strong> (ensemble de props "
+"fermé) mais sa source diffuse encore <code>&#123;&#123; attrs &#125;&#125;</"
+"code>. Les deux sont incompatibles : supprimez-en un."
 
-#: templates/django_cotton_gallery/detail.html:378
-msgid "Slots"
-msgstr "Slots"
-
-#: templates/django_cotton_gallery/detail.html:381
+#: templates/django_cotton_gallery/detail.html:403
 msgid "Dependencies"
 msgstr "Dépendances"
 
-#: templates/django_cotton_gallery/detail.html:383
+#: templates/django_cotton_gallery/detail.html:405
 msgid "Source"
 msgstr "Source"
 
-#: templates/django_cotton_gallery/detail.html:390
+#: templates/django_cotton_gallery/detail.html:412
 msgid "This component doesn't define any props."
 msgstr "Ce composant ne définit aucun prop."
 
-#: templates/django_cotton_gallery/detail.html:426
+#: templates/django_cotton_gallery/detail.html:448
 msgid "This component doesn't define any slots."
 msgstr "Ce composant ne définit aucun slot."
 
-#: templates/django_cotton_gallery/detail.html:430
-msgid "Slot"
-msgstr "Slot"
+#: templates/django_cotton_gallery/detail.html:486
+msgid ""
+"<code>@ignore-unused</code> — nothing references this component, but it's "
+"<strong>intentionally</strong> unreferenced here, so Insights won't flag it "
+"as a zombie."
+msgstr ""
+"<code>@ignore-unused</code> — rien ne référence ce composant, mais il est "
+"<strong>intentionnellement</strong> non référencé ici, donc Insights ne le "
+"signalera pas comme zombie."
 
-#: templates/django_cotton_gallery/detail.html:430
-msgid "Default content"
-msgstr "Contenu par défaut"
+#: templates/django_cotton_gallery/detail.html:488
+msgid ""
+"<code>@ignore-unused</code> is set, but this component <strong>is</strong> "
+"referenced — the flag has no effect here."
+msgstr ""
+"<code>@ignore-unused</code> est défini, mais ce composant <strong>est</"
+"strong> référencé — l'indicateur n'a aucun effet ici."
 
-#: templates/django_cotton_gallery/detail.html:457
+#: templates/django_cotton_gallery/detail.html:491
+msgid ""
+"<strong>Zombie</strong> — nothing in the catalog or your templates "
+"references this component. If that's intentional (a library or WIP "
+"component), add <code>&#123;# @ignore-unused #&#125;</code> to silence this."
+msgstr ""
+"<strong>Zombie</strong> — rien dans le catalogue ni dans vos gabarits ne "
+"référence ce composant. Si c'est intentionnel (un composant de bibliothèque "
+"ou en cours), ajoutez <code>&#123;# @ignore-unused #&#125;</code> pour le "
+"masquer."
+
+#: templates/django_cotton_gallery/detail.html:495
 msgid "Uses"
 msgstr "Utilise"
 
-#: templates/django_cotton_gallery/detail.html:460
+#: templates/django_cotton_gallery/detail.html:498
 msgid ""
 "<strong>What this component needs.</strong> Each item is another catalog "
 "component referenced via <code>&lt;c-X.Y&gt;</code> inside this template — "
@@ -1091,17 +1259,17 @@ msgstr ""
 "composant du catalogue référencé via <code>&lt;c-X.Y&gt;</code> dans ce "
 "template — supprimez-en un et ce template cesse de fonctionner."
 
-#: templates/django_cotton_gallery/detail.html:468
+#: templates/django_cotton_gallery/detail.html:506
 msgid ""
 "Standalone — this template doesn't reference any other catalog component."
 msgstr ""
 "Autonome — ce template ne référence aucun autre composant du catalogue."
 
-#: templates/django_cotton_gallery/detail.html:473
+#: templates/django_cotton_gallery/detail.html:511
 msgid "Used by"
 msgstr "Utilisé par"
 
-#: templates/django_cotton_gallery/detail.html:476
+#: templates/django_cotton_gallery/detail.html:514
 msgid ""
 "<strong>Where this is rendered from</strong> (inside the catalog). Editing "
 "this component impacts every entry below — re-check each one before merging."
@@ -1109,15 +1277,15 @@ msgstr ""
 "<strong>D'où ceci est rendu</strong> (dans le catalogue). Modifier ce "
 "composant impacte chaque entrée ci-dessous."
 
-#: templates/django_cotton_gallery/detail.html:484
+#: templates/django_cotton_gallery/detail.html:522
 msgid "Nothing in the catalog renders this component."
 msgstr "Rien dans le catalogue ne rend ce composant."
 
-#: templates/django_cotton_gallery/detail.html:489
+#: templates/django_cotton_gallery/detail.html:527
 msgid "External usage"
 msgstr "Utilisation externe"
 
-#: templates/django_cotton_gallery/detail.html:492
+#: templates/django_cotton_gallery/detail.html:530
 msgid ""
 "<strong>Consumer-side renderers.</strong> Templates in your project's "
 "<code>templates/</code> (outside the catalog) that include this component. "
@@ -1126,11 +1294,11 @@ msgstr ""
 "<strong>Rendus côté consommateur.</strong> Templates dans le <code>templates/"
 "</code> de votre projet (hors du catalogue) qui incluent ce composant."
 
-#: templates/django_cotton_gallery/detail.html:501
+#: templates/django_cotton_gallery/detail.html:539
 msgid "No template outside the catalog references this component."
 msgstr "Aucun template hors du catalogue ne référence ce composant."
 
-#: templates/django_cotton_gallery/detail.html:506
+#: templates/django_cotton_gallery/detail.html:544
 msgid ""
 "External-templates scanning is disabled by default — the gallery never reads "
 "consumer code without explicit consent."
@@ -1138,7 +1306,7 @@ msgstr ""
 "L'analyse des templates externes est désactivée par défaut — la galerie ne "
 "lit jamais le code du consommateur sans consentement explicite."
 
-#: templates/django_cotton_gallery/detail.html:507
+#: templates/django_cotton_gallery/detail.html:545
 msgid ""
 "Set <code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> in your "
 "Django settings to enable. Read-only, dev-only, only template paths are "
@@ -1148,11 +1316,11 @@ msgstr ""
 "dans vos settings Django pour l'activer. Lecture seule, développement "
 "uniquement, seuls les chemins des templates sont exposés."
 
-#: templates/django_cotton_gallery/detail.html:519
+#: templates/django_cotton_gallery/detail.html:557
 msgid "Full impact tree"
 msgstr "Arbre d'impact complet"
 
-#: templates/django_cotton_gallery/detail.html:520
+#: templates/django_cotton_gallery/detail.html:558
 msgid ""
 "The cards above show direct neighbours — this expands the chain recursively. "
 "Click any branch to drill in."
@@ -1160,11 +1328,11 @@ msgstr ""
 "Les cartes ci-dessus montrent les voisins directs — ceci développe la chaîne "
 "de manière récursive. Cliquez sur une branche pour explorer."
 
-#: templates/django_cotton_gallery/detail.html:525
+#: templates/django_cotton_gallery/detail.html:563
 msgid "Reverse impact (Used by, recursive)"
 msgstr "Impact inverse (Used by, récursif)"
 
-#: templates/django_cotton_gallery/detail.html:526
+#: templates/django_cotton_gallery/detail.html:564
 msgid ""
 "<strong>Walks backwards.</strong> Every component listed (at any depth) "
 "consumes this one transitively — touch this template and each of them must "
@@ -1174,11 +1342,11 @@ msgstr ""
 "profondeur) consomme celui-ci transitivement — modifiez ce template et "
 "chacun doit être re-testé."
 
-#: templates/django_cotton_gallery/detail.html:532
+#: templates/django_cotton_gallery/detail.html:570
 msgid "Forward needs (Uses, recursive)"
 msgstr "Besoins en aval (Uses, récursif)"
 
-#: templates/django_cotton_gallery/detail.html:533
+#: templates/django_cotton_gallery/detail.html:571
 msgid ""
 "<strong>Walks forwards.</strong> The complete chain of catalog components "
 "this template needs to render successfully — every leaf is a base dependency."
@@ -1187,7 +1355,7 @@ msgstr ""
 "catalogue dont ce template a besoin — chaque feuille est une dépendance de "
 "base."
 
-#: templates/django_cotton_gallery/detail.html:544
+#: templates/django_cotton_gallery/detail.html:582
 msgid "Copy source"
 msgstr "Copier le code source"
 
@@ -1252,12 +1420,12 @@ msgid "Slots &amp; triggers"
 msgstr "Slots et triggers"
 
 #: templates/django_cotton_gallery/docs.html:25
-#: templates/django_cotton_gallery/docs.html:332
+#: templates/django_cotton_gallery/docs.html:349
 msgid "Rules &amp; gotchas"
 msgstr "Règles et pièges"
 
 #: templates/django_cotton_gallery/docs.html:26
-#: templates/django_cotton_gallery/docs.html:290
+#: templates/django_cotton_gallery/docs.html:304
 msgid "Playground features"
 msgstr "Fonctions du playground"
 
@@ -1480,7 +1648,9 @@ msgstr ""
 #: templates/django_cotton_gallery/docs.html:231
 #: templates/django_cotton_gallery/docs.html:275
 #: templates/django_cotton_gallery/docs.html:285
-#: templates/django_cotton_gallery/docs.html:302
+#: templates/django_cotton_gallery/docs.html:292
+#: templates/django_cotton_gallery/docs.html:299
+#: templates/django_cotton_gallery/docs.html:319
 #: templates/django_cotton_gallery/get-started.html:39
 #: templates/django_cotton_gallery/get-started.html:51
 #: templates/django_cotton_gallery/get-started.html:66
@@ -1672,7 +1842,45 @@ msgstr ""
 "composants qui ouvrent quelque chose (modal, drawer), utilisez "
 "<code>@trigger</code> à la place."
 
-#: templates/django_cotton_gallery/docs.html:291
+#: templates/django_cotton_gallery/docs.html:288
+msgid "Strict components (<code>@strict</code>)"
+msgstr "Composants stricts (<code>@strict</code>)"
+
+#: templates/django_cotton_gallery/docs.html:289
+msgid ""
+"Add <code>&#123;# @strict #&#125;</code> to declare a <em>closed prop set</"
+"em> — every prop is listed via <code>@prop</code>. The detail page shows a "
+"<code>@strict</code> badge, and the linter turns two things into errors: an "
+"undocumented <code>&lt;c-vars&gt;</code> prop, and a stray <code>&#123;"
+"&#123; attrs &#125;&#125;</code> (which would let arbitrary attributes "
+"through, contradicting the closed set)."
+msgstr ""
+"Ajoutez <code>&#123;# @strict #&#125;</code> pour déclarer un <em>ensemble "
+"de props fermé</em> — chaque prop est listé via <code>@prop</code>. La page "
+"de détail affiche un badge <code>@strict</code>, et le linter transforme "
+"deux choses en erreurs : un prop <code>&lt;c-vars&gt;</code> non documenté, "
+"et un <code>&#123;&#123; attrs &#125;&#125;</code> résiduel (qui laisserait "
+"passer des attributs arbitraires, contredisant l'ensemble fermé)."
+
+#: templates/django_cotton_gallery/docs.html:295
+msgid "Intentionally unused (<code>@ignore-unused</code>)"
+msgstr "Inutilisé intentionnellement (<code>@ignore-unused</code>)"
+
+#: templates/django_cotton_gallery/docs.html:296
+msgid ""
+"Insights flags <em>zombies</em> — components nothing references (when "
+"scanning is on). Add <code>&#123;# @ignore-unused #&#125;</code> to a "
+"component that's deliberately unreferenced (a library component, a WIP) so "
+"it's excluded from the zombie list. Shows an <code>@ignore-unused</code> "
+"badge on the detail page."
+msgstr ""
+"Insights signale les <em>zombies</em> — les composants que rien ne référence "
+"(quand l'analyse est activée). Ajoutez <code>&#123;# @ignore-unused #&#125;</"
+"code> à un composant délibérément non référencé (un composant de "
+"bibliothèque, un travail en cours) pour l'exclure de la liste des zombies. "
+"Affiche un badge <code>@ignore-unused</code> sur la page de détail."
+
+#: templates/django_cotton_gallery/docs.html:305
 msgid ""
 "Every component detail page is a live playground. Beyond the props panel, "
 "several features make iteration faster:"
@@ -1680,7 +1888,7 @@ msgstr ""
 "Chaque page de détail de composant est un playground en direct. Au-delà du "
 "panneau de props, plusieurs fonctionnalités accélèrent l'itération :"
 
-#: templates/django_cotton_gallery/docs.html:294
+#: templates/django_cotton_gallery/docs.html:308
 msgid ""
 "Switch the preview into a grid that renders <strong>every combination</"
 "strong> of the component's discrete props at once. The first two enum or "
@@ -1694,7 +1902,7 @@ msgstr ""
 "reste cohérent entre les cellules. Utile pour le QA, la régression visuelle "
 "et voir toute l'API d'un coup d'œil."
 
-#: templates/django_cotton_gallery/docs.html:295
+#: templates/django_cotton_gallery/docs.html:309
 msgid ""
 "Toggle via the <strong>View</strong> switcher in the preview toolbar (single-"
 "frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense "
@@ -1705,11 +1913,21 @@ msgstr ""
 "IntersectionObserver pour que les matrices denses ne déclenchent pas 30 "
 "requêtes à la fois."
 
-#: templates/django_cotton_gallery/docs.html:297
+#: templates/django_cotton_gallery/docs.html:312
+msgid ""
+"The <strong>Bg</strong> bar in the preview toolbar switches the backdrop "
+"between checkered, white, dark, and brand. Hit <strong>Edit</strong> to turn "
+"the last three swatches into color pickers and recolour them to your app's "
+"theme — the choice previews live and is only saved on <strong>Done</strong> "
+"(persisted in <code>localStorage</code>); <strong>Reset</strong> restores "
+"the defaults."
+msgstr "La barre <strong>Bg</strong> de la barre d'outils de l'aperçu bascule le fond entre damier, blanc, sombre et marque. Cliquez sur <strong>Éditer</strong> pour transformer les trois derniers échantillons en sélecteurs de couleur et les recolorer au thème de votre app — le choix s'aperçoit en direct et n'est enregistré qu'au clic sur <strong>Terminé</strong> (conservé dans <code>localStorage</code>) ; <strong>Reset</strong> restaure les valeurs par défaut."
+
+#: templates/django_cotton_gallery/docs.html:314
 msgid "Shareable URL state"
 msgstr "État URL partageable"
 
-#: templates/django_cotton_gallery/docs.html:298
+#: templates/django_cotton_gallery/docs.html:315
 msgid ""
 "Every change in the controls panel writes the non-default values to the URL "
 "via <code>history.replaceState</code>. Copy the URL, send it, and the "
@@ -1722,11 +1940,11 @@ msgstr ""
 "la même configuration — pas de description nécessaire pour les rapports de "
 "bugs ou les revues de design."
 
-#: templates/django_cotton_gallery/docs.html:305
+#: templates/django_cotton_gallery/docs.html:322
 msgid "Pass-through attrs control"
 msgstr "Contrôle d'attrs pass-through"
 
-#: templates/django_cotton_gallery/docs.html:306
+#: templates/django_cotton_gallery/docs.html:323
 msgid ""
 "Components whose body uses <code>&#123;&#123; attrs &#125;&#125;</code> or "
 "<code>:attrs=\"attrs\"</code> accept arbitrary HTML attributes that aren't "
@@ -1744,7 +1962,7 @@ msgstr ""
 "HTMX <code>hx-*</code>, etc. La galerie le détecte automatiquement et "
 "affiche un champ <strong>Extra attributes</strong> sous les props déclarées."
 
-#: templates/django_cotton_gallery/docs.html:307
+#: templates/django_cotton_gallery/docs.html:324
 msgid ""
 "Type to filter the suggestion popover. <kbd>↓</kbd>/<kbd>↑</kbd> to "
 "navigate, <kbd>Tab</kbd> or <kbd>Enter</kbd> to insert the highlighted "
@@ -1758,7 +1976,7 @@ msgstr ""
 "pour que vous puissiez taper la valeur immédiatement. Ce que vous tapez "
 "s'injecte littéralement dans le HTML rendu."
 
-#: templates/django_cotton_gallery/docs.html:308
+#: templates/django_cotton_gallery/docs.html:325
 msgid ""
 "<strong>Heads up</strong>: <code>class</code> may duplicate when the "
 "component's root element already declares one — HTML5 keeps the first "
@@ -1771,11 +1989,11 @@ msgstr ""
 "code>, <code>data-*</code> ou tout autre attribut non conflictuel pour les "
 "surcharges visuelles."
 
-#: templates/django_cotton_gallery/docs.html:310
+#: templates/django_cotton_gallery/docs.html:327
 msgid "Sidebar typeahead"
 msgstr "Autocomplétion de la barre latérale"
 
-#: templates/django_cotton_gallery/docs.html:311
+#: templates/django_cotton_gallery/docs.html:328
 msgid ""
 "Press <kbd>/</kbd> from anywhere to focus the search. Start typing — a "
 "dropdown appears with name + path + description for every match. Hit "
@@ -1789,33 +2007,32 @@ msgstr ""
 "avec la suggestion focalisée via <kbd>↓</kbd>). <kbd>Entrée</kbd> active le "
 "premier ; <kbd>Échap</kbd> efface."
 
-#: templates/django_cotton_gallery/docs.html:313
-msgid "Live syntax highlighting"
-msgstr "Coloration syntaxique en direct"
+#: templates/django_cotton_gallery/docs.html:330
+#| msgid "Live syntax highlighting"
+msgid "Language-aware syntax highlighting"
+msgstr "Coloration syntaxique adaptée au langage"
 
-#: templates/django_cotton_gallery/docs.html:314
+#: templates/django_cotton_gallery/docs.html:331
 #, python-format
 msgid ""
-"Both the slot textarea and the extra-attrs editor render token colors AS you "
-"type — HTML tags, Cotton component names, attribute names, strings, Django "
-"<code>&#123;%%&nbsp;%%&#125;</code> blocks, and CSS properties inside "
-"<code>style=\"…\"</code> all get their own color. The slot editor uses an "
-"overlay technique; the attrs field is a <code>contenteditable</code> div so "
-"the cursor sits on top of the colored text directly."
-msgstr ""
-"Le textarea du slot et l'éditeur d'extra-attrs rendent les couleurs des "
-"tokens PENDANT que vous tapez — balises HTML, noms de composants Cotton, "
-"noms d'attributs, chaînes, blocs Django <code>&#123;%%&nbsp;%%&#125;</code> "
-"et propriétés CSS dans <code>style=\"…\"</code> reçoivent tous leur propre "
-"couleur. L'éditeur de slots utilise une technique d'overlay ; le champ attrs "
-"est un div <code>contenteditable</code>, donc le curseur se place "
-"directement sur le texte coloré."
+"The Source tab, the Cotton-tag preview, and the live editors (slot textarea "
+"+ extra-attrs field) all colour the full template stack: HTML tags, Cotton "
+"component names (<code>&lt;c-…&gt;</code>), Django <code>&#123;%%&nbsp;"
+"%%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> blocks and "
+"filters, HTMX (<code>hx-*</code>) and Alpine (<code>x-*</code> / <code>@</"
+"code> / <code>:</code>) attributes — with the Alpine value tokenised as "
+"JavaScript — embedded <code>&lt;script&gt;</code> JS and <code>&lt;style&gt;"
+"</code> CSS, and the <code>&#123;# @… #&#125;</code> annotation DSL. The "
+"slot editor uses an overlay technique; the attrs field is a "
+"<code>contenteditable</code> div so the cursor sits on top of the colored "
+"text directly."
+msgstr "L'onglet Source, l'aperçu du tag Cotton et les éditeurs en direct (textarea du slot + éditeur d'attributs) colorent toute la pile de gabarits : balises HTML, noms de composants Cotton (<code>&lt;c-…&gt;</code>), blocs Django <code>&#123;%%&nbsp;%%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> et filtres, attributs HTMX (<code>hx-*</code>) et Alpine (<code>x-*</code> / <code>@</code> / <code>:</code>) — avec la valeur Alpine tokenisée en JavaScript — JS embarqué dans <code>&lt;script&gt;</code> et CSS dans <code>&lt;style&gt;</code>, et le DSL d'annotations <code>&#123;# @… #&#125;</code>. L'éditeur de slots utilise une technique de superposition ; le champ d'attributs est un <code>contenteditable</code> pour que le curseur soit directement au-dessus du texte coloré."
 
-#: templates/django_cotton_gallery/docs.html:316
+#: templates/django_cotton_gallery/docs.html:333
 msgid "CSS autocomplete inside style attributes"
 msgstr "Autocomplétion CSS dans les attributs style"
 
-#: templates/django_cotton_gallery/docs.html:317
+#: templates/django_cotton_gallery/docs.html:334
 msgid ""
 "When the caret enters a <code>style=\"…\"</code> attribute, the popover "
 "switches from HTML-attribute suggestions to CSS-aware ones. It detects three "
@@ -1825,7 +2042,7 @@ msgstr ""
 "passe des suggestions d'attributs HTML aux suggestions spécifiques au CSS. "
 "Il détecte trois contextes :"
 
-#: templates/django_cotton_gallery/docs.html:319
+#: templates/django_cotton_gallery/docs.html:336
 msgid ""
 "<strong>Property name</strong> after <code>;</code> or at the start — "
 "suggests <code>display</code>, <code>padding</code>, <code>color</code>, etc."
@@ -1833,7 +2050,7 @@ msgstr ""
 "<strong>Nom de propriété</strong> après <code>;</code> ou au début — suggère "
 "<code>display</code>, <code>padding</code>, <code>color</code>, etc."
 
-#: templates/django_cotton_gallery/docs.html:320
+#: templates/django_cotton_gallery/docs.html:337
 msgid ""
 "<strong>Property value</strong> after <code>:</code> — suggests keyword "
 "values for the current property (<code>flex</code>, <code>none</code>…), "
@@ -1846,7 +2063,7 @@ msgstr ""
 "<code>border: 1px solid red</code> classifie les tokens pendant que vous "
 "tapez, ne proposant ainsi que ce qui manque)."
 
-#: templates/django_cotton_gallery/docs.html:321
+#: templates/django_cotton_gallery/docs.html:338
 msgid ""
 "<strong>Length unit</strong> after a number — typing <code>2</code> offers "
 "<code>px</code>/<code>rem</code>/<code>vh</code>/<code>dvh</code>/etc; "
@@ -1858,11 +2075,11 @@ msgstr ""
 "etc ; taper <code>2d</code> filtre à <code>2dvh</code>/<code>2dvw</code> "
 "(préfixe correspondant)."
 
-#: templates/django_cotton_gallery/docs.html:324
+#: templates/django_cotton_gallery/docs.html:341
 msgid "Maximize editor modal"
 msgstr "Modal éditeur agrandi"
 
-#: templates/django_cotton_gallery/docs.html:325
+#: templates/django_cotton_gallery/docs.html:342
 msgid ""
 "Both the slot textarea and the extra-attrs field have a maximize button (the "
 "diagonal-arrows icon) that opens the editor in a full-screen modal. The "
@@ -1879,11 +2096,11 @@ msgstr ""
 "pied affiche en direct les compteurs de caractères/lignes et les raccourcis "
 "clavier. Appuyez sur <kbd>Esc</kbd> ou cliquez sur le fond pour fermer."
 
-#: templates/django_cotton_gallery/docs.html:327
+#: templates/django_cotton_gallery/docs.html:344
 msgid "Sidebar collapse to rail"
 msgstr "Réduire la barre latérale en rail"
 
-#: templates/django_cotton_gallery/docs.html:328
+#: templates/django_cotton_gallery/docs.html:345
 msgid ""
 "On desktop, a small toggle on the sidebar's right edge collapses it to a "
 "4rem icon rail (logo + Empezar + Documentación + theme/lang/github). The "
@@ -1898,7 +2115,7 @@ msgstr ""
 "<code>localStorage</code>, appliqué avant le premier rendu pour éviter un "
 "flash de layout."
 
-#: templates/django_cotton_gallery/docs.html:334
+#: templates/django_cotton_gallery/docs.html:351
 msgid ""
 "Strings in filter values are quoted (<code>default:\"primary\"</code>). "
 "Numbers and booleans are bare (<code>default:5</code>, <code>default:False</"
@@ -1908,7 +2125,7 @@ msgstr ""
 "\"primary\"</code>). Les nombres et booléens sont sans guillemets "
 "(<code>default:5</code>, <code>default:False</code>)."
 
-#: templates/django_cotton_gallery/docs.html:335
+#: templates/django_cotton_gallery/docs.html:352
 msgid ""
 "If <code>&lt;c-vars&gt;</code> uses <code>:prop</code> (dynamic), the "
 "matching <code>@prop</code> MUST also start with <code>:</code>."
@@ -1916,7 +2133,7 @@ msgstr ""
 "Si <code>&lt;c-vars&gt;</code> utilise <code>:prop</code> (dynamique), le "
 "<code>@prop</code> correspondant DOIT aussi commencer par <code>:</code>."
 
-#: templates/django_cotton_gallery/docs.html:336
+#: templates/django_cotton_gallery/docs.html:353
 msgid ""
 "<code>| required</code> only takes effect when there's no <code>| default:</"
 "code>. If both are present, default wins."
@@ -1924,7 +2141,7 @@ msgstr ""
 "<code>| required</code> ne prend effet que lorsqu'il n'y a pas de <code>| "
 "default:</code>. Si les deux sont présents, default gagne."
 
-#: templates/django_cotton_gallery/docs.html:337
+#: templates/django_cotton_gallery/docs.html:354
 msgid ""
 "Annotations are plain Django comments — Cotton and Django ignore them at "
 "render time. Only the gallery's parser reads them."
@@ -2212,7 +2429,6 @@ msgstr ""
 "le détectera automatiquement — sans redémarrage."
 
 #: templates/django_cotton_gallery/index.html:85
-#| msgid "Example"
 msgid "Example layout:"
 msgstr "Exemple de layout :"
 
@@ -2764,7 +2980,7 @@ msgstr ""
 msgid "Once configured, refresh this page and the gallery will load."
 msgstr "Une fois configuré, rechargez cette page et la galerie se chargera."
 
-#: templatetags/catalog_tags.py:30
+#: templatetags/catalog_tags.py:33
 #, python-format
 msgid ""
 "`%(prop)s`: `:` prefix mismatch — @prop is `%(prop_name)s` but <c-vars> has "
@@ -2773,7 +2989,7 @@ msgstr ""
 "`%(prop)s`: préfixe `:` non concordant — @prop est `%(prop_name)s` mais <c-"
 "vars> a `%(cvar_name)s`."
 
-#: templatetags/catalog_tags.py:33
+#: templatetags/catalog_tags.py:36
 #, python-format
 msgid ""
 "`%(prop)s`: @prop default is `%(prop_default)s` but <c-vars> has "
@@ -2782,12 +2998,12 @@ msgstr ""
 "`%(prop)s`: la valeur par défaut de @prop est `%(prop_default)s` mais <c-"
 "vars> a `%(cvar_default)s`."
 
-#: templatetags/catalog_tags.py:36
+#: templatetags/catalog_tags.py:38
 #, python-format
 msgid "`%(prop)s`: @prop has no `| description:` filter."
 msgstr "`%(prop)s`: @prop n'a pas de filtre `| description:`."
 
-#: templatetags/catalog_tags.py:39
+#: templatetags/catalog_tags.py:40
 msgid ""
 "Component declares `@prop` annotations but no `<c-vars>` tag — Cotton will "
 "not pass anything to the template."
@@ -2795,7 +3011,7 @@ msgstr ""
 "Le composant déclare des annotations `@prop` mais aucune balise `<c-vars>` — "
 "Cotton ne transmettra rien au template."
 
-#: templatetags/catalog_tags.py:42
+#: templatetags/catalog_tags.py:43
 #, python-format
 msgid ""
 "`%(prop)s`: @prop is declared but missing from <c-vars> — the prop will "
@@ -2804,14 +3020,20 @@ msgstr ""
 "`%(prop)s`: @prop est déclaré mais absent de <c-vars> — le prop n'atteindra "
 "jamais le template."
 
-#: templatetags/catalog_tags.py:45
+#: templatetags/catalog_tags.py:46
 #, python-format
 msgid "`%(prop)s`: declared in <c-vars> but no `@prop` comment documents it."
 msgstr ""
 "`%(prop)s`: déclaré dans <c-vars> mais aucun commentaire `@prop` ne le "
 "documente."
 
-#: templatetags/catalog_tags.py:48
+#: templatetags/catalog_tags.py:49
+#, python-format
+msgid "No component `%(tag)s` in the catalog — `<c-%(tag)s>` renders nothing."
+msgstr ""
+"Aucun composant `%(tag)s` dans le catalogue — `<c-%(tag)s>` ne rend rien."
+
+#: templatetags/catalog_tags.py:52
 #, python-format
 msgid ""
 "`%(prop)s`: cannot use `| required` together with `| default:` — a required "
@@ -2820,7 +3042,7 @@ msgstr ""
 "`%(prop)s`: impossible d'utiliser `| required` avec `| default:` — un prop "
 "requis n'a pas de fallback."
 
-#: templatetags/catalog_tags.py:51
+#: templatetags/catalog_tags.py:55
 #, python-format
 msgid ""
 "`{{ %(ref)s }}` is referenced but not declared in <c-vars>. Heuristic — "
@@ -2829,21 +3051,21 @@ msgstr ""
 "`{{ %(ref)s }}` est référencé mais non déclaré dans <c-vars>. Heuristique — "
 "ignorer s'il provient d'un context processor personnalisé."
 
-#: templatetags/catalog_tags.py:55
+#: templatetags/catalog_tags.py:61
 #, python-format
 msgid "`%(prop)s`: @prop default `%(value)s` is not in options %(options)s."
 msgstr ""
 "`%(prop)s`: la valeur par défaut de @prop `%(value)s` n'est pas dans les "
 "options %(options)s."
 
-#: templatetags/catalog_tags.py:58
+#: templatetags/catalog_tags.py:64
 #, python-format
 msgid "`%(prop)s`: <c-vars> value `%(value)s` is not in options %(options)s."
 msgstr ""
 "`%(prop)s`: la valeur de <c-vars> `%(value)s` n'est pas dans les options "
 "%(options)s."
 
-#: templatetags/catalog_tags.py:63
+#: templatetags/catalog_tags.py:72
 #, python-format
 msgid ""
 "`%(prop)s`: type is `boolean` but default `%(raw)s` is not a recognized "
@@ -2852,10 +3074,62 @@ msgstr ""
 "`%(prop)s`: le type est `boolean` mais la valeur par défaut `%(raw)s` n'est "
 "pas un booléen reconnu (utilisez True/False/1/0)."
 
-#: templatetags/catalog_tags.py:66
+#: templatetags/catalog_tags.py:75
 #, python-format
 msgid ""
 "`%(prop)s`: type is `number` but default `%(raw)s` is not a valid number."
 msgstr ""
 "`%(prop)s`: le type est `number` mais la valeur par défaut `%(raw)s` n'est "
 "pas un nombre valide."
+
+#: templatetags/catalog_tags.py:83
+#, python-format
+msgid ""
+"`@prop` head `%(segment)s` is not parseable (expected `name:type`) — the "
+"whole annotation is ignored."
+msgstr ""
+"L'en-tête `@prop` `%(segment)s` n'est pas analysable (attendu `name:type`) — "
+"toute l'annotation est ignorée."
+
+#: templatetags/catalog_tags.py:86
+#, python-format
+msgid ""
+"`%(prop)s`: filter segment `%(segment)s` is malformed — it is silently "
+"ignored (check quotes and escapes)."
+msgstr ""
+"`%(prop)s` : le segment de filtre `%(segment)s` est mal formé — il est "
+"ignoré silencieusement (vérifiez les guillemets et les échappements)."
+
+#: templatetags/catalog_tags.py:91
+#, python-format
+msgid ""
+"`%(prop)s`: unknown filter `%(key)s` — expected one of default, description, "
+"required, deprecated, hidden, example."
+msgstr ""
+"`%(prop)s` : filtre inconnu `%(key)s` — attendu l'un de default, "
+"description, required, deprecated, hidden, example."
+
+#, python-format
+#~ msgid ""
+#~ "Both the slot textarea and the extra-attrs editor render token colors AS "
+#~ "you type — HTML tags, Cotton component names, attribute names, strings, "
+#~ "Django <code>&#123;%%&nbsp;%%&#125;</code> blocks, and CSS properties "
+#~ "inside <code>style=\"…\"</code> all get their own color. The slot editor "
+#~ "uses an overlay technique; the attrs field is a <code>contenteditable</"
+#~ "code> div so the cursor sits on top of the colored text directly."
+#~ msgstr ""
+#~ "Le textarea du slot et l'éditeur d'extra-attrs rendent les couleurs des "
+#~ "tokens PENDANT que vous tapez — balises HTML, noms de composants Cotton, "
+#~ "noms d'attributs, chaînes, blocs Django <code>&#123;%%&nbsp;%%&#125;</"
+#~ "code> et propriétés CSS dans <code>style=\"…\"</code> reçoivent tous leur "
+#~ "propre couleur. L'éditeur de slots utilise une technique d'overlay ; le "
+#~ "champ attrs est un div <code>contenteditable</code>, donc le curseur se "
+#~ "place directement sur le texte coloré."
+
+#~ msgid ""
+#~ "Compose <code>@prop</code> annotations and the matching <code>&lt;c-"
+#~ "vars&gt;</code> line interactively. Add as many props as you need, fill "
+#~ "the fields, and copy the result into a new component template."
+#~ msgstr ""
+#~ "Composez les annotations <code>@prop</code> et la ligne <code>&lt;c-"
+#~ "vars&gt;</code> correspondante de manière interactive."
