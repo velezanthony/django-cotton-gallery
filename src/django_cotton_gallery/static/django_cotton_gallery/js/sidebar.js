@@ -520,15 +520,17 @@ const initSearch = (sidebar) => {
     const firstName = first ? first.getAttribute('data-cg-suggestion-name') : null;
 
     if (e.key === 'Tab' && firstName && !e.shiftKey) {
-      if (firstName.toLowerCase().indexOf(input.value.toLowerCase()) === 0 &&
-          firstName.toLowerCase() !== input.value.toLowerCase()) {
-        e.preventDefault();
+      // Always accept the top-ranked suggestion — the list is sorted best-first,
+      // so completing to it is right whether or not it's a strict prefix. Always
+      // preventDefault so Tab never steals focus out of the search box.
+      e.preventDefault();
+      if (firstName.toLowerCase() !== input.value.toLowerCase()) {
         input.value = firstName;
         apply();
-        // Accept-and-collapse like the attrs autocomplete; the hidden match
-        // node keeps Enter working.
-        if (suggestions) suggestions.setAttribute('hidden', '');
       }
+      // Accept-and-collapse like the attrs autocomplete; the hidden match
+      // node keeps Enter working.
+      if (suggestions) suggestions.setAttribute('hidden', '');
     } else if (e.key === 'ArrowDown' && first) {
       e.preventDefault();
       // Re-open if a prior Tab collapsed the menu, then dive into the list.
@@ -687,7 +689,22 @@ const filterSidebar = (sidebar, query) => {
   const q = (query || '').toLowerCase().trim();
   const allComps = getAllComponents(sidebar);
   const total = allComps.length;
-  const matches = q ? allComps.filter((c) => c.name.toLowerCase().indexOf(q) !== -1) : [];
+  // Rank by WHERE the query hits the name: a prefix match (index 0, e.g.
+  // `button` for "butt") beats a mid-name match (`floating-button`). Ties
+  // break to the shorter, then alphabetical name so exact hits lead.
+  const matches = q
+    ? allComps
+        .filter((c) => c.name.toLowerCase().indexOf(q) !== -1)
+        .sort((a, b) => {
+          const an = a.name.toLowerCase();
+          const bn = b.name.toLowerCase();
+          const ai = an.indexOf(q);
+          const bi = bn.indexOf(q);
+          if (ai !== bi) return ai - bi;
+          if (an.length !== bn.length) return an.length - bn.length;
+          return an < bn ? -1 : an > bn ? 1 : 0;
+        })
+    : [];
 
   renderSuggestions(sidebar, q, matches);
   updateSearchCount(sidebar, q, matches.length, total);

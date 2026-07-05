@@ -39,6 +39,7 @@ import {
   initAttrsExpanders,
   initViewSwitcher,
   initSyntaxHighlight,
+  initSourceLint,
 } from './preview.js';
 import {
   initSlotExpanders,
@@ -111,6 +112,7 @@ const boot = () => {
   initPins();                                            // star button + sidebar Pinned section
   initRecents();                                         // last N components → sidebar Recent section
   initNavigation({ rebindAfterSwap, bindContent });      // delegated to document — bind once
+  initSourceLint();                                      // inline lint markers in Source tab — bind once
   bindContent();                                         // initial content
 };
 

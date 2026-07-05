@@ -139,7 +139,7 @@
       <h3 class="cg-docs__h3">{% blocktranslate %}Example: <code>_extra_head.html</code>{% endblocktranslate %}</h3>
       <p>{% trans "A typical head partial for a project that runs Tailwind via the play-CDN and exposes an API key to the components:" %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# templates/django_cotton_gallery/_extra_head.html #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# templates/django_cotton_gallery/_extra_head.html #}
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -163,7 +163,7 @@
       <h3 class="cg-docs__h3">{% blocktranslate %}Example: a working <code>settings.py</code>{% endblocktranslate %}</h3>
       <p>{% blocktranslate %}Only the gallery's own settings are shown — cotton's settings (<code>COTTON_SNAKE_CASED_NAMES</code>, <code>COTTON_DIR</code>) belong to django-cotton, not to this gallery, and are documented in cotton's docs.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# settings.py — django-cotton-gallery configuration
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# settings.py — django-cotton-gallery configuration
 
 DJANGO_COTTON_GALLERY_CATEGORY_ORDER = ["atoms", "molecules", "icons"]
 DJANGO_COTTON_GALLERY_SUBCATEGORY_ORDER = {
@@ -185,7 +185,7 @@ DJANGO_COTTON_GALLERY_EXTRA_JS = [
       <h3 class="cg-docs__h3">{% trans "Language switcher" %}</h3>
       <p>{% blocktranslate %}The gallery ships with translations for English, Spanish, Basque, and French. The dropdown in the sidebar footer only appears when your project has Django's i18n URL and middleware wired — without them, Django can't persist the chosen language, so the gallery hides the control to avoid a dead button.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}# urls.py
+<pre class="cg-docs__code cg-source"><code class="language-python">{% codeblock %}{% verbatim %}# urls.py
 from django.urls import include, path
 
 urlpatterns = [
@@ -208,7 +208,7 @@ MIDDLEWARE = [
       <h3 class="cg-docs__h3">{% trans "Lint in CI" %}</h3>
       <p>{% blocktranslate %}The same lint engine that powers the in-app Lint report ships as a Django management command. Wire it into CI to fail builds on annotation regressions:{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}python manage.py cotton_lint                        # exit 1 if any errors
+<pre class="cg-docs__code cg-source"><code class="language-bash">{% codeblock %}{% verbatim %}python manage.py cotton_lint                        # exit 1 if any errors
 python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on warnings{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
@@ -224,7 +224,7 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h2 class="cg-docs__h2">{% trans "Anatomy" %}</h2>
       <p>{% blocktranslate %}One <code>@prop</code> comment per piece of API, then <code>&lt;c-vars&gt;</code> with defaults, then your markup. The shape is always <code>&#123;# @prop name:type | filter | ... #&#125;</code>.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @prop name:text | default:"World" | description:"Who to greet" #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# @prop name:text | default:"World" | description:"Who to greet" #}
 <c-vars name="World" />
 
 <p>Hello, {{ name }}!</p>{% endverbatim %}{% endcodeblock %}</code></pre>
@@ -270,7 +270,7 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h2 class="cg-docs__h2">{% blocktranslate %}Dynamic props (the <code>:</code> prefix){% endblocktranslate %}</h2>
       <p>{% blocktranslate %}Cotton evaluates the value as a Python expression when the attribute name starts with <code>:</code>. Use it for numbers, booleans, lists — anything that isn't a plain string.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @prop :count:number | default:0 #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# @prop :count:number | default:0 #}
 <c-vars :count="0" />{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
@@ -280,7 +280,7 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h2 class="cg-docs__h2">{% trans "Slots &amp; triggers" %}</h2>
       <p>{% blocktranslate %}Use <code>@slot</code> to describe the default slot. For components that open something (modal, drawer), use <code>@trigger</code> instead.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @slot Click me — Default content for gallery preview #}
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# @slot Click me — Default content for gallery preview #}
 {# @trigger <button>Open</button> — Element that opens the dialog #}{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
@@ -288,14 +288,14 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h2 class="cg-docs__h2">{% blocktranslate %}Strict components (<code>@strict</code>){% endblocktranslate %}</h2>
       <p>{% blocktranslate %}Add <code>&#123;# @strict #&#125;</code> to declare a <em>closed prop set</em> — every prop is listed via <code>@prop</code>. The detail page shows a <code>@strict</code> badge, and the linter turns two things into errors: an undocumented <code>&lt;c-vars&gt;</code> prop, and a stray <code>&#123;&#123; attrs &#125;&#125;</code> (which would let arbitrary attributes through, contradicting the closed set).{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @strict #}{% endverbatim %}{% endcodeblock %}</code></pre>
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# @strict #}{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
 
       <h2 class="cg-docs__h2">{% blocktranslate %}Intentionally unused (<code>@ignore-unused</code>){% endblocktranslate %}</h2>
       <p>{% blocktranslate %}Insights flags <em>zombies</em> — components nothing references (when scanning is on). Add <code>&#123;# @ignore-unused #&#125;</code> to a component that's deliberately unreferenced (a library component, a WIP) so it's excluded from the zombie list. Shows an <code>@ignore-unused</code> badge on the detail page.{% endblocktranslate %}</p>
       <div class="cg-docs__code-wrap" data-cg-copy-wrap>
-<pre class="cg-docs__code"><code>{% codeblock %}{% verbatim %}{# @ignore-unused #}{% endverbatim %}{% endcodeblock %}</code></pre>
+<pre class="cg-docs__code cg-source"><code class="language-django">{% codeblock %}{% verbatim %}{# @ignore-unused #}{% endverbatim %}{% endcodeblock %}</code></pre>
         <button type="button" class="cg-docs__copy" data-cg-copy aria-label="{% trans 'Copy code' %}"></button>
       </div>
     </section>
@@ -307,6 +307,9 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h3 class="cg-docs__h3">{% trans "Variants matrix" %}</h3>
       <p>{% blocktranslate %}Switch the preview into a grid that renders <strong>every combination</strong> of the component's discrete props at once. The first two enum or boolean props become the Y/X axes; everything else stays consistent across cells. Useful for QA, visual regression, and seeing the whole API at a glance.{% endblocktranslate %}</p>
       <p class="cg-docs__callout">{% blocktranslate %}Toggle via the <strong>View</strong> switcher in the preview toolbar (single-frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense matrices don't fire 30 fetches at once.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Preview background" %}</h3>
+      <p>{% blocktranslate %}The <strong>Bg</strong> bar in the preview toolbar switches the backdrop between checkered, white, dark, and brand. Hit <strong>Edit</strong> to turn the last three swatches into color pickers and recolour them to your app's theme — the choice previews live and is only saved on <strong>Done</strong> (persisted in <code>localStorage</code>); <strong>Reset</strong> restores the defaults.{% endblocktranslate %}</p>
 
       <h3 class="cg-docs__h3">{% trans "Shareable URL state" %}</h3>
       <p>{% blocktranslate %}Every change in the controls panel writes the non-default values to the URL via <code>history.replaceState</code>. Copy the URL, send it, and the recipient lands on the same component with the exact same configuration — no description needed for bug reports or design reviews.{% endblocktranslate %}</p>
@@ -324,8 +327,8 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h3 class="cg-docs__h3">{% trans "Sidebar typeahead" %}</h3>
       <p>{% blocktranslate %}Press <kbd>/</kbd> from anywhere to focus the search. Start typing — a dropdown appears with name + path + description for every match. Hit <kbd>Tab</kbd> to autocomplete the input with the first match (or with whatever suggestion you've focused via <kbd>↓</kbd>). <kbd>Enter</kbd> activates the first match; <kbd>Esc</kbd> clears.{% endblocktranslate %}</p>
 
-      <h3 class="cg-docs__h3">{% trans "Live syntax highlighting" %}</h3>
-      <p>{% blocktranslate %}Both the slot textarea and the extra-attrs editor render token colors AS you type — HTML tags, Cotton component names, attribute names, strings, Django <code>&#123;%&nbsp;%&#125;</code> blocks, and CSS properties inside <code>style="…"</code> all get their own color. The slot editor uses an overlay technique; the attrs field is a <code>contenteditable</code> div so the cursor sits on top of the colored text directly.{% endblocktranslate %}</p>
+      <h3 class="cg-docs__h3">{% trans "Language-aware syntax highlighting" %}</h3>
+      <p>{% blocktranslate %}The Source tab, the Cotton-tag preview, and the live editors (slot textarea + extra-attrs field) all colour the full template stack: HTML tags, Cotton component names (<code>&lt;c-…&gt;</code>), Django <code>&#123;%&nbsp;%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> blocks and filters, HTMX (<code>hx-*</code>) and Alpine (<code>x-*</code> / <code>@</code> / <code>:</code>) attributes — with the Alpine value tokenised as JavaScript — embedded <code>&lt;script&gt;</code> JS and <code>&lt;style&gt;</code> CSS, and the <code>&#123;# @… #&#125;</code> annotation DSL. The slot editor uses an overlay technique; the attrs field is a <code>contenteditable</code> div so the cursor sits on top of the colored text directly.{% endblocktranslate %}</p>
 
       <h3 class="cg-docs__h3">{% trans "CSS autocomplete inside style attributes" %}</h3>
       <p>{% blocktranslate %}When the caret enters a <code>style="…"</code> attribute, the popover switches from HTML-attribute suggestions to CSS-aware ones. It detects three contexts:{% endblocktranslate %}</p>

@@ -674,9 +674,10 @@ body {
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   background: var(--cg-gray-800);
-  color: var(--cg-gray-400);
+  color: var(--cg-gray-300);
+  border: 1px solid var(--cg-gray-700);
   border-radius: var(--cg-radius-md);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .cg-source__copy:hover { background: var(--cg-gray-700); color: var(--cg-gray-300); }

@@ -159,9 +159,12 @@
           <div class="cg-preview__bg-switcher" role="radiogroup" aria-label="{% trans 'Preview background' %}">
             <span class="cg-preview__switcher-label">{% trans "Bg" %}</span>
             <button type="button" class="cg-bg-btn" data-cg-bg="checkered" aria-label="{% trans 'Checkered background' %}" title="{% trans 'Checkered' %}"></button>
-            <button type="button" class="cg-bg-btn" data-cg-bg="white" aria-label="{% trans 'White background' %}" title="{% trans 'White' %}"></button>
-            <button type="button" class="cg-bg-btn" data-cg-bg="dark" aria-label="{% trans 'Dark background' %}" title="{% trans 'Dark' %}"></button>
-            <button type="button" class="cg-bg-btn" data-cg-bg="brand" aria-label="{% trans 'Brand background' %}" title="{% trans 'Brand' %}"></button>
+            <button type="button" class="cg-bg-btn cg-bg-btn--editable" data-cg-bg="white" aria-label="{% trans 'White background' %}" title="{% trans 'White' %}"><input type="color" class="cg-bg-edit-input" data-cg-bg-edit="white" value="#ffffff" tabindex="-1" aria-hidden="true"></button>
+            <button type="button" class="cg-bg-btn cg-bg-btn--editable" data-cg-bg="dark" aria-label="{% trans 'Dark background' %}" title="{% trans 'Dark' %}"><input type="color" class="cg-bg-edit-input" data-cg-bg-edit="dark" value="#111827" tabindex="-1" aria-hidden="true"></button>
+            <button type="button" class="cg-bg-btn cg-bg-btn--editable" data-cg-bg="brand" aria-label="{% trans 'Brand background' %}" title="{% trans 'Brand' %}"><input type="color" class="cg-bg-edit-input" data-cg-bg-edit="brand" value="#ff9d0a" tabindex="-1" aria-hidden="true"></button>
+            <button type="button" class="cg-preview__bg-editbtn" data-cg-bg-editcmd="edit" aria-label="{% trans 'Edit background colors' %}" title="{% trans 'Edit colors' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+            <button type="button" class="cg-preview__bg-editbtn" data-cg-bg-editcmd="done" aria-label="{% trans 'Done editing colors' %}" title="{% trans 'Done' %}" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>
+            <button type="button" class="cg-preview__bg-editbtn" data-cg-bg-editcmd="reset" aria-label="{% trans 'Reset colors to default' %}" title="{% trans 'Reset colors' %}" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
           </div>
           <div class="cg-preview__view-switcher" role="radiogroup" aria-label="{% trans 'Preview view' %}" data-cg-view-switcher hidden>
             <span class="cg-preview__switcher-label">{% trans "View" %}</span>

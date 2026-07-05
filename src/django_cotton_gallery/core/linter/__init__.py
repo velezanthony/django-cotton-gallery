@@ -51,6 +51,7 @@ from ._scanners import (
     scan_required_with_default,
     scan_type_default_mismatch,
     scan_undeclared_template_vars,
+    scan_unknown_components,
 )
 from ._types import ComponentReport, LintIssue, LintReport, RuleCode, Severity
 
@@ -71,6 +72,7 @@ def lint_component(
     source: str,
     *,
     parsed: ParsedComponent | None = None,
+    known_tags: frozenset[str] | None = None,
 ) -> ComponentReport:
     """Lint a single component's source. Public entry point used by view + CLI.
 
@@ -86,12 +88,16 @@ def lint_component(
     issues.extend(scan_required_with_default(component_path, source))
     issues.extend(scan_malformed_prop_filters(component_path, source))
     issues.extend(scan_undeclared_template_vars(component_path, source, cvars))
+    if known_tags is not None:
+        issues.extend(scan_unknown_components(component_path, source, known_tags))
     return ComponentReport(path=component_path, issues=tuple(issues))
 
 
 def lint_catalog(items: Iterable[tuple[str, str]]) -> LintReport:
     """Lint many components. `items` is an iterable of `(component_path, source)`."""
-    reports = tuple(lint_component(p, s) for p, s in items)
+    pairs = list(items)
+    known_tags = frozenset(p.replace("/", ".") for p, _ in pairs)
+    reports = tuple(lint_component(p, s, known_tags=known_tags) for p, s in pairs)
     return LintReport(components=reports)
 
 
@@ -103,9 +109,11 @@ def lint_summary(items: Iterable[tuple[str, str]]) -> dict[str, tuple[int, int, 
     Components with no issues across ALL severities are omitted so the
     template can use `{% if path in lint_summary %}` as a presence check.
     """
+    pairs = list(items)
+    known_tags = frozenset(p.replace("/", ".") for p, _ in pairs)
     summary: dict[str, tuple[int, int, int]] = {}
-    for path, source in items:
-        report = lint_component(path, source)
+    for path, source in pairs:
+        report = lint_component(path, source, known_tags=known_tags)
         errors = len(report.errors)
         warnings = len(report.warnings)
         hints = len(report.hints)

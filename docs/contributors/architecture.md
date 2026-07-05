@@ -147,6 +147,10 @@ There was zero overlap — every constant was used by exactly one module. The "s
 
 The gallery's job is to **render components**. We explicitly removed the axe-core accessibility checker integration — accessibility testing belongs in the consumer's CI, not bolted into the preview chrome. If a future feature is "let me run X linter on the rendered output", reject by default.
 
+### Highlighting: extend vendored Prism, don't fork
+
+The Source / preview / slot surfaces are coloured by **Prism 1.29.0, vendored locally** under `static/django_cotton_gallery/vendor/prism/` (no CDN) — core + `markup-templating` + `django` + `python` + `bash` + the tomorrow theme. Our own grammar layer, `static/django_cotton_gallery/js/prism-cotton-stack.js`, teaches Prism the tokens it doesn't ship: Cotton tags (`<c-…>`), HTMX (`hx-*`) and Alpine (`x-*` / `@` / `:`) attributes (with the Alpine value re-tokenised as JavaScript), the `{# @… #}` annotation DSL, Python ALL_CAPS constants, and bash command words. The VS Code Dark+ palette lives in `css/preview.css`; the grammar file makes **no colour decisions**. A from-scratch tokeniser would reinvent JS/HTML/CSS colouring for no gain — the only thing Prism can't give us is catalog-aware *diagnostics*, and those are a separate layer (the linter), not the highlighter's job.
+
 ## What lives inside `src/` (but is NOT shipped)
 
 All code lives under `src/`, but only `src/django_cotton_gallery/` is published. Hatchling's `packages = ["src/django_cotton_gallery"]` picks up just that subtree — the demo and the tests sit alongside it and are excluded from the wheel.

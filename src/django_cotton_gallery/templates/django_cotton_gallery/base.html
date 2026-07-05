@@ -36,7 +36,9 @@
     noCssPropsMatch:"{% trans 'No CSS properties match' %}",
     noHtmlAttrsMatch:"{% trans 'No HTML attributes match' %}",
     noPropsOn:"{% trans 'No props on' %}",
-    noMatchingProps:"{% trans 'No matching props' %}"
+    noMatchingProps:"{% trans 'No matching props' %}",
+    copyFix:"{% trans 'Copy fix' %}",
+    copied:"{% trans 'Copied' %}"
   };</script>
   {# type="module" implies defer; main.js imports every feature module from ./js/ #}
   <script src="{% static 'django_cotton_gallery/js/main.js' %}" type="module"></script>
@@ -57,10 +59,13 @@
   don't block first paint, and gallery.js re-runs Prism on SPA swaps
   via Prism.highlightAllUnder on bindContent.
   {% endcomment %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-django.min.js" defer></script>
+  <link rel="stylesheet" href="{% static 'django_cotton_gallery/vendor/prism/prism-tomorrow.min.css' %}">
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism.min.js' %}" data-manual defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-markup-templating.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-django.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-python.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/vendor/prism/prism-bash.min.js' %}" defer></script>
+  <script src="{% static 'django_cotton_gallery/js/prism-cotton-stack.js' %}" defer></script>
 
   {% comment %}
   Consumer-injected assets — the gallery is stack-agnostic, so any

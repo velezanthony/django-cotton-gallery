@@ -31,6 +31,10 @@
   --cg-gray-900: #181d27;
   --cg-gray-950: #0a0d12;
 
+  /* Code-block backdrop — must match prism-tomorrow's `pre[class*=language-]`
+     block bg (#2d2d2d), which Prism paints onto every highlighted <pre>. */
+  --cg-code-bg: #2d2d2d;
+
   /* Semantic accents */
   --cg-blue-50:    #eff6ff;
   --cg-blue-100:   #dbeafe;

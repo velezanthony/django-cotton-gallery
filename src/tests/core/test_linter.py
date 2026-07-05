@@ -43,6 +43,41 @@ class TestOrphanAnnotation:
         assert issues[0].severity == "error"
 
 
+class TestUnknownComponent:
+    def test_reference_to_missing_component_is_flagged(self):
+        """A <c-X.Y> reference absent from the catalog is an error on its line."""
+        source = "{# @description X #}\n<div>\n  <c-atoms.ghost />\n</div>\n"
+        known = frozenset({"atoms.button", "molecules.card"})
+        issues = [
+            i
+            for i in lint_component("atoms/thing", source, known_tags=known).issues
+            if i.rule == "unknown-component"
+        ]
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+        assert issues[0].line == 3
+        assert dict(issues[0].params).get("tag") == "atoms.ghost"
+
+    def test_known_reference_is_not_flagged(self):
+        """A reference that resolves to a catalog component is not flagged."""
+        source = "<c-atoms.button />\n"
+        known = frozenset({"atoms.button"})
+        rules = [i.rule for i in lint_component("x/y", source, known_tags=known).issues]
+        assert "unknown-component" not in rules
+
+    def test_skipped_without_a_catalog(self):
+        """Without a catalog (single-file CLI) the rule stays quiet."""
+        source = "<c-atoms.ghost />\n"
+        rules = [i.rule for i in lint_component("x/y", source).issues]
+        assert "unknown-component" not in rules
+
+    def test_cotton_meta_tags_are_not_references(self):
+        """Cotton's own <c-vars> / <c-slot> / <c-component> tags are never flagged."""
+        source = '<c-vars foo="x" />\n<c-slot name="h">y</c-slot>\n<c-component is="a.b" />\n'
+        rules = [i.rule for i in lint_component("x/y", source, known_tags=frozenset()).issues]
+        assert "unknown-component" not in rules
+
+
 class TestMissingAnnotation:
     def test_cvars_attr_without_prop_is_warning(self):
         source = '<c-vars extra="x" />\n'
