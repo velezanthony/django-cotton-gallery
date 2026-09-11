@@ -130,7 +130,6 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
   const frame = document.createElement('iframe');
   frame.className = 'cg-stage-frame';
   frame.setAttribute('title', 'Component preview');
-  frame.setAttribute('scrolling', 'no');
   frame.srcdoc = buildShell(readShellParts());
 
   host.innerHTML = '';
@@ -150,9 +149,14 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
   // `scrollHeight`, so the frame shrinks and the component shrinks with it.
   const fills = () => !!frame.closest('.cg-preview__device--fullscreen');
 
+  // The resize grip writes an inline height on the host; nothing here ever
+  // does, so that attribute means the user dragged it. Their height wins —
+  // measuring a component designed for a screen is not our call to make.
+  const dragged = () => !!host.style.height;
+
   const measure = () => {
     if (destroyed || !frame.contentDocument) return;
-    if (fills()) {
+    if (fills() || dragged()) {
       frame.style.height = '100%';
       return;
     }
@@ -172,6 +176,14 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
     rebindInFrame(root, frame.contentWindow);
     measure();
   };
+
+  // Follow the grip. Guarded by `dragged()` on purpose: without an inline
+  // height the host is sized BY the frame, so reacting there would loop.
+  let hostObserver = null;
+  if (typeof ResizeObserver === 'function') {
+    hostObserver = new ResizeObserver(() => { if (dragged()) measure(); });
+    hostObserver.observe(host);
+  }
 
   let markReady;
   const ready = new Promise((resolve) => { markReady = resolve; });
@@ -204,7 +216,9 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
     destroy() {
       destroyed = true;
       if (observer) { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+      if (hostObserver) { try { hostObserver.disconnect(); } catch (_) { /* ignore */ } }
       observer = null;
+      hostObserver = null;
       if (frame.parentNode) frame.parentNode.removeChild(frame);
     },
   };

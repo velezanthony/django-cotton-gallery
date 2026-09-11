@@ -26,6 +26,7 @@ import {
 import { initMiniSelect } from './ui-bits.js';
 import { createPopover } from './popover.js';
 import { createIsolatedStage } from './isolated-stage.js';
+import { attachResizeGrip } from './stage-resize.js';
 import { cssContext, filterCssProperties, suggestCssValue } from './css-properties.js';
 import { caretRectFromContenteditable } from './caret-rect.js';
 import { ATTR_SUGGESTIONS, tokenName, writtenAttrNames } from './html-attrs.js';
@@ -888,6 +889,7 @@ export const initPreview = () => {
 
   const stage = preview.querySelector('[data-cg-preview-stage]');
   const tagEl = preview.querySelector('[data-cg-preview-tag]');
+  attachResizeGrip(stage);
 
   // Created on first render so the loading spinner stays visible until then;
   // dropped on error so the next success mounts a clean frame.

@@ -445,6 +445,30 @@
 
 /* Stage = the actual device viewport. Holds the rendered component, has the user's bg. */
 /* The component's own document. Height comes from js/isolated-stage.js. */
+/* Full-width drag target under the stage — the native corner grip is a pixel
+   hunt. Tall enough to hit without being furniture. */
+.cg-stage-grip {
+  height: 0.75rem;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.cg-stage-grip::before {
+  content: "";
+  width: 2.5rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: var(--cg-border);
+  transition: background 0.15s ease, width 0.15s ease;
+}
+
+.cg-stage-grip:hover::before,
+.cg-stage-grip:focus-visible::before { background: var(--cg-brand-500); width: 4rem; }
+.cg-stage-grip:focus-visible { outline: none; }
+
 .cg-stage-frame {
   display: block;
   width: 100%;
@@ -456,6 +480,9 @@
   flex: 0 1 auto;
   width: 100%;
   min-height: 200px;
+  /* The grip lives in js/stage-resize.js; `overflow` brings the scrollbar a
+     dragged-too-short stage needs. */
+  overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;
