@@ -206,7 +206,9 @@
 
 .cg-vp-btn svg { width: 0.875rem; height: 0.875rem; pointer-events: none; }
 
-.cg-vp-btn:hover { background: var(--cg-surface); color: var(--cg-text-strong); }
+.cg-vp-btn:hover:not(:disabled) { background: var(--cg-surface); color: var(--cg-text-strong); }
+
+.cg-vp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .cg-vp-btn.cg-active {
   background: var(--cg-surface);

@@ -1088,6 +1088,10 @@ const initOneViewSwitcher = (switcher) => {
         b.classList.toggle('cg-active', active);
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
+      // The matrix replaces the single stage, so there is nothing to resize.
+      scope.querySelectorAll('.cg-vp-btn[data-cg-viewport]').forEach((b) => {
+        b.disabled = view === 'matrix';
+      });
       if (view === 'matrix') {
         rendered.setAttribute('hidden', '');
         matrix.removeAttribute('hidden');
