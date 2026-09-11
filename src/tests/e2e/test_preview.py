@@ -4,10 +4,12 @@ import re
 
 from playwright.sync_api import Page, expect
 
+from ._frames import stage_frame
+
 
 def test_changing_variant_updates_preview(page: Page, live_gallery):
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
-    stage = page.locator("[data-cg-preview-stage]")
+    stage = stage_frame(page)
     expect(stage.locator("button")).to_be_attached()
     expect(stage.locator("button")).to_have_class(re.compile(r"btn-primary"))
 
@@ -29,7 +31,7 @@ def test_url_updates_when_variant_changes(page: Page, live_gallery):
 
 def test_preview_renders_on_load(page: Page, live_gallery):
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
-    stage = page.locator("[data-cg-preview-stage]")
+    stage = stage_frame(page)
     # Initial preview must render without user interaction. Element is sizeless
     # without slot content, so check DOM presence rather than visibility.
     expect(stage.locator("button")).to_be_attached(timeout=5000)

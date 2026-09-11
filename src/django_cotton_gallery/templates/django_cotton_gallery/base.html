@@ -81,6 +81,10 @@
   {% endcomment %}
   {% for url in cotton_gallery.extra_css %}<link rel="stylesheet" href="{{ url }}">
   {% endfor %}{% maybe_include "django_cotton_gallery/_extra_head.html" %}
+  {# Same loops again, for js/isolated-stage.js to rebuild the stack inside each #}
+  {# preview iframe. `<template>` content is inert: nothing loads or runs twice. #}
+  <template id="cg-frame-head">{% for url in cotton_gallery.extra_css %}<link rel="stylesheet" href="{{ url }}">{% endfor %}{% maybe_include "django_cotton_gallery/_extra_head.html" %}</template>
+  <template id="cg-frame-body">{% for url in cotton_gallery.extra_js %}<script src="{{ url }}"></script>{% endfor %}{% maybe_include "django_cotton_gallery/_extra_body.html" %}</template>
   {# Per-page injection point — extras for the document head. #}
   {% block extra_head %}{% endblock %}
 </head>

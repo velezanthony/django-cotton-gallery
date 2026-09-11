@@ -442,6 +442,14 @@
 .cg-preview__chrome-dot--green  { background: #28c840; }
 
 /* Stage = the actual device viewport. Holds the rendered component, has the user's bg. */
+/* The component's own document. Height comes from js/isolated-stage.js. */
+.cg-stage-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+
 .cg-preview__stage {
   flex: 0 1 auto;
   width: 100%;

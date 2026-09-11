@@ -4,10 +4,8 @@
  * Owns: background switcher, viewport switcher, custom dropdowns, extra-attrs
  * autocomplete, live preview fetch/render, URL state sync, form helpers.
  *
- * `initPreview({ rebindAfterSwap })` receives the rebind callback because
- * fetching a new preview swaps `[data-cg-preview-stage]` content and the
- * gallery's behaviors (tabs/copy/Alpine/HTMX) need re-binding on the new
- * subtree. The orchestrator (main.js / gallery.js) passes that callback in.
+ * The live preview renders into an iframe (js/isolated-stage.js): Alpine and
+ * HTMX are rehydrated in there, not here.
  */
 
 import {
@@ -27,7 +25,7 @@ import {
 } from './constants.js';
 import { initMiniSelect } from './ui-bits.js';
 import { createPopover } from './popover.js';
-import { teardownBeforeSwap } from './navigation.js';
+import { createIsolatedStage } from './isolated-stage.js';
 import { cssContext, filterCssProperties, suggestCssValue } from './css-properties.js';
 import { caretRectFromContenteditable } from './caret-rect.js';
 import { ATTR_SUGGESTIONS, tokenName, writtenAttrNames } from './html-attrs.js';
@@ -870,11 +868,9 @@ const applyUrlParamsToForm = (form) => {
 /* ── Live preview ───────────────────────────────────────────────────── */
 /**
  * Wire the live preview pane: fetch on mount, debounce on form input,
- * sync URL state, swap content with cleanup.
- *
- * @param {PreviewOptions} options
+ * sync URL state, swap the isolated stage's content.
  */
-export const initPreview = ({ rebindAfterSwap }) => {
+export const initPreview = () => {
   // The compare view has its own multi-instance handler in compare.js —
   // skip the singleton path here so they don't bind two fetch loops to
   // the first panel's form.
@@ -892,6 +888,14 @@ export const initPreview = ({ rebindAfterSwap }) => {
 
   const stage = preview.querySelector('[data-cg-preview-stage]');
   const tagEl = preview.querySelector('[data-cg-preview-tag]');
+
+  // Created on first render so the loading spinner stays visible until then;
+  // dropped on error so the next success mounts a clean frame.
+  let frameStage = null;
+  const isolated = () => (frameStage || (frameStage = createIsolatedStage(stage)));
+  const dropFrame = () => {
+    if (frameStage) { frameStage.destroy(); frameStage = null; }
+  };
 
   // Shareable URL state: capture each control's initial value as its
   // default BEFORE applying URL params, so syncUrlFromForm can omit
@@ -954,9 +958,7 @@ export const initPreview = ({ rebindAfterSwap }) => {
         // Stage may have been swapped out from under us between fetch start
         // and resolve — if so, drop the result silently.
         if (stage && stage.isConnected) {
-          teardownBeforeSwap(stage);
-          stage.innerHTML = data.html || '';
-          rebindAfterSwap(stage);
+          isolated().update(data.html || '');
         }
         if (tagEl && tagEl.isConnected) {
           tagEl.textContent = data.tag || '';
@@ -971,6 +973,8 @@ export const initPreview = ({ rebindAfterSwap }) => {
       .catch((err) => {
         if (err && err.name === 'AbortError') return;
         if (stage && stage.isConnected) {
+          // Gallery chrome, not component output — render it in OUR document.
+          dropFrame();
           stage.innerHTML = '<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>';
         }
       })
