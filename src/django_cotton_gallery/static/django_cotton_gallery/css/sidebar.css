@@ -485,9 +485,11 @@
 }
 
 .cg-sidebar__suggestion-head {
+  /* `wrap-reverse`: the wrapped path lands ABOVE the name, not below. */
   display: flex;
+  flex-wrap: wrap-reverse;
   align-items: center;
-  gap: var(--cg-space-2);
+  gap: 0.125rem var(--cg-space-2);
 }
 
 .cg-sidebar__suggestion-name {
@@ -495,10 +497,9 @@
   font-weight: 600;
   color: #f3f4f6;
   letter-spacing: -0.01em;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .cg-sidebar__suggestion-path {
@@ -507,6 +508,11 @@
   color: var(--cg-sidebar-muted);
   letter-spacing: 0.02em;
   padding: 0.0625rem 0.3125rem;
+  margin-left: auto;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.04);
   border-radius: var(--cg-radius-sm);
   flex-shrink: 0;
