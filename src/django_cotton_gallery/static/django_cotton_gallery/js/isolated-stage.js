@@ -46,6 +46,29 @@ const buildShell = ({ head, body }) => (
 );
 
 /**
+ * Execute the `<script>` tags the markup brought with it.
+ *
+ * `innerHTML` parses scripts but never runs them — per spec, not a quirk. A
+ * component that ships its own script (the factory its `x-data` calls, a web
+ * component registration, a plain listener) would render dead. Re-creating the
+ * node is what makes the browser run it.
+ *
+ * Runs BEFORE any framework rehydration: whatever the script defines has to
+ * exist by the time something evaluates an attribute that calls it.
+ *
+ * @param {HTMLElement} root
+ * @param {Document} doc
+ */
+const runScripts = (root, doc) => {
+  root.querySelectorAll('script').forEach((old) => {
+    const fresh = doc.createElement('script');
+    for (const { name, value } of old.attributes) fresh.setAttribute(name, value);
+    fresh.textContent = old.textContent;
+    old.replaceWith(fresh);
+  });
+};
+
+/**
  * Alpine teardown against the frame's own Alpine — the consumer's copy lives
  * in there, not in the gallery window.
  *
@@ -145,6 +168,7 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
     if (!root) return;
     teardownInFrame(root, frame.contentWindow);
     root.innerHTML = currentHtml;
+    runScripts(root, doc);
     rebindInFrame(root, frame.contentWindow);
     measure();
   };
