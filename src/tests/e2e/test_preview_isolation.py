@@ -108,6 +108,24 @@ def test_flex_child_does_not_collapse(page: Page, isolation_tree, live_gallery):
     assert width > 0, "flex:1 spacer collapsed — the root is not filling the stage"
 
 
+def test_fullscreen_keeps_the_component(page: Page, isolation_tree, live_gallery):
+    """Going fullscreen and back must not blank the preview.
+
+    The modal MOVES `[data-cg-preview-device]` into its slot, and reparenting
+    an iframe reloads its document — which drops everything written into it
+    after load. The stage has to repaint itself.
+    """
+    page.goto(f"{live_gallery}{BANNER_URL}")
+    expect(stage_frame(page).locator("[data-probe-root]")).to_be_attached(timeout=5000)
+
+    page.click("[data-cg-preview-fullscreen]")
+    expect(page.locator("[data-cg-fs-preview-slot] iframe")).to_be_attached()
+    expect(stage_frame(page).locator("[data-probe-root]")).to_be_attached(timeout=5000)
+
+    page.keyboard.press("Escape")
+    expect(stage_frame(page).locator("[data-probe-root]")).to_be_attached(timeout=5000)
+
+
 def test_component_media_queries_use_the_stage_width(page: Page, isolation_tree, live_gallery):
     """The component sees the stage as its viewport, not the browser window.
 

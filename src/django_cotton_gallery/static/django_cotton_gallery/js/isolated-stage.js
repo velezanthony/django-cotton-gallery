@@ -115,6 +115,11 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
 
   let observer = null;
   let destroyed = false;
+  // The markup currently on screen. Moving an iframe in the DOM reloads its
+  // document — the fullscreen modal does exactly that — and everything written
+  // in after load is gone. Keeping it lets the frame repaint itself without a
+  // round trip; `update()` replaces it, so it never goes stale.
+  let currentHtml = '';
 
   const measure = () => {
     if (destroyed || !frame.contentDocument) return;
@@ -123,17 +128,34 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
     if (onHeight) onHeight(px);
   };
 
-  const ready = new Promise((resolve) => {
-    frame.addEventListener('load', () => {
-      if (destroyed) return resolve();
-      const win = frame.contentWindow;
-      // Content grows after render (x-cloak reveal, HTMX swap, webfont).
-      if (win && typeof win.ResizeObserver === 'function') {
-        observer = new win.ResizeObserver(measure);
-        observer.observe(frame.contentDocument.documentElement);
-      }
-      resolve();
-    }, { once: true });
+  /** Paint `currentHtml` into a freshly loaded document. */
+  const paint = () => {
+    const doc = frame.contentDocument;
+    const root = doc && doc.querySelector('[data-cg-stage-root]');
+    if (!root) return;
+    teardownInFrame(root, frame.contentWindow);
+    root.innerHTML = currentHtml;
+    rebindInFrame(root, frame.contentWindow);
+    measure();
+  };
+
+  let markReady;
+  const ready = new Promise((resolve) => { markReady = resolve; });
+
+  // Permanent, not `{ once: true }`: this fires again on every reload, which is
+  // what reparenting causes. The observer watched the previous document, so it
+  // gets rebound too.
+  frame.addEventListener('load', () => {
+    if (destroyed) return markReady();
+    const win = frame.contentWindow;
+    if (observer) { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+    // Content grows after render (x-cloak reveal, HTMX swap, webfont).
+    if (win && typeof win.ResizeObserver === 'function') {
+      observer = new win.ResizeObserver(measure);
+      observer.observe(frame.contentDocument.documentElement);
+    }
+    if (currentHtml) paint();
+    markReady();
   });
 
   return {
@@ -142,13 +164,8 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
     async update(html) {
       await ready;
       if (destroyed) return;
-      const doc = frame.contentDocument;
-      const root = doc && doc.querySelector('[data-cg-stage-root]');
-      if (!root) return;
-      teardownInFrame(root, frame.contentWindow);
-      root.innerHTML = html || '';
-      rebindInFrame(root, frame.contentWindow);
-      measure();
+      currentHtml = html || '';
+      paint();
     },
     destroy() {
       destroyed = true;
