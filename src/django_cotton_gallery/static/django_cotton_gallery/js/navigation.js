@@ -17,7 +17,8 @@
  *       coalesce, and runs rebindAfterSwap once per burst.
  */
 
-import { THUMB_OBSERVER_ROOT_MARGIN } from './constants.js';
+import { createIsolatedStage } from './isolated-stage.js';
+import { THUMB_OBSERVER_ROOT_MARGIN, THUMB_RECYCLE_ROOT_MARGIN } from './constants.js';
 
 // Only intercept clicks on links that are part of the gallery chrome itself —
 // sidebar, breadcrumb, index cards. Component-internal links (nav-item, navbar
@@ -199,6 +200,9 @@ const navigate = (url, push, { rebindAfterSwap, bindContent }) => {
 const THUMB_BATCH_MS = 80;
 
 let _thumbObserver = null;
+let _thumbRecycler = null;
+// card -> IsolatedStage, so a recycled card can be torn down and rebuilt.
+const _thumbStages = new WeakMap();
 let _thumbCleanupBound = false;
 const _thumbInsertQueue = [];
 let _thumbInsertFrame = null;
@@ -222,12 +226,21 @@ export const initCardThumbs = ({ rebindAfterSwap, root = document }) => {
   if (!_thumbObserver) {
     _thumbObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
+        // Never unobserve — re-arming by hand races with the recycler.
         if (!entry.isIntersecting) return;
         const el = entry.target;
-        _thumbObserver.unobserve(el);
+        if (el.dataset.cgThumbLoaded) return;
         loadThumb(el, rebindAfterSwap);
       });
     }, { rootMargin: THUMB_OBSERVER_ROOT_MARGIN, threshold: 0.01 });
+  }
+
+  if (!_thumbRecycler) {
+    _thumbRecycler = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) recycleThumb(entry.target);
+      });
+    }, { rootMargin: THUMB_RECYCLE_ROOT_MARGIN, threshold: 0 });
   }
 
   // The IO retains strong refs to every card it observes. When the user
@@ -242,6 +255,7 @@ export const initCardThumbs = ({ rebindAfterSwap, root = document }) => {
       if (!main || !main.querySelector('[data-cg-thumb]')) {
         _thumbObserver.disconnect();
         _thumbObserver = null;
+        if (_thumbRecycler) { _thumbRecycler.disconnect(); _thumbRecycler = null; }
       }
     });
     _thumbCleanupBound = true;
@@ -264,8 +278,7 @@ const loadThumb = (el, rebindAfterSwap) => {
       // fire when the holder is appended into the live DOM.
       const holder = document.createElement('div');
       holder.className = 'cg-card__thumb';
-      holder.innerHTML = html;
-      _thumbInsertQueue.push({ card: el, holder });
+      _thumbInsertQueue.push({ card: el, holder, html });
       scheduleThumbInsertFlush(rebindAfterSwap);
     })
     .catch(() => {
@@ -291,8 +304,25 @@ const flushThumbInserts = (rebindAfterSwap) => {
     if (skel) skel.remove();
     if (tag) tag.remove();
     item.card.appendChild(item.holder);
+    // Own document per card; the card's height is fixed, so nothing to measure.
+    const stage = createIsolatedStage(item.holder, { autoHeight: false });
+    _thumbStages.set(item.card, stage);
+    stage.update(item.html);
+    if (_thumbRecycler) _thumbRecycler.observe(item.card);
   }
   scheduleThumbBatchInit(rebindAfterSwap);
+};
+
+/** Drop a scrolled-away card's frame; the loader rebuilds it on return. */
+const recycleThumb = (card) => {
+  const stage = _thumbStages.get(card);
+  if (!stage) return;
+  stage.destroy();
+  _thumbStages.delete(card);
+  const holder = card.querySelector('.cg-card__thumb');
+  if (holder) holder.remove();
+  // Last — this is what re-arms the loader.
+  delete card.dataset.cgThumbLoaded;
 };
 
 const scheduleThumbBatchInit = (rebindAfterSwap) => {

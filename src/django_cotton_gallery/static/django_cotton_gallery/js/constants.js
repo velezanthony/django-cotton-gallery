@@ -23,6 +23,8 @@ export const SIDEBAR_DESKTOP_BREAKPOINT_PX = 1024;
 // rootMargin strings for IntersectionObservers — kept as strings since
 // IO API expects them in CSS units, not raw numbers.
 export const THUMB_OBSERVER_ROOT_MARGIN = '200px 0px';
+// Hysteresis: wider than the load margin so one edge does not thrash frames.
+export const THUMB_RECYCLE_ROOT_MARGIN = '1200px 0px';
 export const MATRIX_CELL_ROOT_MARGIN = '100px 0px';
 
 /* ── localStorage keys (single source of truth) ─────────────────────── */

@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drag the bottom edge of the preview to set its height. A component anchored to the viewport — a modal, a drawer — contributes nothing to `scrollHeight`, so there is no content height to measure and the gallery does not guess one. The dragged height takes over from auto-sizing and lasts as long as you stay on the component. Arrow keys work on the grip (Shift for larger steps).
 
+- Index thumbnails render in their own document too, so a component anchored to the viewport no longer covers the index. Frames are dropped once a card scrolls well out of view and rebuilt on the way back — a catalog is not a reason to keep one JS runtime alive per component.
+
 ### Fixed
 
 - The sidebar reported `v0.1.0`: the tag was hardcoded in the template and `__version__` was a literal that had drifted from `pyproject.toml`. Both now derive from the installed distribution.
