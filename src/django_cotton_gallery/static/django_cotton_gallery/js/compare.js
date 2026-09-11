@@ -12,6 +12,8 @@
  * detail page uses, so your preference carries over.
  */
 
+import { createIsolatedStage } from './isolated-stage.js';
+import { attachResizeGrip } from './stage-resize.js';
 import { bindOnce, readJSON, wireFormDebounce } from './helpers.js';
 import {
   PREVIEW_DEBOUNCE_MS,
@@ -359,6 +361,10 @@ const initComparePanels = (root = document) => {
     const url = preview.getAttribute('data-cg-preview');
     if (!url) return;
     const stage = preview.querySelector('[data-cg-preview-stage]');
+    attachResizeGrip(stage);
+    let frameStage = null;
+    const isolated = () => (frameStage || (frameStage = createIsolatedStage(stage)));
+    const dropFrame = () => { if (frameStage) { frameStage.destroy(); frameStage = null; } };
     const tagEl = preview.querySelector('[data-cg-preview-tag]');
     const form = preview.closest('[data-cg-compare-side]').querySelector('[data-cg-controls]');
 
@@ -393,7 +399,7 @@ const initComparePanels = (root = document) => {
         .then((data) => {
           // Stage may have been swapped out between fetch start and resolve.
           if (!stage || !stage.isConnected) return;
-          stage.innerHTML = data.html || '';
+          isolated().update(data.html || '');
           if (tagEl && tagEl.isConnected) {
             tagEl.textContent = data.tag || '';
             if (window.Prism) window.Prism.highlightElement(tagEl);
@@ -401,7 +407,11 @@ const initComparePanels = (root = document) => {
         })
         .catch((err) => {
           if (err && err.name === 'AbortError') return;
-          if (stage && stage.isConnected) stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
+          if (stage && stage.isConnected) {
+            // Gallery chrome, not component output — render it in OUR document.
+            dropFrame();
+            stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
+          }
         });
     };
 
