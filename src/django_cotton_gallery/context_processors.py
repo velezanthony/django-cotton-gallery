@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from django.http import HttpRequest
 
+from . import __version__
 from .conf import load
 from .core.dependencies import detect as detect_dependencies
 from .core.schemas import GalleryAssets
@@ -49,4 +50,5 @@ def gallery_assets(request: HttpRequest) -> dict:
             dependencies=detect_dependencies(s.extra_css + s.extra_js),
         ),
         "gallery_languages": PACKAGE_LANGUAGES,
+        "gallery_version": __version__,
     }

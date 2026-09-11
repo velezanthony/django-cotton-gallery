@@ -12,9 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The detail preview renders the component in its own document (iframe) instead of the gallery page. Fixes the gallery's unlayered heading reset overriding the consumer's `@layer` typography, and block-level roots shrinking to their content inside the centering flex stage (`flex: 1` children collapsed to `0px`). Media queries now fire on the stage width, so the viewport switcher is real.
 - `initPreview()` no longer takes `rebindAfterSwap`: Alpine and HTMX are rehydrated inside the frame.
 
+- Viewport buttons are disabled in matrix view — they size the single stage, which the matrix replaces. Fullscreen stays enabled.
+
+### Fixed
+
+- The sidebar reported `v0.1.0`: the tag was hardcoded in the template and `__version__` was a literal that had drifted from `pyproject.toml`. Both now derive from the installed distribution.
+- `docs/contributors/release.md` bumped the version with a `sed` pattern matching the old literal, which stopped matching after the first release and exited 0 without editing anything.
+
 ### Tests
 
 - E2E for preview isolation — typography, layout and viewport. `src/tests/e2e/_frames.py` reaches into the frame.
+- E2E for the sidebar version tag; the smoke test compares `__version__` against the distribution instead of pinning a literal.
 
 ## [0.2.0] - 2026-07-05
 
