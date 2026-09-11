@@ -77,9 +77,29 @@ src/tests/
     ├── test_navigation.py       # SPA navigation, back button, active link
     ├── test_search.py           # Sidebar search + suggestions + shortcuts
     ├── test_preview.py          # Live preview update on control change
+    ├── test_preview_isolation.py # Typography, layout and viewport in the frame
+    ├── test_preview_scripts.py  # A component's own <script> runs
+    ├── test_preview_sizing.py   # Fullscreen fills instead of measuring
+    ├── test_preview_resize.py   # The drag grip
+    ├── test_thumbnails.py       # Index cards: isolation + recycling
+    ├── test_compare_isolation.py # Both panels, independent grips
     ├── test_theme.py            # Theme toggle + persistence
     ├── test_editor_modal.py     # Editor modal flow
-    └── test_css_autocomplete.py # CSS class autocomplete
+    ├── test_css_autocomplete.py # CSS class autocomplete
+    └── _frames.py               # Reaching into the preview (not a test module)
+```
+
+### Reaching into a preview
+
+Components render in an iframe, so `page.locator(...)` stops at the frame
+boundary. Use the helper instead of hand-writing the selector:
+
+```python
+from ._frames import stage_frame
+
+def test_something(page, live_gallery):
+    page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
+    expect(stage_frame(page).locator("button")).to_be_attached()
 ```
 
 ## Why this layout
