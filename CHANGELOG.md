@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The detail preview renders the component in its own document (iframe) instead of the gallery page. Fixes the gallery's unlayered heading reset overriding the consumer's `@layer` typography, and block-level roots shrinking to their content inside the centering flex stage (`flex: 1` children collapsed to `0px`). Media queries now fire on the stage width, so the viewport switcher is real.
+- `initPreview()` no longer takes `rebindAfterSwap`: Alpine and HTMX are rehydrated inside the frame.
+
+### Tests
+
+- E2E for preview isolation — typography, layout and viewport. `src/tests/e2e/_frames.py` reaches into the frame.
+
 ## [0.2.0] - 2026-07-05
 
 ### Added

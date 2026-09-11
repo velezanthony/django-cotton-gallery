@@ -151,6 +151,22 @@ The gallery's job is to **render components**. We explicitly removed the axe-cor
 
 The Source / preview / slot surfaces are coloured by **Prism 1.29.0, vendored locally** under `static/django_cotton_gallery/vendor/prism/` (no CDN) — core + `markup-templating` + `django` + `python` + `bash` + the tomorrow theme. Our own grammar layer, `static/django_cotton_gallery/js/prism-cotton-stack.js`, teaches Prism the tokens it doesn't ship: Cotton tags (`<c-…>`), HTMX (`hx-*`) and Alpine (`x-*` / `@` / `:`) attributes (with the Alpine value re-tokenised as JavaScript), the `{# @… #}` annotation DSL, Python ALL_CAPS constants, and bash command words. The VS Code Dark+ palette lives in `css/preview.css`; the grammar file makes **no colour decisions**. A from-scratch tokeniser would reinvent JS/HTML/CSS colouring for no gain — the only thing Prism can't give us is catalog-aware *diagnostics*, and those are a separate layer (the linter), not the highlighter's job.
 
+### Preview: the component gets its own document
+
+Every surface that renders a user component mounts an **iframe** through `static/django_cotton_gallery/js/isolated-stage.js` instead of writing the markup into the gallery page. Sharing our document broke the component in ways nobody saw until someone measured it:
+
+- Our heading reset in `css/base.css` (`:where(.cg-app) :where(h1..h6) { font-size: inherit }`) is **unlayered**, and an unlayered rule beats anything inside an `@layer` regardless of specificity. A consumer on Tailwind — utilities live in `@layer utilities` — lost every heading size inside the preview.
+- `.cg-preview__stage` centers with flex, so a block-level component root became a `flex: 0 1 auto` item and shrank to its content. Children with `flex: 1` then had no free space and collapsed to `0px`.
+- Modals and backdrops escaped the stage and covered the gallery chrome.
+
+A separate document fixes all three, and turns the viewport switcher from decoration into the real thing: media queries fire on the iframe width instead of the browser window.
+
+The shell is built from two inert `<template>` elements that `base.html` emits with the **same loops** that render the gallery's own head and body — `#cg-frame-head` and `#cg-frame-body`. Markup, not a URL list: a consumer that declares its stack inline in `_extra_head.html` (a play-CDN and its config, an `@layer` block, design tokens) has no URLs to hand us, and rebuilding from URLs alone would drop it silently.
+
+The frame loads **once**; `update()` swaps its body. Pointing `src` at a fresh URL per keystroke would reload the document, re-parse the consumer's CSS and restart Alpine on every character typed into a control. Alpine and HTMX are rehydrated inside the frame, against the consumer's own copies — the gallery's `rebindAfterSwap` never touches component markup.
+
+E2E tests reach into the preview through `src/tests/e2e/_frames.py`; `page.locator(...)` stops at the frame boundary.
+
 ## What lives inside `src/` (but is NOT shipped)
 
 All code lives under `src/`, but only `src/django_cotton_gallery/` is published. Hatchling's `packages = ["src/django_cotton_gallery"]` picks up just that subtree — the demo and the tests sit alongside it and are excluded from the wheel.
