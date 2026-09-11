@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-cotton-gallery"
-version = "0.2.0"
+version = "0.3.0"
 description = "Drop-in playground for Django Cotton component libraries — annotated, copy-and-pasteable, themable."
 readme = "README.md"
 requires-python = ">=3.10"
