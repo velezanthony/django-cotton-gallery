@@ -121,8 +121,18 @@ export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) 
   // round trip; `update()` replaces it, so it never goes stale.
   let currentHtml = '';
 
+  // Fullscreen gives the stage a height of its own (`flex: 1`), so the frame
+  // fills it instead of measuring. Measuring there clips anything anchored to
+  // the viewport — a modal, a drawer, a toast layer contributes nothing to
+  // `scrollHeight`, so the frame shrinks and the component shrinks with it.
+  const fills = () => !!frame.closest('.cg-preview__device--fullscreen');
+
   const measure = () => {
     if (destroyed || !frame.contentDocument) return;
+    if (fills()) {
+      frame.style.height = '100%';
+      return;
+    }
     const px = frame.contentDocument.documentElement.scrollHeight;
     if (autoHeight) frame.style.height = px + 'px';
     if (onHeight) onHeight(px);
