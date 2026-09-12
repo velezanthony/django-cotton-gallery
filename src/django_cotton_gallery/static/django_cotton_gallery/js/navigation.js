@@ -17,7 +17,7 @@
  *       coalesce, and runs rebindAfterSwap once per burst.
  */
 
-import { createIsolatedStage } from './isolated-stage.js';
+import { ResponseShape, releaseSurface, surfaceFor } from './preview-surface.js';
 import { THUMB_OBSERVER_ROOT_MARGIN, THUMB_RECYCLE_ROOT_MARGIN } from './constants.js';
 
 // Only intercept clicks on links that are part of the gallery chrome itself —
@@ -201,8 +201,6 @@ const THUMB_BATCH_MS = 80;
 
 let _thumbObserver = null;
 let _thumbRecycler = null;
-// card -> IsolatedStage, so a recycled card can be torn down and rebuilt.
-const _thumbStages = new WeakMap();
 let _thumbCleanupBound = false;
 const _thumbInsertQueue = [];
 let _thumbInsertFrame = null;
@@ -269,16 +267,18 @@ const loadThumb = (el, rebindAfterSwap) => {
   if (!url) return;
   el.dataset.cgThumbLoaded = '1';
 
-  fetch(url, { headers: { 'X-Requested-With': 'cg-thumb' }, credentials: 'same-origin' })
-    .then((r) => (r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status))))
-    .then((html) => {
-      if (!html.trim()) return;
-      // Build the thumb subtree off-DOM — innerHTML on a detached element
-      // does NOT trigger Tailwind/Alpine/HTMX MutationObservers. They only
-      // fire when the holder is appended into the live DOM.
-      const holder = document.createElement('div');
-      holder.className = 'cg-card__thumb';
-      _thumbInsertQueue.push({ card: el, holder, html });
+  // The holder is built off-DOM and appended in a batch: appending one by one
+  // wakes Tailwind's, Alpine's and HTMX's observers once per thumb. The frame
+  // paints once the holder lands in the document — it reloads on attach and
+  // repaints what it was given.
+  const holder = document.createElement('div');
+  holder.className = 'cg-card__thumb';
+
+  surfaceFor(holder, { autoHeight: false, response: ResponseShape.HTML })
+    .load(url)
+    .then((payload) => {
+      if (!payload || !(payload.html || '').trim()) return;
+      _thumbInsertQueue.push({ card: el, holder });
       scheduleThumbInsertFlush(rebindAfterSwap);
     })
     .catch(() => {
@@ -304,10 +304,6 @@ const flushThumbInserts = (rebindAfterSwap) => {
     if (skel) skel.remove();
     if (tag) tag.remove();
     item.card.appendChild(item.holder);
-    // Own document per card; the card's height is fixed, so nothing to measure.
-    const stage = createIsolatedStage(item.holder, { autoHeight: false });
-    _thumbStages.set(item.card, stage);
-    stage.update(item.html);
     if (_thumbRecycler) _thumbRecycler.observe(item.card);
   }
   scheduleThumbBatchInit(rebindAfterSwap);
@@ -315,12 +311,10 @@ const flushThumbInserts = (rebindAfterSwap) => {
 
 /** Drop a scrolled-away card's frame; the loader rebuilds it on return. */
 const recycleThumb = (card) => {
-  const stage = _thumbStages.get(card);
-  if (!stage) return;
-  stage.destroy();
-  _thumbStages.delete(card);
   const holder = card.querySelector('.cg-card__thumb');
-  if (holder) holder.remove();
+  if (!holder) return;
+  releaseSurface(holder);
+  holder.remove();
   // Last — this is what re-arms the loader.
   delete card.dataset.cgThumbLoaded;
 };

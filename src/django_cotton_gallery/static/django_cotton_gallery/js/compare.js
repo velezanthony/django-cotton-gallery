@@ -12,7 +12,7 @@
  * detail page uses, so your preference carries over.
  */
 
-import { createIsolatedStage } from './isolated-stage.js';
+import { surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
 import { bindOnce, buildQueryString, readJSON, wireFormDebounce } from './helpers.js';
 import {
@@ -362,44 +362,23 @@ const initComparePanels = (root = document) => {
     if (!url) return;
     const stage = preview.querySelector('[data-cg-preview-stage]');
     attachResizeGrip(stage);
-    let frameStage = null;
-    const isolated = () => (frameStage || (frameStage = createIsolatedStage(stage)));
-    const dropFrame = () => { if (frameStage) { frameStage.destroy(); frameStage = null; } };
     const tagEl = preview.querySelector('[data-cg-preview-tag]');
     const form = preview.closest('[data-cg-compare-side]').querySelector('[data-cg-controls]');
 
-    // Abort the in-flight fetch when a newer input supersedes it — a slow
-    // stale response must not clobber the panel or a detached stage.
-    let activeController = null;
-
     const fetchPreview = () => {
       const qs = form ? buildQueryString(form) : '';
-      const fullUrl = url + (qs ? '?' + qs : '');
 
-      if (activeController) activeController.abort();
-      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-      activeController = controller;
-
-      const fetchOpts = { headers: { 'X-Requested-With': 'cg-compare' } };
-      if (controller) fetchOpts.signal = controller.signal;
-
-      fetch(fullUrl, fetchOpts)
-        .then((res) => res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)))
+      surfaceFor(stage)
+        .load(url + (qs ? '?' + qs : ''))
         .then((data) => {
-          // Stage may have been swapped out between fetch start and resolve.
-          if (!stage || !stage.isConnected) return;
-          isolated().update(data.html || '');
-          if (tagEl && tagEl.isConnected) {
-            tagEl.textContent = data.tag || '';
-            if (window.Prism) window.Prism.highlightElement(tagEl);
-          }
+          if (!data || !tagEl || !tagEl.isConnected) return;
+          tagEl.textContent = data.tag || '';
+          if (window.Prism) window.Prism.highlightElement(tagEl);
         })
         .catch((err) => {
           if (err && err.name === 'AbortError') return;
-          if (stage && stage.isConnected) {
-            // Gallery chrome, not component output — render it in OUR document.
-            dropFrame();
-            stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
+          if (stage.isConnected) {
+            surfaceFor(stage).fail('<p class="cg-preview-error">Render error</p>');
           }
         });
     };

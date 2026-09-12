@@ -4,7 +4,7 @@
  * Owns: background switcher, viewport switcher, custom dropdowns, extra-attrs
  * autocomplete, live preview fetch/render, URL state sync, form helpers.
  *
- * The live preview renders into an iframe (js/isolated-stage.js): Alpine and
+ * The live preview renders into an iframe (js/preview-surface.js): Alpine and
  * HTMX are rehydrated in there, not here.
  */
 
@@ -26,7 +26,7 @@ import {
 } from './constants.js';
 import { initMiniSelect } from './ui-bits.js';
 import { createPopover } from './popover.js';
-import { createIsolatedStage } from './isolated-stage.js';
+import { releaseSurface, surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
 import { cssContext, filterCssProperties, suggestCssValue } from './css-properties.js';
 import { caretRectFromContenteditable } from './caret-rect.js';
@@ -864,23 +864,10 @@ export const initPreview = () => {
 
   const url = preview.getAttribute('data-cg-preview');
   const form = document.querySelector('[data-cg-controls]');
-  // Cancel an in-flight fetch when a newer keystroke supersedes it.
-  // Without this, a slow request landing AFTER a faster one would clobber
-  // `stage.innerHTML` with stale HTML — and if the user has already SPA-navved
-  // away, the fetch would mutate a detached DOM node.
-  let activeController = null;
 
   const stage = preview.querySelector('[data-cg-preview-stage]');
   const tagEl = preview.querySelector('[data-cg-preview-tag]');
   attachResizeGrip(stage);
-
-  // Created on first render so the loading spinner stays visible until then;
-  // dropped on error so the next success mounts a clean frame.
-  let frameStage = null;
-  const isolated = () => (frameStage || (frameStage = createIsolatedStage(stage)));
-  const dropFrame = () => {
-    if (frameStage) { frameStage.destroy(); frameStage = null; }
-  };
 
   // Shareable URL state: capture each control's initial value as its
   // default BEFORE applying URL params, so syncUrlFromForm can omit
@@ -922,33 +909,16 @@ export const initPreview = () => {
 
   const fetchPreview = () => {
     const qs = form ? buildQueryString(form) : '';
-    const fullUrl = qs ? url + '?' + qs : url;
 
-    if (activeController) activeController.abort();
-    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    activeController = controller;
-
-    const fetchOpts = {
-      headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
-      credentials: 'same-origin',
-    };
-    if (controller) fetchOpts.signal = controller.signal;
-
-    fetch(fullUrl, fetchOpts)
-      .then((res) => {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
+    surfaceFor(stage)
+      .load(qs ? url + '?' + qs : url)
       .then((data) => {
-        // Stage may have been swapped out from under us between fetch start
-        // and resolve — if so, drop the result silently.
-        if (stage && stage.isConnected) {
-          isolated().update(data.html || '');
-        }
+        // Nothing to do if a newer keystroke superseded this one.
+        if (!data) return;
         if (tagEl && tagEl.isConnected) {
           tagEl.textContent = data.tag || '';
-          // Re-tokenise — Prism's highlightAllUnder ran once at boot, but
-          // the tag content changes on every form mutation.
+          // Prism's highlightAllUnder ran once at boot; the tag changes on
+          // every form mutation.
           if (window.Prism && window.Prism.highlightElement) {
             try { window.Prism.highlightElement(tagEl); } catch (_) { /* ignore */ }
           }
@@ -957,14 +927,9 @@ export const initPreview = () => {
       })
       .catch((err) => {
         if (err && err.name === 'AbortError') return;
-        if (stage && stage.isConnected) {
-          // Gallery chrome, not component output — render it in OUR document.
-          dropFrame();
-          stage.innerHTML = '<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>';
+        if (stage.isConnected) {
+          surfaceFor(stage).fail('<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>');
         }
-      })
-      .then(() => {
-        if (activeController === controller) activeController = null;
       });
   };
 
@@ -1229,9 +1194,7 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
   html += '</tbody></table>';
   // innerHTML detaches the cells; their frames keep observers running unless
   // torn down first.
-  container.querySelectorAll('[data-cg-matrix-cell]').forEach((c) => {
-    if (c.__cgStage) { c.__cgStage.destroy(); c.__cgStage = null; }
-  });
+  container.querySelectorAll('[data-cg-matrix-cell]').forEach(releaseSurface);
   container.innerHTML = html;
 
   // Wire the freshly-rendered mini-selects (each `cg-matrix__picker` has
@@ -1251,13 +1214,6 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
     buildMatrix(container, form, previewUrl, opts);
   });
 
-  // Abort any in-flight cell fetches from a previous matrix configuration —
-  // otherwise resolving fetches would write into cells that no longer exist
-  // (axis changed) or were detached (SPA-navved away).
-  if (container.__cgMatrixAbort) container.__cgMatrixAbort.abort();
-  const matrixController = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-  container.__cgMatrixAbort = matrixController;
-
   // Lazy-load each cell as it scrolls into view. `buildMatrix` is called on
   // every axis change, so stash the observer on the container and disconnect
   // any prior one before creating a new one — otherwise stale observers pin
@@ -1272,7 +1228,7 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         observer.unobserve(entry.target);
-        loadMatrixCell(entry.target, matrixController ? matrixController.signal : null);
+        loadMatrixCell(entry.target);
       });
     }, { root: container, rootMargin: MATRIX_CELL_ROOT_MARGIN, threshold: 0.01 });
     cells.forEach((c) => observer.observe(c));
@@ -1284,42 +1240,25 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
           container.__cgMatrixObserver.disconnect();
           container.__cgMatrixObserver = null;
         }
-        if (container.__cgMatrixAbort) {
-          container.__cgMatrixAbort.abort();
-          container.__cgMatrixAbort = null;
-        }
+        container.querySelectorAll('[data-cg-matrix-cell]').forEach(releaseSurface);
         document.removeEventListener('cg-content-swapped', onContentSwapped);
       };
       document.addEventListener('cg-content-swapped', onContentSwapped);
       container.__cgMatrixSwapBound = true;
     }
   } else {
-    cells.forEach((c) => loadMatrixCell(c, null));
+    cells.forEach(loadMatrixCell);
   }
 };
 
-const loadMatrixCell = (cell, signal) => {
+const loadMatrixCell = (cell) => {
   const url = cell.getAttribute('data-cg-fetch');
   if (!url) return;
-  const opts = { headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' }, credentials: 'same-origin' };
-  if (signal) opts.signal = signal;
-  fetch(url, opts)
-    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
-    .then((data) => {
-      // Cell may have been replaced by an axis change or SPA swap while the
-      // request was in flight — drop the result if the node is detached.
-      if (!cell.isConnected) return;
-      // Own document per cell: `position: fixed` anchors to the cell instead of
-      // the page, and Alpine and HTMX rehydrate in there.
-      const stage = createIsolatedStage(cell);
-      cell.__cgStage = stage;
-      stage.update(data.html || '');
-    })
+  surfaceFor(cell)
+    .load(url)
     .catch((err) => {
       if (err && err.name === 'AbortError') return;
-      if (cell.isConnected) {
-        cell.innerHTML = '<p class="cg-preview-error">Render error</p>';
-      }
+      if (cell.isConnected) surfaceFor(cell).fail('<p class="cg-preview-error">Render error</p>');
     });
 };
 
