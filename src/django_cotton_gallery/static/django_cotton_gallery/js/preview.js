@@ -284,7 +284,7 @@ export const initDropdowns = (root = document) => {
           existingCheck.remove();
         }
       });
-      // Dispatch input + change so the form's preview handler fires.
+      // Both, like a native select: `change` drives the preview fetch.
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
       close();

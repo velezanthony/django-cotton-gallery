@@ -154,10 +154,13 @@ const isInstantTarget = (t) =>
 export const wireFormDebounce = (form, fetchFn, delayMs) => {
   if (!form) return () => {};
   let timer = null;
+  // One job each. Instant controls fire `input` AND `change` — natively, and
+  // by hand in the custom dropdown — so handling them in both fetches twice
+  // and aborts its own first attempt.
   const onInput = (e) => {
+    if (isInstantTarget(e.target)) return;
     if (timer) clearTimeout(timer);
-    if (isInstantTarget(e.target)) fetchFn();
-    else timer = setTimeout(fetchFn, delayMs);
+    timer = setTimeout(fetchFn, delayMs);
   };
   const onChange = (e) => {
     if (!isInstantTarget(e.target)) return;
