@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cotton-gallery 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 15:01+0200\n"
+"POT-Creation-Date: 2026-09-12 15:42+0200\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1122,16 +1122,16 @@ msgid "Desktop (1280px)"
 msgstr "Bureau (1280px)"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "Open in fullscreen — real browser viewport"
-msgstr "Ouvrir en plein écran — viewport réel du navigateur"
+msgid "Open in fullscreen — the component at window width"
+msgstr "Ouvrir en plein écran — le composant à la largeur de la fenêtre"
 
 #: templates/django_cotton_gallery/detail.html:158
 msgid "Open in fullscreen"
 msgstr "Ouvrir en plein écran"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "real viewport for media queries"
-msgstr "viewport réel pour les media queries"
+msgid "wider than any viewport preset"
+msgstr "plus large que n'importe quel préréglage de viewport"
 
 #: templates/django_cotton_gallery/detail.html:164
 msgid "Checkered background"
@@ -3172,6 +3172,9 @@ msgid ""
 msgstr ""
 "`%(prop)s` : filtre inconnu `%(key)s` — attendu l'un de default, "
 "description, required, deprecated, hidden, example."
+
+#~ msgid "real viewport for media queries"
+#~ msgstr "viewport réel pour les media queries"
 
 #, python-format
 #~ msgid ""

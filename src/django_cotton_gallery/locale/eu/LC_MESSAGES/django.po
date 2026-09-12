@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cotton-gallery 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 15:01+0200\n"
+"POT-Creation-Date: 2026-09-12 15:42+0200\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1121,16 +1121,16 @@ msgid "Desktop (1280px)"
 msgstr "Mahaigaina (1280px)"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "Open in fullscreen — real browser viewport"
-msgstr "Ireki pantaila osoan — nabigatzailearen benetako viewport-a"
+msgid "Open in fullscreen — the component at window width"
+msgstr "Ireki pantaila osoan — osagaia leihoaren zabaleran"
 
 #: templates/django_cotton_gallery/detail.html:158
 msgid "Open in fullscreen"
 msgstr "Ireki pantaila osoan"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "real viewport for media queries"
-msgstr "benetako viewport media query-etarako"
+msgid "wider than any viewport preset"
+msgstr "edozein viewport aurrezarpen baino zabalagoa"
 
 #: templates/django_cotton_gallery/detail.html:164
 msgid "Checkered background"
@@ -3169,6 +3169,9 @@ msgid ""
 msgstr ""
 "`%(prop)s`: `%(key)s` iragazki ezezaguna — hauetako bat espero zen: default, "
 "description, required, deprecated, hidden, example."
+
+#~ msgid "real viewport for media queries"
+#~ msgstr "benetako viewport media query-etarako"
 
 #, python-format
 #~ msgid ""
