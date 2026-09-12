@@ -422,7 +422,7 @@ export const initQuickSwitcher = () => {
         .catch(() => {
           if (loading) loading.toggleAttribute('hidden', true);
           if (empty) {
-            empty.textContent = 'Could not load prop index.';
+            empty.textContent = (window.cgI18n && window.cgI18n.propIndexFailed) || 'Could not load prop index.';
             empty.toggleAttribute('hidden', false);
           }
         });

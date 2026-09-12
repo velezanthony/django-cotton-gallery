@@ -21,6 +21,13 @@ export const ResponseShape = Object.freeze({
   HTML: 'html',
 });
 
+/**
+ * The label a failed render shows. Lives here because all four surfaces use it.
+ *
+ * @returns {string}
+ */
+export const renderErrorText = () => (window.cgI18n && window.cgI18n.renderError) || 'Render error';
+
 /** One surface per host — the registry each caller used to keep itself. */
 const surfaces = new WeakMap();
 

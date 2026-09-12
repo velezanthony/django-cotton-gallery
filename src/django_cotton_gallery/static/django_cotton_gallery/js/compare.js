@@ -12,7 +12,7 @@
  * detail page uses, so your preference carries over.
  */
 
-import { releaseSurface, surfaceFor } from './preview-surface.js';
+import { releaseSurface, renderErrorText, surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
 import { bindOnce, buildQueryString, isMatrixView, readJSON, wireFormDebounce } from './helpers.js';
 import {
@@ -386,7 +386,7 @@ const initComparePanels = (root = document) => {
         .catch((err) => {
           if (err && err.name === 'AbortError') return;
           if (stage.isConnected) {
-            surfaceFor(stage).fail('<p class="cg-preview-error">Render error</p>');
+            surfaceFor(stage).fail('<p class="cg-preview-error">' + renderErrorText() + '</p>');
           }
         });
     };

@@ -30,7 +30,7 @@ import {
 } from './constants.js';
 import { initMiniSelect } from './ui-bits.js';
 import { createPopover } from './popover.js';
-import { releaseSurface, surfaceFor } from './preview-surface.js';
+import { releaseSurface, renderErrorText, surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
 import { cssContext, filterCssProperties, suggestCssValue } from './css-properties.js';
 import { caretRectFromContenteditable } from './caret-rect.js';
@@ -605,7 +605,7 @@ export const initAttrsAutocomplete = (root = document) => {
       if (ctx.kind === 'css-prop-name') {
         const props = filterCssProperties(ctx.partial);
         if (!props.length) {
-          menu.innerHTML = '<p class="cg-attrs__empty">No CSS properties</p>';
+          menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noCssProps) || 'No CSS properties') + '</p>';
           currentItems = [];
           return;
         }
@@ -627,7 +627,7 @@ export const initAttrsAutocomplete = (root = document) => {
       if (ctx.kind === 'css-prop-value') {
         const result = suggestCssValue(ctx.propName, ctx.partial);
         if (!result.items.length) {
-          menu.innerHTML = '<p class="cg-attrs__empty">No suggestions for ' + escapeHtml(ctx.propName) + '</p>';
+          menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noSuggestionsFor) || 'No suggestions for') + ' ' + escapeHtml(ctx.propName) + '</p>';
           currentItems = [];
           return;
         }
@@ -684,7 +684,7 @@ export const initAttrsAutocomplete = (root = document) => {
       currentItems = prefix.concat(subs);
 
       if (!currentItems.length) {
-        menu.innerHTML = '<p class="cg-attrs__empty">No suggestions</p>';
+        menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noSuggestions) || 'No suggestions') + '</p>';
         return;
       }
 
@@ -936,7 +936,7 @@ export const initPreview = () => {
       .catch((err) => {
         if (err && err.name === 'AbortError') return;
         if (stage.isConnected) {
-          surfaceFor(stage).fail('<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>');
+          surfaceFor(stage).fail('<p class="cg-preview-error">' + renderErrorText() + ': ' + escapeHtml(err.message) + '</p>');
         }
       });
   };
@@ -1095,7 +1095,7 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
 
   const axes = discoverAxes(form);
   if (!axes.length) {
-    container.innerHTML = '<p class="cg-matrix-empty">No discrete props on this component.</p>';
+    container.innerHTML = '<p class="cg-matrix-empty">' + ((window.cgI18n && window.cgI18n.noDiscreteProps) || 'A grid needs a prop with a fixed set of values — a select or a boolean. This component has none.') + '</p>';
     return;
   }
 
@@ -1272,7 +1272,7 @@ const loadMatrixCell = (cell) => {
     .load(url)
     .catch((err) => {
       if (err && err.name === 'AbortError') return;
-      if (cell.isConnected) surfaceFor(cell).fail('<p class="cg-preview-error">Render error</p>');
+      if (cell.isConnected) surfaceFor(cell).fail('<p class="cg-preview-error">' + renderErrorText() + '</p>');
     });
 };
 

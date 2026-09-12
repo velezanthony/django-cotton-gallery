@@ -129,7 +129,7 @@ const rebindInFrame = (root, win) => {
 export const createIsolatedStage = (host, { onHeight, autoHeight = true } = {}) => {
   const frame = document.createElement('iframe');
   frame.className = 'cg-stage-frame';
-  frame.setAttribute('title', 'Component preview');
+  frame.setAttribute('title', (window.cgI18n && window.cgI18n.componentPreview) || 'Component preview');
   frame.srcdoc = buildShell(readShellParts());
 
   host.innerHTML = '';
