@@ -49,10 +49,8 @@ def test_every_cell_renders_in_its_own_document(page: Page, grid_tree, live_gall
     open_matrix(page, live_gallery)
     expect(page.locator(CELL_FRAME).first).to_be_attached(timeout=5000)
 
-    page.wait_for_timeout(1200)
-    cells = page.locator(CELL).count()
-    frames = page.locator(CELL_FRAME).count()
-    assert frames == cells, f"{frames} frames for {cells} cells"
+    # Cells load lazily — wait for the count, don't read it once.
+    expect(page.locator(CELL_FRAME)).to_have_count(page.locator(CELL).count(), timeout=10000)
 
 
 def test_a_cell_does_not_leak_onto_the_page(page: Page, grid_tree, live_gallery):
