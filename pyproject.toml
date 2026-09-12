@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-cotton-gallery"
-version = "0.3.0"
+version = "1.0.0"
 description = "Drop-in playground for Django Cotton component libraries — annotated, copy-and-pasteable, themable."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,7 +15,7 @@ authors = [
 ]
 keywords = ["django", "cotton", "components", "gallery", "playground", "tailwind"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
