@@ -946,9 +946,9 @@ export const initPreview = () => {
 
   fetchPreview();
 
-  // Debounce free-text inputs (300ms); fire instantly for selects /
-  // checkboxes / radios / `data-cg-instant`. Same wiring lives in
-  // compare.js — both share `wireFormDebounce` from helpers.js.
+  // Debounce free-text inputs; fire instantly for selects / checkboxes /
+  // radios / `data-cg-instant`. Same wiring lives in compare.js — both share
+  // `wireFormDebounce` from helpers.js.
   wireFormDebounce(form, fetchPreview, PREVIEW_DEBOUNCE_MS);
 };
 

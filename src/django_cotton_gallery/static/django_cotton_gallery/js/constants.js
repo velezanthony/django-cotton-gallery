@@ -7,7 +7,8 @@
 
 /* ── Timing (milliseconds) ──────────────────────────────────────────── */
 
-export const PREVIEW_DEBOUNCE_MS = 300;
+// Free text and slots only — instant controls fetch on `change`.
+export const PREVIEW_DEBOUNCE_MS = 800;
 export const SYNTAX_HIGHLIGHT_DEBOUNCE_MS = 50;
 export const BLUR_HIDE_DELAY_MS = 120;
 export const SIDEBAR_SCROLL_DEBOUNCE_MS = 120;
