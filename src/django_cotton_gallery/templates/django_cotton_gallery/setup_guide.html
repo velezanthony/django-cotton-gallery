@@ -446,54 +446,48 @@
   </main>
 
   <script>
-    (function () {
-      var root = document.documentElement;
+    (() => {
+      const root = document.documentElement;
 
       // ----- Theme toggle: persist + respect system preference -----
-      var stored = localStorage.getItem("dcg-setup-theme");
-      var prefersDark = !window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var initial = stored || (prefersDark ? "dark" : "light");
-      root.setAttribute("data-theme", initial);
+      const stored = localStorage.getItem("dcg-setup-theme");
+      const prefersDark = !window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.setAttribute("data-theme", stored || (prefersDark ? "dark" : "light"));
 
-      document.getElementById("theme-toggle").addEventListener("click", function () {
-        var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
         root.setAttribute("data-theme", next);
         localStorage.setItem("dcg-setup-theme", next);
       });
 
       // ----- Language dropdown: open/close + select -----
-      var trigger = document.getElementById("lang-trigger");
-      var menu = document.getElementById("lang-menu");
+      const trigger = document.getElementById("lang-trigger");
+      const menu = document.getElementById("lang-menu");
 
-      function openMenu() {
-        menu.hidden = false;
-        trigger.setAttribute("aria-expanded", "true");
-      }
-      function closeMenu() {
-        menu.hidden = true;
-        trigger.setAttribute("aria-expanded", "false");
-      }
+      const setMenu = (open) => {
+        menu.hidden = !open;
+        trigger.setAttribute("aria-expanded", String(open));
+      };
 
-      trigger.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (menu.hidden) openMenu(); else closeMenu();
+      trigger.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setMenu(menu.hidden);
       });
 
-      document.addEventListener("click", function (e) {
-        if (!menu.hidden && !menu.contains(e.target) && e.target !== trigger) closeMenu();
+      document.addEventListener("click", (event) => {
+        if (!menu.hidden && !menu.contains(event.target) && event.target !== trigger) setMenu(false);
       });
 
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && !menu.hidden) {
-          closeMenu();
-          trigger.focus();
-        }
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || menu.hidden) return;
+        setMenu(false);
+        trigger.focus();
       });
 
-      menu.querySelectorAll("[data-lang]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var url = new URL(window.location.href);
-          url.searchParams.set("lang", btn.dataset.lang);
+      menu.querySelectorAll("[data-lang]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("lang", button.dataset.lang);
           window.location.href = url.toString();
         });
       });

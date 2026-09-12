@@ -45,6 +45,17 @@ between checkered / white / dark / brand, and an **Edit** mode turns the last
 three swatches into color pickers so you can recolour them to your app's theme
 (saved locally, restorable to the defaults).
 
+The component renders in a **document of its own**, so the gallery's CSS
+never reaches it and a `position: fixed` modal stays inside the preview
+instead of covering the page. Media queries fire on the stage width, which
+is what makes the viewport switcher more than decoration — and the scripts a
+component ships with actually run.
+
+Drag the **bottom edge** to set the preview's height. A component built for
+a screen contributes nothing to its own content height, so there is nothing
+to measure and the gallery does not guess: you size it. The drag lasts while
+you stay on the component.
+
 ![Component detail: preview, controls, source, slots](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-detail.png)
 
 **Where:** Click any card on the index, or jump via the switcher.
@@ -239,10 +250,9 @@ matters:
 
 **1. Validate that the gallery itself isn't the problem.**
 
-If a component looks broken inside the gallery, hit `/raw/` to see it
-isolated. If it still looks broken, the bug is in your component or
-your assets. If it suddenly works, the bug is in the gallery's
-chrome interaction — open an issue.
+The preview already renders in its own document, so the two should agree.
+If they don't, `/raw/` is the tiebreaker: still broken means the bug is in
+your component or your assets; fixed means it is ours — open an issue.
 
 **2. Override the template for full control of the preview environment.**
 

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-09-12
+
+### Added
+
+- Drag the bottom edge of the preview to set its height. A component anchored to the viewport — a modal, a drawer — contributes nothing to `scrollHeight`, so there is no content height to measure and the gallery does not guess one. The dragged height takes over from auto-sizing and lasts as long as you stay on the component. Arrow keys work on the grip (Shift for larger steps).
+- Index thumbnails render in their own document too, so a component anchored to the viewport no longer covers the index. Frames are dropped once a card scrolls well out of view and rebuilt on the way back — a catalog is not a reason to keep one JS runtime alive per component.
+
+### Changed
+
+- The detail preview renders the component in its own document (iframe) instead of the gallery page. Fixes the gallery's unlayered heading reset overriding the consumer's `@layer` typography, and block-level roots shrinking to their content inside the centering flex stage (`flex: 1` children collapsed to `0px`). Media queries now fire on the stage width, so the viewport switcher is real.
+- Viewport buttons are disabled in matrix view — they size the single stage, which the matrix replaces. Fullscreen stays enabled.
+- The free-text debounce went 300ms to 800ms. It fired between keystrokes while typing into a text prop or a slot. Selects, radios and checkboxes do not wait on it — they fetch on `change`.
+- The fullscreen button's tooltip said "real viewport for media queries". Media queries fire on the stage width at every preset now, so it says what fullscreen actually gives: the component at window width.
+
+### Fixed
+
+- A boolean prop with `default:True` could not be switched off in the compare view or the variants matrix. Both serialized the controls form themselves and skipped unchecked checkboxes; an absent param falls back to the prop default server-side, so the toggle did nothing.
+- The variants matrix ignored the controls panel. Props that are not an axis are fixed for the whole grid and come from the form, but nothing rebuilt the grid when one changed — and every change fetched the single preview the matrix was covering.
+- Every toggle, radio and select fetched the preview twice and aborted its own first attempt: they fire `input` AND `change`, and both were wired to fetch.
+- Seven strings stayed in English in every language: the matrix empty state, the four autocomplete "no results" messages, the prop-index error, and the preview frame's accessible name. They live in JS, which `makemessages` does not scan, so nothing flagged them.
+- The matrix empty state said "No discrete props on this component" — the code's vocabulary, not the reader's. It now names what is missing (a select or a boolean prop) instead.
+- The sidebar reported `v0.1.0`: the tag was hardcoded in the template and `__version__` was a literal that had drifted from `pyproject.toml`. Both now derive from the installed distribution.
+
 ## [0.2.0] - 2026-07-05
 
 ### Added
@@ -87,5 +110,6 @@ Initial public release.
 - **Folder layout flexibility** explained: components without a category folder, `<dir>/index.html` as the entry, and how naming maps to URL/tag.
 - **Full audit + reorganization + screenshot regeneration** of public docs.
 
+[0.3.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/velezanthony/django-cotton-gallery/releases/tag/v0.1.0

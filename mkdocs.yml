@@ -9,6 +9,7 @@ copyright: Copyright &copy; 2026 Anthony Velez Tapia
 
 theme:
   name: material
+  custom_dir: overrides
   language: en
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -90,6 +91,8 @@ nav:
     - Release process: contributors/release.md
 
 extra:
+  # Empty unless PUBLIC_GTM_ID is set, so local and fork builds carry no container.
+  gtm_id: !ENV [PUBLIC_GTM_ID, ""]
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/velezanthony/django-cotton-gallery

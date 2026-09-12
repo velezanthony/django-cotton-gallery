@@ -47,7 +47,10 @@ uv run tox -p auto
 
 # 4. Bump the version in pyproject.toml
 # (manual edit — no automation yet)
-sed -i 's/^version = "0.1.0"$/version = "X.Y.Z"/' pyproject.toml
+# A literal old version would stop matching after the first release and sed
+# would exit 0 without touching anything. Match any version instead.
+sed -i -E 's/^version = "[^"]+"$/version = "X.Y.Z"/' pyproject.toml
+grep -q '^version = "X.Y.Z"$' pyproject.toml || { echo "bump failed"; exit 1; }
 
 # 5. Move [Unreleased] → [X.Y.Z] in CHANGELOG.md
 # Update the date and the link footnotes:

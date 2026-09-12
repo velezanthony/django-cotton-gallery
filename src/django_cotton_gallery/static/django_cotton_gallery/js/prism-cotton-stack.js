@@ -15,7 +15,7 @@
 (function (Prism) {
   if (!Prism || !Prism.languages || !Prism.languages.markup) return;
 
-  var markup = Prism.languages.markup;
+  const markup = Prism.languages.markup;
 
   // 1. HTMX + Alpine attributes. Insert BEFORE `attr-name` so these specific
   //    patterns win over markup's generic attribute match. markup tokenizes
@@ -40,8 +40,8 @@
     markup.tag.addAttribute('x-[\\w:.-]+|@[\\w.:-]+|:[\\w.-]+', 'javascript');
     // addAttribute leaves the attribute NAME a generic attr-name; re-key it to
     // alpine-attr so the name keeps its Alpine color while the value body is JS.
-    var specials = markup.tag.inside['special-attr'];
-    var added = specials[specials.length - 1];
+    const specials = markup.tag.inside['special-attr'];
+    const added = specials[specials.length - 1];
     if (added && added.inside && added.inside['attr-name']) {
       added.inside = {
         'alpine-attr': added.inside['attr-name'],
@@ -53,7 +53,7 @@
   // 2. Cotton component tags. The tag NAME lives in markup.tag.inside.tag.inside
   //    (once `punctuation` has stripped the leading `<` / `</`). Matching
   //    `c-foo.bar` there tokenizes only Cotton tags, not every HTML element.
-  var tagName =
+  const tagName =
     markup.tag.inside && markup.tag.inside.tag && markup.tag.inside.tag.inside;
   if (tagName) {
     tagName['cotton-tag'] = { pattern: /c-[\w.-]+/i };

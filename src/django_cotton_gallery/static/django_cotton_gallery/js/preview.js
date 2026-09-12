@@ -4,14 +4,14 @@
  * Owns: background switcher, viewport switcher, custom dropdowns, extra-attrs
  * autocomplete, live preview fetch/render, URL state sync, form helpers.
  *
- * `initPreview({ rebindAfterSwap })` receives the rebind callback because
- * fetching a new preview swaps `[data-cg-preview-stage]` content and the
- * gallery's behaviors (tabs/copy/Alpine/HTMX) need re-binding on the new
- * subtree. The orchestrator (main.js / gallery.js) passes that callback in.
+ * The live preview renders into an iframe (js/preview-surface.js): Alpine and
+ * HTMX are rehydrated in there, not here.
  */
 
 import {
   bindOnce,
+  buildQueryString,
+  isMatrixView,
   escapeHtml,
   readJSON,
   toggleHidden,
@@ -19,7 +19,10 @@ import {
   writeJSON,
 } from './helpers.js';
 import {
+  Background,
   PREVIEW_DEBOUNCE_MS,
+  View,
+  Viewport,
   STORAGE_PREVIEW_BG,
   STORAGE_PREVIEW_BG_COLORS,
   STORAGE_PREVIEW_VIEWPORT,
@@ -27,7 +30,8 @@ import {
 } from './constants.js';
 import { initMiniSelect } from './ui-bits.js';
 import { createPopover } from './popover.js';
-import { teardownBeforeSwap } from './navigation.js';
+import { releaseSurface, renderErrorText, surfaceFor } from './preview-surface.js';
+import { attachResizeGrip } from './stage-resize.js';
 import { cssContext, filterCssProperties, suggestCssValue } from './css-properties.js';
 import { caretRectFromContenteditable } from './caret-rect.js';
 import { ATTR_SUGGESTIONS, tokenName, writtenAttrNames } from './html-attrs.js';
@@ -85,7 +89,7 @@ export const initPreviewBgSwitcher = () => {
   };
 
   applyColors(readJSON(STORAGE_PREVIEW_BG_COLORS) || {});
-  applyBg(readJSON(STORAGE_PREVIEW_BG) || 'checkered');
+  applyBg(readJSON(STORAGE_PREVIEW_BG) || Background.CHECKERED);
 
   // A swatch selects that background; in edit mode an editable swatch also
   // opens its color picker (guard against the programmatic click bubbling back).
@@ -179,7 +183,7 @@ export const initPreviewViewportSwitcher = () => {
   const saved = readJSON(STORAGE_PREVIEW_VIEWPORT);
   const initial = validValues.indexOf(saved) !== -1
     ? saved
-    : (validValues.indexOf('desktop') !== -1 ? 'desktop' : validValues[validValues.length - 1]);
+    : (validValues.indexOf(Viewport.DESKTOP) !== -1 ? Viewport.DESKTOP : validValues[validValues.length - 1]);
   applyViewport(initial);
 
   buttons.forEach((btn) => {
@@ -284,7 +288,7 @@ export const initDropdowns = (root = document) => {
           existingCheck.remove();
         }
       });
-      // Dispatch input + change so the form's preview handler fires.
+      // Both, like a native select: `change` drives the preview fetch.
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
       close();
@@ -601,7 +605,7 @@ export const initAttrsAutocomplete = (root = document) => {
       if (ctx.kind === 'css-prop-name') {
         const props = filterCssProperties(ctx.partial);
         if (!props.length) {
-          menu.innerHTML = '<p class="cg-attrs__empty">No CSS properties</p>';
+          menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noCssProps) || 'No CSS properties') + '</p>';
           currentItems = [];
           return;
         }
@@ -623,7 +627,7 @@ export const initAttrsAutocomplete = (root = document) => {
       if (ctx.kind === 'css-prop-value') {
         const result = suggestCssValue(ctx.propName, ctx.partial);
         if (!result.items.length) {
-          menu.innerHTML = '<p class="cg-attrs__empty">No suggestions for ' + escapeHtml(ctx.propName) + '</p>';
+          menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noSuggestionsFor) || 'No suggestions for') + ' ' + escapeHtml(ctx.propName) + '</p>';
           currentItems = [];
           return;
         }
@@ -680,7 +684,7 @@ export const initAttrsAutocomplete = (root = document) => {
       currentItems = prefix.concat(subs);
 
       if (!currentItems.length) {
-        menu.innerHTML = '<p class="cg-attrs__empty">No suggestions</p>';
+        menu.innerHTML = '<p class="cg-attrs__empty">' + ((window.cgI18n && window.cgI18n.noSuggestions) || 'No suggestions') + '</p>';
         return;
       }
 
@@ -793,24 +797,6 @@ export const initAttrsAutocomplete = (root = document) => {
 
 /* ── Form helpers (URL state sync) ──────────────────────────────────── */
 
-const buildQueryString = (form) => {
-  const params = new URLSearchParams();
-  const elements = form.elements;
-  for (let i = 0; i < elements.length; i++) {
-    const el = elements[i];
-    if (!el.name) continue;
-    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
-    // bool would win server-side. Radios still serialize only when checked.
-    if (el.type === 'radio' && !el.checked) continue;
-    if (el.type === 'checkbox' && !el.checked) {
-      params.append(el.name, 'false');
-      continue;
-    }
-    params.append(el.name, el.value);
-  }
-  return params.toString();
-};
-
 // Snapshot every named control's initial value — used by initPreview to
 // tell apart "this matches the page's default" (omit from the URL) from
 // "the user changed this" (write to the URL).
@@ -870,11 +856,9 @@ const applyUrlParamsToForm = (form) => {
 /* ── Live preview ───────────────────────────────────────────────────── */
 /**
  * Wire the live preview pane: fetch on mount, debounce on form input,
- * sync URL state, swap content with cleanup.
- *
- * @param {PreviewOptions} options
+ * sync URL state, swap the isolated stage's content.
  */
-export const initPreview = ({ rebindAfterSwap }) => {
+export const initPreview = () => {
   // The compare view has its own multi-instance handler in compare.js —
   // skip the singleton path here so they don't bind two fetch loops to
   // the first panel's form.
@@ -884,14 +868,10 @@ export const initPreview = ({ rebindAfterSwap }) => {
 
   const url = preview.getAttribute('data-cg-preview');
   const form = document.querySelector('[data-cg-controls]');
-  // Cancel an in-flight fetch when a newer keystroke supersedes it.
-  // Without this, a slow request landing AFTER a faster one would clobber
-  // `stage.innerHTML` with stale HTML — and if the user has already SPA-navved
-  // away, the fetch would mutate a detached DOM node.
-  let activeController = null;
 
   const stage = preview.querySelector('[data-cg-preview-stage]');
   const tagEl = preview.querySelector('[data-cg-preview-tag]');
+  attachResizeGrip(stage);
 
   // Shareable URL state: capture each control's initial value as its
   // default BEFORE applying URL params, so syncUrlFromForm can omit
@@ -931,37 +911,22 @@ export const initPreview = ({ rebindAfterSwap }) => {
     }
   };
 
+  // Skipped while the matrix covers the stage; the switcher refreshes on
+  // the way back so the single view is never stale.
+  let staleWhileHidden = false;
   const fetchPreview = () => {
+    if (isMatrixView(document)) { staleWhileHidden = true; return; }
     const qs = form ? buildQueryString(form) : '';
-    const fullUrl = qs ? url + '?' + qs : url;
 
-    if (activeController) activeController.abort();
-    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    activeController = controller;
-
-    const fetchOpts = {
-      headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
-      credentials: 'same-origin',
-    };
-    if (controller) fetchOpts.signal = controller.signal;
-
-    fetch(fullUrl, fetchOpts)
-      .then((res) => {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
+    surfaceFor(stage)
+      .load(qs ? url + '?' + qs : url)
       .then((data) => {
-        // Stage may have been swapped out from under us between fetch start
-        // and resolve — if so, drop the result silently.
-        if (stage && stage.isConnected) {
-          teardownBeforeSwap(stage);
-          stage.innerHTML = data.html || '';
-          rebindAfterSwap(stage);
-        }
+        // Nothing to do if a newer keystroke superseded this one.
+        if (!data) return;
         if (tagEl && tagEl.isConnected) {
           tagEl.textContent = data.tag || '';
-          // Re-tokenise — Prism's highlightAllUnder ran once at boot, but
-          // the tag content changes on every form mutation.
+          // Prism's highlightAllUnder ran once at boot; the tag changes on
+          // every form mutation.
           if (window.Prism && window.Prism.highlightElement) {
             try { window.Prism.highlightElement(tagEl); } catch (_) { /* ignore */ }
           }
@@ -970,20 +935,23 @@ export const initPreview = ({ rebindAfterSwap }) => {
       })
       .catch((err) => {
         if (err && err.name === 'AbortError') return;
-        if (stage && stage.isConnected) {
-          stage.innerHTML = '<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>';
+        if (stage.isConnected) {
+          surfaceFor(stage).fail('<p class="cg-preview-error">' + renderErrorText() + ': ' + escapeHtml(err.message) + '</p>');
         }
-      })
-      .then(() => {
-        if (activeController === controller) activeController = null;
       });
+  };
+
+  preview.__cgRefresh = () => {
+    if (!staleWhileHidden) return;
+    staleWhileHidden = false;
+    fetchPreview();
   };
 
   fetchPreview();
 
-  // Debounce free-text inputs (300ms); fire instantly for selects /
-  // checkboxes / radios / `data-cg-instant`. Same wiring lives in
-  // compare.js — both share `wireFormDebounce` from helpers.js.
+  // Debounce free-text inputs; fire instantly for selects / checkboxes /
+  // radios / `data-cg-instant`. Same wiring lives in compare.js — both share
+  // `wireFormDebounce` from helpers.js.
   wireFormDebounce(form, fetchPreview, PREVIEW_DEBOUNCE_MS);
 };
 
@@ -1053,6 +1021,20 @@ export const initViewSwitcher = (root = document) => {
   root.querySelectorAll('[data-cg-view-switcher]').forEach(initOneViewSwitcher);
 };
 
+/**
+ * The matrix replaces the single stage, so viewport sizes have nothing to
+ * apply to. In compare the switcher is shared by both panels, so it only goes
+ * away once BOTH are in matrix — otherwise the panel still showing a preview
+ * would lose its control.
+ */
+const syncViewportAvailability = () => {
+  const panels = document.querySelectorAll('[data-cg-compare-side]');
+  const off = panels.length
+    ? [...panels].every(isMatrixView)
+    : isMatrixView(document);
+  document.querySelectorAll('.cg-vp-btn[data-cg-viewport]').forEach((b) => { b.disabled = off; });
+};
+
 const initOneViewSwitcher = (switcher) => {
   // Per-side scoping: in compare, look up rendered/matrix/form/preview only
   // inside this panel. Outside compare (detail page), fall back to the
@@ -1084,16 +1066,25 @@ const initOneViewSwitcher = (switcher) => {
         b.classList.toggle('cg-active', active);
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
-      if (view === 'matrix') {
+      syncViewportAvailability();
+      if (view === View.MATRIX) {
         rendered.setAttribute('hidden', '');
         matrix.removeAttribute('hidden');
         buildMatrix(matrix, form, previewUrl, { default1D: inCompare });
       } else {
         matrix.setAttribute('hidden', '');
         rendered.removeAttribute('hidden');
+        if (preview.__cgRefresh) preview.__cgRefresh();
       }
     });
   });
+
+  // Non-axis props are fixed for the whole grid, so the grid has to follow
+  // the form — `buildMatrix` no-ops when nothing it cares about changed.
+  wireFormDebounce(form, () => {
+    if (!isMatrixView(scope)) return;
+    buildMatrix(matrix, form, previewUrl, { default1D: inCompare });
+  }, PREVIEW_DEBOUNCE_MS);
 };
 
 // Build the matrix grid for the given Y/X axes. Wrapped so the axis selector
@@ -1104,7 +1095,7 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
 
   const axes = discoverAxes(form);
   if (!axes.length) {
-    container.innerHTML = '<p class="cg-matrix-empty">No discrete props on this component.</p>';
+    container.innerHTML = '<p class="cg-matrix-empty">' + ((window.cgI18n && window.cgI18n.noDiscreteProps) || 'A grid needs a prop with a fixed set of values — a select or a boolean. This component has none.') + '</p>';
     return;
   }
 
@@ -1123,18 +1114,11 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
   const yAxis = findAxis(state.yName) || axes[0];
   const xAxis = state.xName ? findAxis(state.xName) : null;
 
-  // Capture every other form value as base params.
-  const baseParams = new URLSearchParams();
-  const elements = form.elements;
+  // Every non-axis prop is fixed for the whole grid and comes from the form.
   const axisNames = {};
   axisNames[yAxis.name] = true;
   if (xAxis) axisNames[xAxis.name] = true;
-  for (let i = 0; i < elements.length; i++) {
-    const el = elements[i];
-    if (!el.name || axisNames[el.name]) continue;
-    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
-    baseParams.append(el.name, el.value);
-  }
+  const baseParams = new URLSearchParams(buildQueryString(form, axisNames));
 
   // Skip rebuild only when axes AND base params are unchanged — otherwise
   // editing a non-axis prop left the grid showing the stale configuration.
@@ -1222,6 +1206,9 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
     html += '</tr>';
   });
   html += '</tbody></table>';
+  // innerHTML detaches the cells; their frames keep observers running unless
+  // torn down first.
+  container.querySelectorAll('[data-cg-matrix-cell]').forEach(releaseSurface);
   container.innerHTML = html;
 
   // Wire the freshly-rendered mini-selects (each `cg-matrix__picker` has
@@ -1241,13 +1228,6 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
     buildMatrix(container, form, previewUrl, opts);
   });
 
-  // Abort any in-flight cell fetches from a previous matrix configuration —
-  // otherwise resolving fetches would write into cells that no longer exist
-  // (axis changed) or were detached (SPA-navved away).
-  if (container.__cgMatrixAbort) container.__cgMatrixAbort.abort();
-  const matrixController = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-  container.__cgMatrixAbort = matrixController;
-
   // Lazy-load each cell as it scrolls into view. `buildMatrix` is called on
   // every axis change, so stash the observer on the container and disconnect
   // any prior one before creating a new one — otherwise stale observers pin
@@ -1262,7 +1242,7 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         observer.unobserve(entry.target);
-        loadMatrixCell(entry.target, matrixController ? matrixController.signal : null);
+        loadMatrixCell(entry.target);
       });
     }, { root: container, rootMargin: MATRIX_CELL_ROOT_MARGIN, threshold: 0.01 });
     cells.forEach((c) => observer.observe(c));
@@ -1274,45 +1254,25 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
           container.__cgMatrixObserver.disconnect();
           container.__cgMatrixObserver = null;
         }
-        if (container.__cgMatrixAbort) {
-          container.__cgMatrixAbort.abort();
-          container.__cgMatrixAbort = null;
-        }
+        container.querySelectorAll('[data-cg-matrix-cell]').forEach(releaseSurface);
         document.removeEventListener('cg-content-swapped', onContentSwapped);
       };
       document.addEventListener('cg-content-swapped', onContentSwapped);
       container.__cgMatrixSwapBound = true;
     }
   } else {
-    cells.forEach((c) => loadMatrixCell(c, null));
+    cells.forEach(loadMatrixCell);
   }
 };
 
-const loadMatrixCell = (cell, signal) => {
+const loadMatrixCell = (cell) => {
   const url = cell.getAttribute('data-cg-fetch');
   if (!url) return;
-  const opts = { headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' }, credentials: 'same-origin' };
-  if (signal) opts.signal = signal;
-  fetch(url, opts)
-    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
-    .then((data) => {
-      // Cell may have been replaced by an axis change or SPA swap while the
-      // request was in flight — drop the result if the node is detached.
-      if (!cell.isConnected) return;
-      cell.innerHTML = data.html || '';
-      // Reinit Alpine + HTMX behaviours on the freshly inserted subtree.
-      if (typeof window.Alpine !== 'undefined' && typeof window.Alpine.initTree === 'function') {
-        try { window.Alpine.initTree(cell); } catch (_) { /* ignore */ }
-      }
-      if (typeof window.htmx !== 'undefined' && typeof window.htmx.process === 'function') {
-        try { window.htmx.process(cell); } catch (_) { /* ignore */ }
-      }
-    })
+  surfaceFor(cell)
+    .load(url)
     .catch((err) => {
       if (err && err.name === 'AbortError') return;
-      if (cell.isConnected) {
-        cell.innerHTML = '<p class="cg-preview-error">Render error</p>';
-      }
+      if (cell.isConnected) surfaceFor(cell).fail('<p class="cg-preview-error">' + renderErrorText() + '</p>');
     });
 };
 

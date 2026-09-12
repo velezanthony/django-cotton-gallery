@@ -304,8 +304,15 @@ python manage.py cotton_lint --warnings-as-errors   # stricter — also fail on 
       <h2 class="cg-docs__h2">{% trans "Playground features" %}</h2>
       <p>{% trans "Every component detail page is a live playground. Beyond the props panel, several features make iteration faster:" %}</p>
 
+      <h3 class="cg-docs__h3">{% trans "Preview isolation" %}</h3>
+      <p>{% blocktranslate %}Every component renders in a <strong>document of its own</strong> — on the detail page, in both compare panels and in each index card. The gallery's CSS cannot reach it, a <code>position: fixed</code> modal stays inside its preview instead of covering the page, and the scripts a component ships with actually run. Media queries fire on the stage width, which is what makes the viewport switcher more than decoration.{% endblocktranslate %}</p>
+      <p class="cg-docs__callout">{% blocktranslate %}Index cards drop their frame once they scroll well out of view and rebuild it on the way back — a large catalog does not keep one JS runtime alive per component.{% endblocktranslate %}</p>
+
+      <h3 class="cg-docs__h3">{% trans "Preview height" %}</h3>
+      <p>{% blocktranslate %}Drag the <strong>bottom edge</strong> of the preview to size it, or focus the grip and use the arrow keys (hold Shift for larger steps). A component built for a screen — a modal, a drawer — contributes nothing to its own content height, so there is nothing to measure and the gallery does not guess one. Your height lasts while you stay on the component.{% endblocktranslate %}</p>
+
       <h3 class="cg-docs__h3">{% trans "Variants matrix" %}</h3>
-      <p>{% blocktranslate %}Switch the preview into a grid that renders <strong>every combination</strong> of the component's discrete props at once. The first two enum or boolean props become the Y/X axes; everything else stays consistent across cells. Useful for QA, visual regression, and seeing the whole API at a glance.{% endblocktranslate %}</p>
+      <p>{% blocktranslate %}Switch the preview into a grid that renders <strong>every combination</strong> of the component's discrete props at once. The first two enum or boolean props become the Y/X axes; every other prop is read from the controls panel and held the same across cells, so changing one there rebuilds the grid. Useful for QA, visual regression, and seeing the whole API at a glance.{% endblocktranslate %}</p>
       <p class="cg-docs__callout">{% blocktranslate %}Toggle via the <strong>View</strong> switcher in the preview toolbar (single-frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense matrices don't fire 30 fetches at once.{% endblocktranslate %}</p>
 
       <h3 class="cg-docs__h3">{% trans "Preview background" %}</h3>

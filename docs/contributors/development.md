@@ -126,8 +126,8 @@ Pre-commit runs both on every commit. CI (`lint.yml`) verifies on every push.
 ```bash
 python -m build
 ls dist/
-# django_cotton_gallery-0.1.0-py3-none-any.whl
-# django_cotton_gallery-0.1.0.tar.gz
+# django_cotton_gallery-X.Y.Z-py3-none-any.whl
+# django_cotton_gallery-X.Y.Z.tar.gz
 ```
 
 Verify the wheel includes templates, static, and locale:
