@@ -10,6 +10,7 @@
 
 import {
   bindOnce,
+  buildQueryString,
   escapeHtml,
   readJSON,
   toggleHidden,
@@ -791,24 +792,6 @@ export const initAttrsAutocomplete = (root = document) => {
 };
 
 /* ── Form helpers (URL state sync) ──────────────────────────────────── */
-
-const buildQueryString = (form) => {
-  const params = new URLSearchParams();
-  const elements = form.elements;
-  for (let i = 0; i < elements.length; i++) {
-    const el = elements[i];
-    if (!el.name) continue;
-    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
-    // bool would win server-side. Radios still serialize only when checked.
-    if (el.type === 'radio' && !el.checked) continue;
-    if (el.type === 'checkbox' && !el.checked) {
-      params.append(el.name, 'false');
-      continue;
-    }
-    params.append(el.name, el.value);
-  }
-  return params.toString();
-};
 
 // Snapshot every named control's initial value — used by initPreview to
 // tell apart "this matches the page's default" (omit from the URL) from

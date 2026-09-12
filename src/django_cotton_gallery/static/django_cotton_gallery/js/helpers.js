@@ -172,3 +172,31 @@ export const wireFormDebounce = (form, fetchFn, delayMs) => {
     form.removeEventListener('change', onChange);
   };
 };
+
+/**
+ * Serialize a controls form the way the preview endpoint expects.
+ *
+ * An absent param falls back to the prop default server-side
+ * (`tag_builder._resolve_attrs`), so an unchecked checkbox has to say `false`
+ * out loud or a default-True bool can never be switched off.
+ *
+ * @param {HTMLFormElement} form
+ * @returns {string} Query string, without the leading `?`.
+ */
+export const buildQueryString = (form) => {
+  const params = new URLSearchParams();
+  const elements = form.elements;
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    if (!el.name) continue;
+    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
+    // bool would win server-side. Radios still serialize only when checked.
+    if (el.type === 'radio' && !el.checked) continue;
+    if (el.type === 'checkbox' && !el.checked) {
+      params.append(el.name, 'false');
+      continue;
+    }
+    params.append(el.name, el.value);
+  }
+  return params.toString();
+};

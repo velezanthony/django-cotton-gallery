@@ -14,7 +14,7 @@
 
 import { createIsolatedStage } from './isolated-stage.js';
 import { attachResizeGrip } from './stage-resize.js';
-import { bindOnce, readJSON, wireFormDebounce } from './helpers.js';
+import { bindOnce, buildQueryString, readJSON, wireFormDebounce } from './helpers.js';
 import {
   PREVIEW_DEBOUNCE_MS,
   STORAGE_PREVIEW_BG as STORAGE_BG,
@@ -368,23 +368,12 @@ const initComparePanels = (root = document) => {
     const tagEl = preview.querySelector('[data-cg-preview-tag]');
     const form = preview.closest('[data-cg-compare-side]').querySelector('[data-cg-controls]');
 
-    const buildQuery = () => {
-      if (!form) return '';
-      const params = new URLSearchParams();
-      for (const el of form.elements) {
-        if (!el.name) continue;
-        if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
-        params.append(el.name, el.value);
-      }
-      return params.toString();
-    };
-
     // Abort the in-flight fetch when a newer input supersedes it — a slow
     // stale response must not clobber the panel or a detached stage.
     let activeController = null;
 
     const fetchPreview = () => {
-      const qs = buildQuery();
+      const qs = form ? buildQueryString(form) : '';
       const fullUrl = url + (qs ? '?' + qs : '');
 
       if (activeController) activeController.abort();
