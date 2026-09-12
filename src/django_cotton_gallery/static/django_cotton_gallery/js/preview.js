@@ -11,6 +11,7 @@
 import {
   bindOnce,
   buildQueryString,
+  isMatrixView,
   escapeHtml,
   readJSON,
   toggleHidden,
@@ -907,7 +908,11 @@ export const initPreview = () => {
     }
   };
 
+  // Skipped while the matrix covers the stage; the switcher refreshes on
+  // the way back so the single view is never stale.
+  let staleWhileHidden = false;
   const fetchPreview = () => {
+    if (isMatrixView(document)) { staleWhileHidden = true; return; }
     const qs = form ? buildQueryString(form) : '';
 
     surfaceFor(stage)
@@ -931,6 +936,12 @@ export const initPreview = () => {
           surfaceFor(stage).fail('<p class="cg-preview-error">Render error: ' + escapeHtml(err.message) + '</p>');
         }
       });
+  };
+
+  preview.__cgRefresh = () => {
+    if (!staleWhileHidden) return;
+    staleWhileHidden = false;
+    fetchPreview();
   };
 
   fetchPreview();
@@ -1015,10 +1026,9 @@ export const initViewSwitcher = (root = document) => {
  */
 const syncViewportAvailability = () => {
   const panels = document.querySelectorAll('[data-cg-compare-side]');
-  const inMatrix = (root) => !!root.querySelector("[data-cg-view='matrix'].cg-active");
   const off = panels.length
-    ? [...panels].every(inMatrix)
-    : inMatrix(document);
+    ? [...panels].every(isMatrixView)
+    : isMatrixView(document);
   document.querySelectorAll('.cg-vp-btn[data-cg-viewport]').forEach((b) => { b.disabled = off; });
 };
 
@@ -1061,9 +1071,17 @@ const initOneViewSwitcher = (switcher) => {
       } else {
         matrix.setAttribute('hidden', '');
         rendered.removeAttribute('hidden');
+        if (preview.__cgRefresh) preview.__cgRefresh();
       }
     });
   });
+
+  // Non-axis props are fixed for the whole grid, so the grid has to follow
+  // the form — `buildMatrix` no-ops when nothing it cares about changed.
+  wireFormDebounce(form, () => {
+    if (!isMatrixView(scope)) return;
+    buildMatrix(matrix, form, previewUrl, { default1D: inCompare });
+  }, PREVIEW_DEBOUNCE_MS);
 };
 
 // Build the matrix grid for the given Y/X axes. Wrapped so the axis selector
@@ -1093,18 +1111,11 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
   const yAxis = findAxis(state.yName) || axes[0];
   const xAxis = state.xName ? findAxis(state.xName) : null;
 
-  // Capture every other form value as base params.
-  const baseParams = new URLSearchParams();
-  const elements = form.elements;
+  // Every non-axis prop is fixed for the whole grid and comes from the form.
   const axisNames = {};
   axisNames[yAxis.name] = true;
   if (xAxis) axisNames[xAxis.name] = true;
-  for (let i = 0; i < elements.length; i++) {
-    const el = elements[i];
-    if (!el.name || axisNames[el.name]) continue;
-    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
-    baseParams.append(el.name, el.value);
-  }
+  const baseParams = new URLSearchParams(buildQueryString(form, axisNames));
 
   // Skip rebuild only when axes AND base params are unchanged — otherwise
   // editing a non-axis prop left the grid showing the stale configuration.

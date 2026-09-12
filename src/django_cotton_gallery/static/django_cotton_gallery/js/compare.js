@@ -14,7 +14,7 @@
 
 import { surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
-import { bindOnce, buildQueryString, readJSON, wireFormDebounce } from './helpers.js';
+import { bindOnce, buildQueryString, isMatrixView, readJSON, wireFormDebounce } from './helpers.js';
 import {
   PREVIEW_DEBOUNCE_MS,
   STORAGE_PREVIEW_BG as STORAGE_BG,
@@ -365,7 +365,10 @@ const initComparePanels = (root = document) => {
     const tagEl = preview.querySelector('[data-cg-preview-tag]');
     const form = preview.closest('[data-cg-compare-side]').querySelector('[data-cg-controls]');
 
+    const side = preview.closest('[data-cg-compare-side]');
+    let staleWhileHidden = false;
     const fetchPreview = () => {
+      if (isMatrixView(side)) { staleWhileHidden = true; return; }
       const qs = form ? buildQueryString(form) : '';
 
       surfaceFor(stage)
@@ -381,6 +384,12 @@ const initComparePanels = (root = document) => {
             surfaceFor(stage).fail('<p class="cg-preview-error">Render error</p>');
           }
         });
+    };
+
+    preview.__cgRefresh = () => {
+      if (!staleWhileHidden) return;
+      staleWhileHidden = false;
+      fetchPreview();
     };
 
     // Same shared form-debounce wiring used by preview.js (helpers.js).
