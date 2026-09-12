@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - 2026-09-12
+## [1.0.0] - 2026-09-12
+
+First stable release. The `@prop` / `@slot` / `@trigger` annotation grammar and
+the `DJANGO_COTTON_GALLERY_*` settings are the public API: nothing is renamed or
+removed without a major version. Three releases have already been additive only.
 
 ### Added
 
@@ -110,6 +114,6 @@ Initial public release.
 - **Folder layout flexibility** explained: components without a category folder, `<dir>/index.html` as the entry, and how naming maps to URL/tag.
 - **Full audit + reorganization + screenshot regeneration** of public docs.
 
-[0.3.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.2.0...v0.3.0
+[1.0.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/velezanthony/django-cotton-gallery/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/velezanthony/django-cotton-gallery/releases/tag/v0.1.0
