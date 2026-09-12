@@ -18,15 +18,15 @@ def test_both_panels_render_in_their_own_document(page: Page, live_gallery):
     page.goto(f"{live_gallery}{COMPARE}")
     expect(page.locator(PANEL).first).to_be_attached(timeout=5000)
 
-    expect(page.locator(FRAME).first).to_be_attached(timeout=5000)
-    assert page.locator(FRAME).count() == page.locator(PANEL).count()
+    # `count()` reads once; the second panel may still be on the wire.
+    expect(page.locator(FRAME)).to_have_count(page.locator(PANEL).count(), timeout=10000)
 
 
 def test_each_panel_has_its_own_grip(page: Page, live_gallery):
     page.goto(f"{live_gallery}{COMPARE}")
     expect(page.locator(FRAME).first).to_be_attached(timeout=5000)
 
-    assert page.locator(GRIP).count() == page.locator(PANEL).count()
+    expect(page.locator(GRIP)).to_have_count(page.locator(PANEL).count(), timeout=10000)
 
 
 def test_dragging_one_panel_leaves_the_other_alone(page: Page, live_gallery):

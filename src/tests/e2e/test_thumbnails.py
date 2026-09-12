@@ -88,10 +88,9 @@ def test_frames_are_dropped_when_scrolled_away(page: Page, overlay_tree, live_ga
         pytest.skip(f"catalog too small to scroll past ({total} cards)")
 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(1500)
 
-    live = page.locator(THUMB_FRAME).count()
-    assert live < total, f"every card still holds a frame ({live}/{total})"
+    # Recycling is driven by an IntersectionObserver — poll for it.
+    expect(page.locator(THUMB_FRAME)).not_to_have_count(total, timeout=10000)
 
 
 def test_a_recycled_card_comes_back(page: Page, overlay_tree, live_gallery):

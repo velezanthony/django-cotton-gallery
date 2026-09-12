@@ -64,11 +64,16 @@ def test_a_default_true_bool_switched_off_is_off_in_every_cell(
 def test_changing_a_non_axis_prop_rebuilds_the_grid(page: Page, panel_tree, live_gallery):
     page.goto(f"{live_gallery}{URL}")
     open_matrix(page)
+    expect(page.locator(f"{CELL} iframe")).to_have_count(page.locator(CELL).count(), timeout=10000)
     assert framed_cells(page) == page.locator(CELL).count()
 
     page.locator(FRAMED_TOGGLE).click()
-    page.wait_for_timeout(1500)
 
+    # The grid rebuilds and refetches — wait for the probe to go, don't sleep.
+    expect(page.locator(f"{CELL} iframe")).to_have_count(page.locator(CELL).count(), timeout=10000)
+    expect(
+        page.locator(CELL).first.frame_locator("iframe").locator("[data-probe-framed]")
+    ).to_have_count(0, timeout=10000)
     assert framed_cells(page) == 0, "the grid ignored the form"
 
 
