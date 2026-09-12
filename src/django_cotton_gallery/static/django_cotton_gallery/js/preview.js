@@ -1059,6 +1059,21 @@ export const initViewSwitcher = (root = document) => {
   root.querySelectorAll('[data-cg-view-switcher]').forEach(initOneViewSwitcher);
 };
 
+/**
+ * The matrix replaces the single stage, so viewport sizes have nothing to
+ * apply to. In compare the switcher is shared by both panels, so it only goes
+ * away once BOTH are in matrix — otherwise the panel still showing a preview
+ * would lose its control.
+ */
+const syncViewportAvailability = () => {
+  const panels = document.querySelectorAll('[data-cg-compare-side]');
+  const inMatrix = (root) => !!root.querySelector("[data-cg-view='matrix'].cg-active");
+  const off = panels.length
+    ? [...panels].every(inMatrix)
+    : inMatrix(document);
+  document.querySelectorAll('.cg-vp-btn[data-cg-viewport]').forEach((b) => { b.disabled = off; });
+};
+
 const initOneViewSwitcher = (switcher) => {
   // Per-side scoping: in compare, look up rendered/matrix/form/preview only
   // inside this panel. Outside compare (detail page), fall back to the
@@ -1090,10 +1105,7 @@ const initOneViewSwitcher = (switcher) => {
         b.classList.toggle('cg-active', active);
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
-      // The matrix replaces the single stage, so there is nothing to resize.
-      scope.querySelectorAll('.cg-vp-btn[data-cg-viewport]').forEach((b) => {
-        b.disabled = view === 'matrix';
-      });
+      syncViewportAvailability();
       if (view === 'matrix') {
         rendered.setAttribute('hidden', '');
         matrix.removeAttribute('hidden');

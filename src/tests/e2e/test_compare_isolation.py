@@ -48,3 +48,47 @@ def test_dragging_one_panel_leaves_the_other_alone(page: Page, live_gallery):
     other_after = stages.nth(1).bounding_box()["height"]
     assert dragged > other_before + 150, f"the drag did not take ({dragged}px)"
     assert other_after == other_before, f"the other panel moved: {other_before} → {other_after}"
+
+
+VIEWPORTS = "[data-cg-shared-vp] .cg-vp-btn[data-cg-viewport]"
+MATRIX = "[data-cg-compare-side] [data-cg-view='matrix']"
+SINGLE = "[data-cg-compare-side] [data-cg-view='preview']"
+
+
+def _disabled(page: Page) -> list[bool]:
+    return page.locator(VIEWPORTS).evaluate_all("els => els.map(e => e.disabled)")
+
+
+def test_one_panel_in_matrix_keeps_the_viewport_switcher(page: Page, live_gallery):
+    """It is shared: disabling it would strand the panel still showing one preview."""
+    page.goto(f"{live_gallery}{COMPARE}")
+    expect(page.locator(FRAME).first).to_be_attached(timeout=5000)
+
+    page.locator(MATRIX).first.click()
+    page.wait_for_timeout(500)
+
+    assert not any(_disabled(page)), "the switcher went away while a panel still needs it"
+
+
+def test_both_panels_in_matrix_disable_the_viewport_switcher(page: Page, live_gallery):
+    page.goto(f"{live_gallery}{COMPARE}")
+    expect(page.locator(FRAME).first).to_be_attached(timeout=5000)
+
+    page.locator(MATRIX).nth(0).click()
+    page.locator(MATRIX).nth(1).click()
+    page.wait_for_timeout(500)
+
+    assert all(_disabled(page)), "nothing left to resize, yet the switcher is live"
+
+
+def test_leaving_matrix_on_one_panel_brings_it_back(page: Page, live_gallery):
+    page.goto(f"{live_gallery}{COMPARE}")
+    expect(page.locator(FRAME).first).to_be_attached(timeout=5000)
+
+    page.locator(MATRIX).nth(0).click()
+    page.locator(MATRIX).nth(1).click()
+    page.wait_for_timeout(300)
+    page.locator(SINGLE).nth(1).click()
+    page.wait_for_timeout(500)
+
+    assert not any(_disabled(page)), "the switcher stayed disabled with a preview back"
