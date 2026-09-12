@@ -281,7 +281,9 @@ const loadThumb = (el, rebindAfterSwap) => {
       _thumbInsertQueue.push({ card: el, holder });
       scheduleThumbInsertFlush(rebindAfterSwap);
     })
-    .catch(() => {
+    .catch((err) => {
+      // An abort is a newer request winning, not a failure — leave the card be.
+      if (err && err.name === 'AbortError') return;
       // Render failed → leave the static tag visible, hide skeleton
       const skel = el.querySelector('.cg-card__skeleton');
       if (skel) skel.remove();

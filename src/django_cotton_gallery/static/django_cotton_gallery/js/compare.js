@@ -12,11 +12,13 @@
  * detail page uses, so your preference carries over.
  */
 
-import { surfaceFor } from './preview-surface.js';
+import { releaseSurface, surfaceFor } from './preview-surface.js';
 import { attachResizeGrip } from './stage-resize.js';
 import { bindOnce, buildQueryString, isMatrixView, readJSON, wireFormDebounce } from './helpers.js';
 import {
+  Background,
   PREVIEW_DEBOUNCE_MS,
+  Viewport,
   STORAGE_PREVIEW_BG as STORAGE_BG,
   STORAGE_PREVIEW_VIEWPORT as STORAGE_VP,
 } from './constants.js';
@@ -38,7 +40,7 @@ const initSharedViewport = (root = document) => {
 
   // Initial state — read from storage, fall back to "desktop" (matches the
   // detail-page default in preview.js so the two don't diverge on ordering).
-  const stored = readJSON(STORAGE_VP) || 'desktop';
+  const stored = readJSON(STORAGE_VP) || Viewport.DESKTOP;
   apply(stored);
 
   switcher.querySelectorAll('[data-cg-viewport]').forEach((btn) => {
@@ -61,7 +63,7 @@ const initSharedBg = (root = document) => {
     try { localStorage.setItem(STORAGE_BG, JSON.stringify(bg)); } catch (_) { /* ignore */ }
   };
 
-  const stored = readJSON(STORAGE_BG) || 'checkered';
+  const stored = readJSON(STORAGE_BG) || Background.CHECKERED;
   apply(stored);
 
   switcher.querySelectorAll('[data-cg-bg]').forEach((btn) => {
@@ -114,6 +116,9 @@ const fetchAndReplaceSide = async (side, params, bindContent) => {
     if (placeholder) {
       document.querySelector('[data-cg-editor-modal] [data-cg-editor-modal-close]')?.click();
     }
+    // `sideAbort` only covers the fetch for this chrome — the one rendering
+    // the component would resolve into a stage nobody can see.
+    releaseSurface(container.querySelector('[data-cg-preview-stage]'));
     container.replaceWith(newPanel);
     if (typeof bindContent === 'function') bindContent();
     else initComparePanels(document);
