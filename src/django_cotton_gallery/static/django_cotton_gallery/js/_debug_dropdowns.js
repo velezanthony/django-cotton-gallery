@@ -1,30 +1,44 @@
 /*!
- * _debug_dropdowns.js — opt-in dropdown timeline recorder.
+ * _debug_dropdowns.js — dropdown timeline recorder, on with `?cgdebug=1`.
  *
- * Loaded by base.html when the URL has `?cgdebug=1`. Captures clicks,
- * pointer events, [hidden] toggles on dropdown menus, and SPA swaps.
+ * Finds flickers: a click on a trigger answered by two menu toggles inside
+ * 200ms is a handler fighting itself. Pointer phases are logged separately
+ * because one gesture fires four of them.
  *
- * Exposed as `window.__d` with `dump()` to print the timeline.
- *
- * Disable by removing `?cgdebug=1` from the URL.
+ * A classic script, not a module — hence the closure and the trailing global.
  */
-(function () {
+const dropdownRecorder = (() => {
   'use strict';
 
-  var t0 = performance.now();
-  var events = [];
+  /* ── Private ──────────────────────────────────────────────────────── */
 
-  function log(kind, info) {
-    events.push({
-      ms: Math.round(performance.now() - t0),
-      kind: kind,
-      info: info || {}
-    });
-  }
+  /**
+   * @typedef {Object} TimelineEvent
+   * @property {number} ms    Milliseconds since the recorder started.
+   * @property {string} kind  One of `EventKind`.
+   * @property {Object} info  Kind-specific detail.
+   */
 
-  // What chrome elements are dropdown triggers? We tag each click with
-  // whether it landed on (or inside) one of these.
-  var TRIGGER_SEL = [
+  /** @enum {string} */
+  const EventKind = Object.freeze({
+    POINTER_DOWN: 'pointerdown',
+    MOUSE_DOWN: 'mousedown',
+    CLICK: 'click',
+    POINTER_UP: 'pointerup',
+    SPA_SWAP: 'spa-swap',
+    HIDDEN_CHANGE: 'hidden-change',
+  });
+
+  /** Logged separately: one human gesture fires several of these. */
+  const POINTER_KINDS = Object.freeze([
+    EventKind.POINTER_DOWN,
+    EventKind.MOUSE_DOWN,
+    EventKind.CLICK,
+    EventKind.POINTER_UP,
+  ]);
+
+  /** A click is tagged with whether it landed on one of these. */
+  const TRIGGER_SELECTOR = [
     '[data-cg-mini-trigger]',
     '[data-cg-combo-trigger]',
     '.cg-combo__trigger',
@@ -32,48 +46,10 @@
     '.cg-sidebar__lang-trigger',
     '[data-cg-tools-trigger]',
     '[data-cg-lang-trigger]',
-    '[aria-haspopup]'
+    '[aria-haspopup]',
   ].join(', ');
 
-  // 1) Pointer + click events at document level, capture phase. We log
-  //    pointerdown, mousedown, click, pointerup separately so a flicker
-  //    that's actually multiple events firing on the SAME human gesture
-  //    becomes visible in the timeline.
-  ['pointerdown', 'mousedown', 'click', 'pointerup'].forEach(function (type) {
-    document.addEventListener(type, function (e) {
-      var t = e.target;
-      var trigger = t.closest && t.closest(TRIGGER_SEL);
-      log(type, {
-        tag: t.tagName,
-        cls: String(t.className || '').slice(0, 60),
-        text: String(t.textContent || '').trim().slice(0, 30),
-        on_trigger: !!trigger,
-        trigger_cls: trigger ? String(trigger.className || '').slice(0, 60) : null
-      });
-    }, true);
-  });
-
-  // 2) SPA navigation events.
-  document.addEventListener('cg-content-swapped', function () {
-    log('spa-swap', { url: location.pathname });
-  });
-
-  // 3) Watch every dropdown menu for [hidden] attribute toggles.
-  function watchMenu(el) {
-    var observer = new MutationObserver(function (muts) {
-      muts.forEach(function (m) {
-        if (m.attributeName === 'hidden') {
-          log('hidden-change', {
-            cls: String(el.className || '').slice(0, 50),
-            now_hidden: el.hasAttribute('hidden')
-          });
-        }
-      });
-    });
-    observer.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-  }
-
-  var menuSelector = [
+  const MENU_SELECTOR = [
     '[data-cg-mini-menu]',
     '[data-cg-combo-panel]',
     '.cg-combo__menu',
@@ -82,60 +58,133 @@
     '.cg-sidebar__tools-menu',
     '[data-cg-tools-menu]',
     '[data-cg-lang-menu]',
-    '[role="menu"]'
+    '[role="menu"]',
   ].join(', ');
-  document.querySelectorAll(menuSelector).forEach(watchMenu);
 
-  // 4) Watch for menus added later (after SPA swap or dynamic insertion).
-  new MutationObserver(function (muts) {
-    muts.forEach(function (m) {
-      m.addedNodes.forEach(function (n) {
-        if (n.nodeType !== 1) return;
-        if (n.matches && n.matches(menuSelector)) watchMenu(n);
-        if (n.querySelectorAll) {
-          n.querySelectorAll(menuSelector).forEach(watchMenu);
-        }
-      });
-    });
-  }).observe(document.body, { childList: true, subtree: true });
+  /** A click and the menu toggles that answer it within this window. */
+  const FLICKER_WINDOW_MS = 200;
+  const FLICKER_MIN_CHANGES = 2;
 
-  // 5) Public API.
-  window.__d = {
-    events: events,
-    dump: function () {
-      console.log('=== Cotton Gallery dropdown timeline ===');
-      console.table(events);
-      console.log('Total events: ' + events.length);
-      return events;
-    },
-    clear: function () { events.length = 0; },
-    summary: function () {
-      // Quick "is this a flicker?" report. Walks the timeline and pairs
-      // each user-click against the hidden-changes that followed within
-      // 200ms, flagging any pair where the menu opened then closed in
-      // quick succession.
-      var flickers = [];
-      events.forEach(function (e, i) {
-        if (e.kind !== 'click' || !e.info.on_trigger) return;
-        var window200 = events.slice(i + 1).filter(function (n) { return n.ms - e.ms <= 200; });
-        var changes = window200.filter(function (n) { return n.kind === 'hidden-change'; });
-        if (changes.length >= 2) {
-          flickers.push({
-            click_at_ms: e.ms,
-            trigger: e.info.trigger_cls,
-            hidden_changes: changes.map(function (c) {
-              return { ms: c.ms, hidden: c.info.now_hidden, menu: c.info.cls };
-            })
-          });
-        }
-      });
-      console.log('Flicker candidates (click followed by 2+ hidden-changes within 200ms):');
-      console.table(flickers);
-      return flickers;
-    }
+  const startedAt = performance.now();
+
+  /** @type {TimelineEvent[]} */
+  const events = [];
+
+  /** @param {string} kind @param {Object} [info] */
+  const log = (kind, info) => {
+    events.push({ ms: Math.round(performance.now() - startedAt), kind, info: info || {} });
   };
 
-  console.log('%c[cgdebug] dropdown recorder ON', 'color: #16a34a; font-weight: bold');
-  console.log('  Run __d.dump()    — full timeline');
-  console.log('  Run __d.summary() — flicker candidates only');
+  /** @param {unknown} value @param {number} max @returns {string} */
+  const truncate = (value, max) => String(value || '').slice(0, max);
+
+  /** @param {Element} menu */
+  const watchMenu = (menu) => {
+    new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName !== 'hidden') return;
+        log(EventKind.HIDDEN_CHANGE, {
+          cls: truncate(menu.className, 50),
+          now_hidden: menu.hasAttribute('hidden'),
+        });
+      });
+    }).observe(menu, { attributes: true, attributeFilter: ['hidden'] });
+  };
+
+  /** Toggles close enough after `click` to be its answer. @returns {TimelineEvent[]} */
+  const answersTo = (click, index) =>
+    events
+      .slice(index + 1)
+      .filter((next) => next.ms - click.ms <= FLICKER_WINDOW_MS)
+      .filter((next) => next.kind === EventKind.HIDDEN_CHANGE);
+
+  /** @returns {Object[]} Clicks answered by enough toggles to read as a flicker. */
+  const flickers = () =>
+    events.flatMap((event, index) => {
+      if (event.kind !== EventKind.CLICK || !event.info.on_trigger) return [];
+      const changes = answersTo(event, index);
+      if (changes.length < FLICKER_MIN_CHANGES) return [];
+      return [{
+        click_at_ms: event.ms,
+        trigger: event.info.trigger_cls,
+        hidden_changes: changes.map((change) => ({
+          ms: change.ms,
+          hidden: change.info.now_hidden,
+          menu: change.info.cls,
+        })),
+      }];
+    });
+
+  const recordPointerEvents = () => {
+    POINTER_KINDS.forEach((kind) => {
+      document.addEventListener(kind, (event) => {
+        const target = event.target;
+        const trigger = target.closest && target.closest(TRIGGER_SELECTOR);
+        log(kind, {
+          tag: target.tagName,
+          cls: truncate(target.className, 60),
+          text: truncate(target.textContent, 30).trim(),
+          on_trigger: !!trigger,
+          trigger_cls: trigger ? truncate(trigger.className, 60) : null,
+        });
+      }, true);
+    });
+  };
+
+  const recordNavigation = () => {
+    document.addEventListener('cg-content-swapped', () => {
+      log(EventKind.SPA_SWAP, { url: location.pathname });
+    });
+  };
+
+  /** Menus present now, plus any inserted later. */
+  const recordMenus = () => {
+    document.querySelectorAll(MENU_SELECTOR).forEach(watchMenu);
+    new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType !== Node.ELEMENT_NODE) return;
+          if (node.matches && node.matches(MENU_SELECTOR)) watchMenu(node);
+          if (node.querySelectorAll) node.querySelectorAll(MENU_SELECTOR).forEach(watchMenu);
+        });
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  };
+
+  const announce = () => {
+    console.log('%c[cgdebug] dropdown recorder ON', 'color: #16a34a; font-weight: bold');
+    console.log('  Run __d.dump()    — full timeline');
+    console.log('  Run __d.summary() — flicker candidates only');
+  };
+
+  /** @returns {TimelineEvent[]} */
+  const dump = () => {
+    console.log('=== Cotton Gallery dropdown timeline ===');
+    console.table(events);
+    console.log(`Total events: ${events.length}`);
+    return events;
+  };
+
+  const clear = () => { events.length = 0; };
+
+  /** @returns {Object[]} */
+  const summary = () => {
+    const found = flickers();
+    console.log('Flicker candidates (click followed by 2+ hidden-changes within 200ms):');
+    console.table(found);
+    return found;
+  };
+
+  /* ── Start ────────────────────────────────────────────────────────── */
+
+  recordPointerEvents();
+  recordNavigation();
+  recordMenus();
+  announce();
+
+  /* ── Public ───────────────────────────────────────────────────────── */
+
+  return { events, dump, clear, summary };
 })();
+
+window.__d = dropdownRecorder;
