@@ -48,3 +48,26 @@ export const STORAGE_PINS = 'cg-pinned-components';
 /* The collapsed-state key is read from inline `<script>` in base.html
    BEFORE this module loads (FOUC prevention). Keep that string in sync
    with `STORAGE_SIDEBAR_COLLAPSED` above and `STORAGE_THEME` for theme. */
+
+/* ── Control values (must match the `data-cg-*` attributes in the templates) ── */
+
+/** Stage width presets. @enum {string} */
+export const Viewport = Object.freeze({
+  MOBILE: 'mobile',
+  TABLET: 'tablet',
+  DESKTOP: 'desktop',
+});
+
+/** Preview backdrops. @enum {string} */
+export const Background = Object.freeze({
+  CHECKERED: 'checkered',
+  WHITE: 'white',
+  DARK: 'dark',
+  BRAND: 'brand',
+});
+
+/** What the stage area shows. @enum {string} */
+export const View = Object.freeze({
+  PREVIEW: 'preview',
+  MATRIX: 'matrix',
+});

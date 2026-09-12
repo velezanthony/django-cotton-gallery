@@ -19,7 +19,10 @@ import {
   writeJSON,
 } from './helpers.js';
 import {
+  Background,
   PREVIEW_DEBOUNCE_MS,
+  View,
+  Viewport,
   STORAGE_PREVIEW_BG,
   STORAGE_PREVIEW_BG_COLORS,
   STORAGE_PREVIEW_VIEWPORT,
@@ -86,7 +89,7 @@ export const initPreviewBgSwitcher = () => {
   };
 
   applyColors(readJSON(STORAGE_PREVIEW_BG_COLORS) || {});
-  applyBg(readJSON(STORAGE_PREVIEW_BG) || 'checkered');
+  applyBg(readJSON(STORAGE_PREVIEW_BG) || Background.CHECKERED);
 
   // A swatch selects that background; in edit mode an editable swatch also
   // opens its color picker (guard against the programmatic click bubbling back).
@@ -180,7 +183,7 @@ export const initPreviewViewportSwitcher = () => {
   const saved = readJSON(STORAGE_PREVIEW_VIEWPORT);
   const initial = validValues.indexOf(saved) !== -1
     ? saved
-    : (validValues.indexOf('desktop') !== -1 ? 'desktop' : validValues[validValues.length - 1]);
+    : (validValues.indexOf(Viewport.DESKTOP) !== -1 ? Viewport.DESKTOP : validValues[validValues.length - 1]);
   applyViewport(initial);
 
   buttons.forEach((btn) => {
@@ -1064,7 +1067,7 @@ const initOneViewSwitcher = (switcher) => {
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
       syncViewportAvailability();
-      if (view === 'matrix') {
+      if (view === View.MATRIX) {
         rendered.setAttribute('hidden', '');
         matrix.removeAttribute('hidden');
         buildMatrix(matrix, form, previewUrl, { default1D: inCompare });
