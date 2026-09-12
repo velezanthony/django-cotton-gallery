@@ -10,9 +10,9 @@
   paint already has dark colors — no flash of light theme. Reads from the
   same localStorage key the toggle button writes to.
   {% endcomment %}
-  <script>(function(){try{var t=localStorage.getItem('cg-theme');if(t==='dark')document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
+  <script>(() => {try{const t=localStorage.getItem('cg-theme');if(t==='dark')document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
   {# Same FOUC-prevention pattern for the sidebar collapse state — apply the data-attr on <html> before the body paints, then sidebar.js wires the toggle button to flip it at runtime. #}
-  <script>(function(){try{if(localStorage.getItem('cg-sidebar-collapsed')==='1')document.documentElement.dataset.cgSidebarCollapsed='';}catch(e){}})();</script>
+  <script>(() => {try{if(localStorage.getItem('cg-sidebar-collapsed')==='1')document.documentElement.dataset.cgSidebarCollapsed='';}catch(e){}})();</script>
 
   {# Inline SVG favicon — brand orange tile with a "C" mark. No extra request. #}
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23ff9d0a'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white'>C</text></svg>">
