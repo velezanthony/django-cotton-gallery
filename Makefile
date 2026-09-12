@@ -100,6 +100,9 @@ messages:  ## Extract translatable strings into .po (es, eu, fr)
 compile-messages:  ## Compile .po -> .mo for our package locales
 	cd src/django_cotton_gallery && uv run --project ../.. python -m django compilemessages -l es -l eu -l fr
 
+check-messages:  ## Fail if any locale has fuzzy or untranslated entries
+	uv run python scripts/check_messages.py
+
 ##@ Dependencies (uv)
 
 # uv trio:
