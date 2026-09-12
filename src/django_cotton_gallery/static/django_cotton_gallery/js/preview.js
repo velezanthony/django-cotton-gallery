@@ -1244,6 +1244,11 @@ const buildMatrix = (container, form, previewUrl, opts = {}) => {
     html += '</tr>';
   });
   html += '</tbody></table>';
+  // innerHTML detaches the cells; their frames keep observers running unless
+  // torn down first.
+  container.querySelectorAll('[data-cg-matrix-cell]').forEach((c) => {
+    if (c.__cgStage) { c.__cgStage.destroy(); c.__cgStage = null; }
+  });
   container.innerHTML = html;
 
   // Wire the freshly-rendered mini-selects (each `cg-matrix__picker` has
@@ -1321,14 +1326,11 @@ const loadMatrixCell = (cell, signal) => {
       // Cell may have been replaced by an axis change or SPA swap while the
       // request was in flight — drop the result if the node is detached.
       if (!cell.isConnected) return;
-      cell.innerHTML = data.html || '';
-      // Reinit Alpine + HTMX behaviours on the freshly inserted subtree.
-      if (typeof window.Alpine !== 'undefined' && typeof window.Alpine.initTree === 'function') {
-        try { window.Alpine.initTree(cell); } catch (_) { /* ignore */ }
-      }
-      if (typeof window.htmx !== 'undefined' && typeof window.htmx.process === 'function') {
-        try { window.htmx.process(cell); } catch (_) { /* ignore */ }
-      }
+      // Own document per cell: `position: fixed` anchors to the cell instead of
+      // the page, and Alpine and HTMX rehydrate in there.
+      const stage = createIsolatedStage(cell);
+      cell.__cgStage = stage;
+      stage.update(data.html || '');
     })
     .catch((err) => {
       if (err && err.name === 'AbortError') return;
