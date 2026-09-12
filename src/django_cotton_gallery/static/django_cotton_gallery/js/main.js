@@ -91,7 +91,7 @@ const bindContent = () => {
   initSlotFormatters();
   initSlotHighlighters();
   initSlotIntellisense();
-  initPreview({ rebindAfterSwap });
+  initPreview();
   initPreviewBgSwitcher();
   initPreviewViewportSwitcher();
   initFullscreenPreview();

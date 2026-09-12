@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cotton-gallery 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-05 12:25+0200\n"
+"POT-Creation-Date: 2026-09-12 16:41+0200\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,8 +19,8 @@ msgstr "django-cotton ez dago instalatuta"
 msgid ""
 "django-cotton-gallery is built on top of django-cotton. Install and "
 "configure cotton in your Django project, then refresh this page. The cotton "
-"quickstart walks you through the install, INSTALLED_APPS entry, and template "
-"loader setup in a few steps."
+"quickstart walks you through the install, INSTALLED_APPS entry, and template"
+" loader setup in a few steps."
 msgstr ""
 "django-cotton-gallery django-cotton-en gainean eraikia dago. Instalatu eta "
 "konfiguratu cotton zure Django proiektuan, eta gero birkargatu orri hau. "
@@ -52,7 +52,7 @@ msgstr "Ikuspegi bakarra"
 
 #: templates/django_cotton_gallery/_compare_panel.html:18
 #: templates/django_cotton_gallery/detail.html:179
-#: templates/django_cotton_gallery/docs.html:307
+#: templates/django_cotton_gallery/docs.html:314
 msgid "Variants matrix"
 msgstr "Aldagaien matrizea"
 
@@ -106,10 +106,10 @@ msgstr "Erakutsi xehetasunak"
 #: templates/django_cotton_gallery/detail.html:307
 msgid ""
 "<code>&#123;&#123; attrs &#125;&#125;</code> pass-through — anything you "
-"type lands on the rendered HTML. Try <code>disabled</code>, <code>id=\"…\"</"
-"code>, <code>data-*</code>, <code>aria-*</code>, <code>style=\"…\"</code>… "
-"<em>Heads up</em>: <code>class</code> may duplicate if the component already "
-"declares one (HTML keeps the first)."
+"type lands on the rendered HTML. Try <code>disabled</code>, "
+"<code>id=\"…\"</code>, <code>data-*</code>, <code>aria-*</code>, "
+"<code>style=\"…\"</code>… <em>Heads up</em>: <code>class</code> may "
+"duplicate if the component already declares one (HTML keeps the first)."
 msgstr ""
 "<code>&#123;&#123; attrs &#125;&#125;</code> igarobidea — idazten duzun "
 "guztia errendatutako HTMLra iristen da. Probatu <code>disabled</code>, "
@@ -272,8 +272,8 @@ msgid "No issues match this filter."
 msgstr "Filtro honi dagokion arazorik ez."
 
 #: templates/django_cotton_gallery/_sidebar_tree.html:13
-#: templates/django_cotton_gallery/base.html:213
-#: templates/django_cotton_gallery/base.html:463
+#: templates/django_cotton_gallery/base.html:225
+#: templates/django_cotton_gallery/base.html:475
 #: templates/django_cotton_gallery/compare.html:22
 #: templates/django_cotton_gallery/index.html:40
 #: templates/django_cotton_gallery/index.html:125
@@ -332,7 +332,6 @@ msgid "No matching props"
 msgstr "Prop bat-etortzerik ez"
 
 #: templates/django_cotton_gallery/base.html:42
-#| msgid "Copy"
 msgid "Copy fix"
 msgstr "Kopiatu konponketa"
 
@@ -340,321 +339,356 @@ msgstr "Kopiatu konponketa"
 msgid "Copied"
 msgstr "Kopiatuta"
 
-#: templates/django_cotton_gallery/base.html:94
+#: templates/django_cotton_gallery/base.html:44
+msgid ""
+"A grid needs a prop with a fixed set of values — a select or a boolean. This"
+" component has none."
+msgstr ""
+"Sareta bat egiteko balio finkoak dituen prop bat behar da: select bat edo "
+"boolear bat. Osagai honek ez du bat ere."
+
+#: templates/django_cotton_gallery/base.html:45
+msgid "No CSS properties"
+msgstr "CSS propietaterik ez"
+
+#: templates/django_cotton_gallery/base.html:46
+msgid "No suggestions"
+msgstr "Iradokizunik ez"
+
+#: templates/django_cotton_gallery/base.html:47
+msgid "No suggestions for"
+msgstr "Iradokizunik ez honentzat:"
+
+#: templates/django_cotton_gallery/base.html:48
+msgid "Could not load prop index."
+msgstr "Ezin izan da prop-en indizea kargatu."
+
+#: templates/django_cotton_gallery/base.html:49
+msgid "Component preview"
+msgstr "Osagaiaren aurrebista"
+
+#: templates/django_cotton_gallery/base.html:50
+msgid "Render error"
+msgstr "Errendatze-errorea"
+
+#: templates/django_cotton_gallery/base.html:51
+msgid "Drag to set the preview height"
+msgstr "Arrastatu aurrebistaren altuera zehazteko"
+
+#: templates/django_cotton_gallery/base.html:106
 msgid "Toggle navigation"
 msgstr "Aldatu nabigazioa"
 
-#: templates/django_cotton_gallery/base.html:118
+#: templates/django_cotton_gallery/base.html:130
 msgid "Component playground"
 msgstr "Osagaien jolastokia"
 
-#: templates/django_cotton_gallery/base.html:128
+#: templates/django_cotton_gallery/base.html:140
 msgid "Search components…"
 msgstr "Bilatu osagaiak…"
 
-#: templates/django_cotton_gallery/base.html:128
-#: templates/django_cotton_gallery/base.html:460
+#: templates/django_cotton_gallery/base.html:140
+#: templates/django_cotton_gallery/base.html:472
 msgid "Search components"
 msgstr "Bilatu osagaiak"
 
-#: templates/django_cotton_gallery/base.html:130
+#: templates/django_cotton_gallery/base.html:142
 msgid "Clear search"
 msgstr "Garbitu bilaketa"
 
-#: templates/django_cotton_gallery/base.html:142
+#: templates/django_cotton_gallery/base.html:154
 msgid "Search suggestions"
 msgstr "Bilaketa-iradokizunak"
 
-#: templates/django_cotton_gallery/base.html:146
+#: templates/django_cotton_gallery/base.html:158
 #, python-brace-format
 msgid "{visible} of {total} components"
 msgstr "{visible} / {total} osagai"
 
-#: templates/django_cotton_gallery/base.html:164
+#: templates/django_cotton_gallery/base.html:176
 msgid "Menu"
 msgstr "Menua"
 
-#: templates/django_cotton_gallery/base.html:169
+#: templates/django_cotton_gallery/base.html:181
 msgid "Gallery menu"
 msgstr "Galeria menua"
 
-#: templates/django_cotton_gallery/base.html:174
+#: templates/django_cotton_gallery/base.html:186
 #: templates/django_cotton_gallery/get-started.html:4
 #: templates/django_cotton_gallery/get-started.html:10
 #: templates/django_cotton_gallery/index.html:20
 msgid "Get started"
 msgstr "Hasi"
 
-#: templates/django_cotton_gallery/base.html:180
+#: templates/django_cotton_gallery/base.html:192
 #: templates/django_cotton_gallery/docs.html:4
 #: templates/django_cotton_gallery/docs.html:11
 msgid "Documentation"
 msgstr "Dokumentazioa"
 
-#: templates/django_cotton_gallery/base.html:187
+#: templates/django_cotton_gallery/base.html:199
 #: templates/django_cotton_gallery/compare.html:8
 #: templates/django_cotton_gallery/detail.html:66
 msgid "Compare"
 msgstr "Konparatu"
 
-#: templates/django_cotton_gallery/base.html:193
+#: templates/django_cotton_gallery/base.html:205
 #: templates/django_cotton_gallery/lint.html:4
 msgid "Lint"
 msgstr "Lint"
 
-#: templates/django_cotton_gallery/base.html:199
+#: templates/django_cotton_gallery/base.html:211
 #: templates/django_cotton_gallery/insights.html:4
 msgid "Insights"
 msgstr "Argibideak"
 
-#: templates/django_cotton_gallery/base.html:205
+#: templates/django_cotton_gallery/base.html:217
 msgid "Builder"
 msgstr "Eraikitzailea"
 
-#: templates/django_cotton_gallery/base.html:215
+#: templates/django_cotton_gallery/base.html:227
 msgid "Show only pinned"
 msgstr "Iltzatuak soilik"
 
-#: templates/django_cotton_gallery/base.html:215
+#: templates/django_cotton_gallery/base.html:227
 msgid "Show only pinned components"
 msgstr "Erakutsi iltzatutako osagaiak soilik"
 
-#: templates/django_cotton_gallery/base.html:223
+#: templates/django_cotton_gallery/base.html:235
 msgid "Show only recent"
 msgstr "Berriak soilik"
 
-#: templates/django_cotton_gallery/base.html:223
+#: templates/django_cotton_gallery/base.html:235
 msgid "Show only recent components"
 msgstr "Erakutsi azken osagaiak soilik"
 
-#: templates/django_cotton_gallery/base.html:233
+#: templates/django_cotton_gallery/base.html:245
 msgid "Toggle issue badges"
 msgstr "Txandakatu arazoen bereizgarriak"
 
-#: templates/django_cotton_gallery/base.html:242
+#: templates/django_cotton_gallery/base.html:254
 msgid "Expand or collapse all"
 msgstr "Dena zabaldu edo tolestu"
 
-#: templates/django_cotton_gallery/base.html:242
+#: templates/django_cotton_gallery/base.html:254
 msgid "Expand or collapse all categories"
 msgstr "Kategoria guztiak zabaldu edo tolestu"
 
-#: templates/django_cotton_gallery/base.html:250
+#: templates/django_cotton_gallery/base.html:262
 msgid "No components found"
 msgstr "Ez da osagairik aurkitu"
 
-#: templates/django_cotton_gallery/base.html:258
+#: templates/django_cotton_gallery/base.html:270
 msgid "No matches for"
 msgstr "Ez dago bat datorrenik:"
 
-#: templates/django_cotton_gallery/base.html:268
+#: templates/django_cotton_gallery/base.html:280
 #, python-format
 msgid "<strong>%(counter)s</strong> component · live"
 msgid_plural "<strong>%(counter)s</strong> components · live"
 msgstr[0] "<strong>%(counter)s</strong> osagai · zuzenean"
 msgstr[1] "<strong>%(counter)s</strong> osagai · zuzenean"
 
-#: templates/django_cotton_gallery/base.html:289
+#: templates/django_cotton_gallery/base.html:301
 #: templates/django_cotton_gallery/setup_guide.html:369
 msgid "Change language"
 msgstr "Aldatu hizkuntza"
 
-#: templates/django_cotton_gallery/base.html:311
+#: templates/django_cotton_gallery/base.html:323
 msgid "Toggle theme"
 msgstr "Aldatu gaia"
 
-#: templates/django_cotton_gallery/base.html:311
+#: templates/django_cotton_gallery/base.html:323
 #: templates/django_cotton_gallery/setup_guide.html:391
 msgid "Toggle dark/light theme"
 msgstr "Aldatu argi/ilun gaia"
 
-#: templates/django_cotton_gallery/base.html:320
+#: templates/django_cotton_gallery/base.html:332
 msgid "GitHub repository"
 msgstr "GitHub biltegia"
 
-#: templates/django_cotton_gallery/base.html:338
+#: templates/django_cotton_gallery/base.html:350
 msgid "Collapse sidebar"
 msgstr "Tolestu alboko barra"
 
-#: templates/django_cotton_gallery/base.html:357
+#: templates/django_cotton_gallery/base.html:369
 msgid "Open keyboard shortcuts"
 msgstr "Ireki teklatuko lasterbideak"
 
-#: templates/django_cotton_gallery/base.html:364
+#: templates/django_cotton_gallery/base.html:376
 msgid "Need help?"
 msgstr "Laguntza behar duzu?"
 
-#: templates/django_cotton_gallery/base.html:365
+#: templates/django_cotton_gallery/base.html:377
 msgid "Press"
 msgstr "Sakatu"
 
-#: templates/django_cotton_gallery/base.html:365
+#: templates/django_cotton_gallery/base.html:377
 msgid "or click here"
 msgstr "edo egin klik hemen"
 
-#: templates/django_cotton_gallery/base.html:366
+#: templates/django_cotton_gallery/base.html:378
 msgid "keyboard shortcuts &amp; tips"
 msgstr "teklatuko lasterbideak &amp; aholkuak"
 
-#: templates/django_cotton_gallery/base.html:369
+#: templates/django_cotton_gallery/base.html:381
 msgid "search"
 msgstr "bilatu"
 
-#: templates/django_cotton_gallery/base.html:370
+#: templates/django_cotton_gallery/base.html:382
 msgid "switch"
 msgstr "aldatu"
 
-#: templates/django_cotton_gallery/base.html:371
-#: templates/django_cotton_gallery/base.html:430
+#: templates/django_cotton_gallery/base.html:383
+#: templates/django_cotton_gallery/base.html:442
 msgid "close"
 msgstr "itxi"
 
-#: templates/django_cotton_gallery/base.html:384
+#: templates/django_cotton_gallery/base.html:396
 msgid "Expanded editor"
 msgstr "Editore zabaldua"
 
-#: templates/django_cotton_gallery/base.html:388
+#: templates/django_cotton_gallery/base.html:400
 msgid "Editor"
 msgstr "Editorea"
 
-#: templates/django_cotton_gallery/base.html:394
+#: templates/django_cotton_gallery/base.html:406
 msgid "Format"
 msgstr "Formateatu"
 
-#: templates/django_cotton_gallery/base.html:400
+#: templates/django_cotton_gallery/base.html:412
 msgid "Minify"
 msgstr "Minimizatu"
 
-#: templates/django_cotton_gallery/base.html:406
+#: templates/django_cotton_gallery/base.html:418
 msgid "Reset"
 msgstr "Berrezarri"
 
-#: templates/django_cotton_gallery/base.html:409
-#: templates/django_cotton_gallery/base.html:493
+#: templates/django_cotton_gallery/base.html:421
+#: templates/django_cotton_gallery/base.html:505
 msgid "Close"
 msgstr "Itxi"
 
-#: templates/django_cotton_gallery/base.html:409
-#: templates/django_cotton_gallery/base.html:493
-#: templates/django_cotton_gallery/base.html:531
+#: templates/django_cotton_gallery/base.html:421
+#: templates/django_cotton_gallery/base.html:505
+#: templates/django_cotton_gallery/base.html:543
 msgid "Close (Esc)"
 msgstr "Itxi (Esc)"
 
-#: templates/django_cotton_gallery/base.html:419
+#: templates/django_cotton_gallery/base.html:431
 msgid "chars"
 msgstr "karaktere"
 
-#: templates/django_cotton_gallery/base.html:421
+#: templates/django_cotton_gallery/base.html:433
 msgid "lines"
 msgstr "lerro"
 
-#: templates/django_cotton_gallery/base.html:424
+#: templates/django_cotton_gallery/base.html:436
 msgid "format"
 msgstr "formateatu"
 
-#: templates/django_cotton_gallery/base.html:426
+#: templates/django_cotton_gallery/base.html:438
 msgid "minify"
 msgstr "minimizatu"
 
-#: templates/django_cotton_gallery/base.html:428
+#: templates/django_cotton_gallery/base.html:440
 msgid "indent"
 msgstr "koskatu"
 
-#: templates/django_cotton_gallery/base.html:455
+#: templates/django_cotton_gallery/base.html:467
 msgid "Quick switcher"
 msgstr "Hautatzaile azkarra"
 
-#: templates/django_cotton_gallery/base.html:460
-#| msgid ""
-#| "Jump to a component… try prop:size, slot:actions, accepts-attrs, has-"
-#| "slots, deprecated"
+#: templates/django_cotton_gallery/base.html:472
 msgid ""
 "Jump to a component… try prop:size, slot:actions, accepts-attrs, has-slots, "
 "deprecated, strict"
-msgstr "Jauzi osagai batera… saiatu prop:size, slot:actions, accepts-attrs, has-slots, deprecated, strict"
+msgstr ""
+"Jauzi osagai batera… saiatu prop:size, slot:actions, accepts-attrs, has-"
+"slots, deprecated, strict"
 
-#: templates/django_cotton_gallery/base.html:464
+#: templates/django_cotton_gallery/base.html:476
 msgid "No matches."
 msgstr "Bat etortzerik ez."
 
-#: templates/django_cotton_gallery/base.html:465
+#: templates/django_cotton_gallery/base.html:477
 msgid "Loading prop index…"
 msgstr "Prop indizea kargatzen…"
 
-#: templates/django_cotton_gallery/base.html:474
-#: templates/django_cotton_gallery/base.html:475
-#: templates/django_cotton_gallery/base.html:476
+#: templates/django_cotton_gallery/base.html:486
+#: templates/django_cotton_gallery/base.html:487
+#: templates/django_cotton_gallery/base.html:488
 msgid "Click to insert prefix"
 msgstr "Sakatu aurrizkia txertatzeko"
 
-#: templates/django_cotton_gallery/base.html:488
-#: templates/django_cotton_gallery/base.html:492
+#: templates/django_cotton_gallery/base.html:500
+#: templates/django_cotton_gallery/base.html:504
 msgid "Keyboard shortcuts"
 msgstr "Teklatu lasterbideak"
 
-#: templates/django_cotton_gallery/base.html:499
+#: templates/django_cotton_gallery/base.html:511
 msgid "Navigation"
 msgstr "Nabigazioa"
 
-#: templates/django_cotton_gallery/base.html:501
+#: templates/django_cotton_gallery/base.html:513
 msgid "Focus catalog search"
 msgstr "Foku katalogoaren bilaketan"
 
-#: templates/django_cotton_gallery/base.html:502
+#: templates/django_cotton_gallery/base.html:514
 msgid "Quick switcher — fuzzy-find any component"
 msgstr "Hautatzaile azkarra — aurkitu edozein osagai"
 
-#: templates/django_cotton_gallery/base.html:503
+#: templates/django_cotton_gallery/base.html:515
 msgid "Open this cheatsheet"
 msgstr "Ireki orri hau"
 
-#: templates/django_cotton_gallery/base.html:504
+#: templates/django_cotton_gallery/base.html:516
 msgid "Close any open modal / dropdown"
 msgstr "Edozein modal / desplegagarri itxi"
 
-#: templates/django_cotton_gallery/base.html:508
+#: templates/django_cotton_gallery/base.html:520
 msgid "Slot editor"
 msgstr "Slot editorea"
 
-#: templates/django_cotton_gallery/base.html:510
+#: templates/django_cotton_gallery/base.html:522
 msgid "Format HTML (multi-line, indented)"
 msgstr "HTML formatu (lerro anitz, koskatua)"
 
-#: templates/django_cotton_gallery/base.html:511
+#: templates/django_cotton_gallery/base.html:523
 msgid "Minify HTML (single line)"
 msgstr "HTML minimizatu (lerro bakarra)"
 
-#: templates/django_cotton_gallery/base.html:512
+#: templates/django_cotton_gallery/base.html:524
 msgid "Indent / outdent the current line or selection"
 msgstr "Uneko lerroa edo aukeraketa koskatu / desinkonprimitu"
 
-#: templates/django_cotton_gallery/base.html:516
+#: templates/django_cotton_gallery/base.html:528
 msgid "Lists & dropdowns"
 msgstr "Zerrendak eta desplegagarriak"
 
-#: templates/django_cotton_gallery/base.html:518
+#: templates/django_cotton_gallery/base.html:530
 msgid "Move highlight in any popover (search, mini-select, intellisense)"
 msgstr ""
 "Aukeraketa mugitu edozein popoverre (search, mini-select, intellisense)"
 
-#: templates/django_cotton_gallery/base.html:519
+#: templates/django_cotton_gallery/base.html:531
 msgid "Accept the highlighted suggestion"
 msgstr "Nabarmendutako iradokizuna onartu"
 
-#: templates/django_cotton_gallery/base.html:520
+#: templates/django_cotton_gallery/base.html:532
 msgid "Autocomplete in catalog search / accept intellisense"
 msgstr "Osatze automatikoa katalogoaren bilaketan"
 
-#: templates/django_cotton_gallery/base.html:527
-#: templates/django_cotton_gallery/base.html:529
+#: templates/django_cotton_gallery/base.html:539
+#: templates/django_cotton_gallery/base.html:541
 msgid "Fullscreen preview"
 msgstr "Pantaila osoko aurrebista"
 
-#: templates/django_cotton_gallery/base.html:530
+#: templates/django_cotton_gallery/base.html:542
 msgid "Resize the browser window — media queries fire on the real viewport."
 msgstr ""
-"Aldatu nabigatzailearen leihoaren tamaina — media query-ak benetako viewport-"
-"ean exekutatzen dira."
+"Aldatu nabigatzailearen leihoaren tamaina — media query-ak benetako "
+"viewport-ean exekutatzen dira."
 
 #: templates/django_cotton_gallery/builder.html:4
 #: templates/django_cotton_gallery/builder.html:8
@@ -670,13 +704,12 @@ msgid ""
 "Fill the fields and copy the result into a new component template."
 msgstr ""
 "Osatu osagai baten <strong>oharpen-bloke osoa</strong> modu interaktiboan — "
-"<code>@description</code>, <code>@strict</code> / <code>@ignore-unused</"
-"code> banderak, <code>@prop</code>ak, <code>@slot</code>ak eta "
+"<code>@description</code>, <code>@strict</code> / <code>@ignore-"
+"unused</code> banderak, <code>@prop</code>ak, <code>@slot</code>ak eta "
 "<code>@trigger</code> — eta dagokion <code>&lt;c-vars&gt;</code> lerroa. "
 "Bete eremuak eta kopiatu emaitza osagai-txantiloi berri batean."
 
 #: templates/django_cotton_gallery/builder.html:22
-#| msgid "Components"
 msgid "Component"
 msgstr "Osagaia"
 
@@ -716,12 +749,10 @@ msgid "For modals/drawers — the element that opens the component (@trigger)."
 msgstr "Modal/drawerentzat — osagaia irekitzen duen elementua (@trigger)."
 
 #: templates/django_cotton_gallery/builder.html:44
-#| msgid "Description"
 msgid "Trigger description"
 msgstr "Trigger-aren deskribapena"
 
 #: templates/django_cotton_gallery/builder.html:45
-#| msgid "Open in modal"
 msgid "Opens the dialog"
 msgstr "Elkarrizketa-koadroa irekitzen du"
 
@@ -740,7 +771,6 @@ msgid "Slots"
 msgstr "Slotak"
 
 #: templates/django_cotton_gallery/builder.html:69
-#| msgid "Add prop"
 msgid "Add slot"
 msgstr "Gehitu slot"
 
@@ -856,7 +886,6 @@ msgid "Slot"
 msgstr "Slota"
 
 #: templates/django_cotton_gallery/builder.html:209
-#| msgid "Remove this prop"
 msgid "Remove this slot"
 msgstr "Kendu slot hau"
 
@@ -936,7 +965,7 @@ msgstr "Zabalera osoa"
 
 #: templates/django_cotton_gallery/compare.html:74
 #: templates/django_cotton_gallery/detail.html:162
-#: templates/django_cotton_gallery/docs.html:311
+#: templates/django_cotton_gallery/docs.html:318
 msgid "Preview background"
 msgstr "Aurrebistaren atzealdea"
 
@@ -980,13 +1009,13 @@ msgstr "Izen ez bat-etortzea — preview honek huts egingo du."
 
 #: templates/django_cotton_gallery/detail.html:38
 msgid ""
-"This component's filename has a hyphen, but <code>COTTON_SNAKE_CASED_NAMES = "
-"True</code> in your settings — Cotton looks for the underscored version and "
-"can't find it."
+"This component's filename has a hyphen, but <code>COTTON_SNAKE_CASED_NAMES ="
+" True</code> in your settings — Cotton looks for the underscored version and"
+" can't find it."
 msgstr ""
 "Osagai honen fitxategi-izenak marratxoa du, baina "
-"<code>COTTON_SNAKE_CASED_NAMES = True</code> da zure ezarpenetan — Cotton-ek "
-"azpimarradun bertsioa bilatzen du eta ezin du aurkitu."
+"<code>COTTON_SNAKE_CASED_NAMES = True</code> da zure ezarpenetan — Cotton-ek"
+" azpimarradun bertsioa bilatzen du eta ezin du aurkitu."
 
 #: templates/django_cotton_gallery/detail.html:41
 msgid "See full report"
@@ -1124,16 +1153,16 @@ msgid "Desktop (1280px)"
 msgstr "Mahaigaina (1280px)"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "Open in fullscreen — real browser viewport"
-msgstr "Ireki pantaila osoan — nabigatzailearen benetako viewport-a"
+msgid "Open in fullscreen — the component at window width"
+msgstr "Ireki pantaila osoan — osagaia leihoaren zabaleran"
 
 #: templates/django_cotton_gallery/detail.html:158
 msgid "Open in fullscreen"
 msgstr "Ireki pantaila osoan"
 
 #: templates/django_cotton_gallery/detail.html:158
-msgid "real viewport for media queries"
-msgstr "benetako viewport media query-etarako"
+msgid "wider than any viewport preset"
+msgstr "edozein viewport aurrezarpen baino zabalagoa"
 
 #: templates/django_cotton_gallery/detail.html:164
 msgid "Checkered background"
@@ -1152,12 +1181,10 @@ msgid "Brand background"
 msgstr "Markaren atzealdea"
 
 #: templates/django_cotton_gallery/detail.html:168
-#| msgid "White background"
 msgid "Edit background colors"
 msgstr "Editatu atzeko planoko koloreak"
 
 #: templates/django_cotton_gallery/detail.html:168
-#| msgid "Editor"
 msgid "Edit colors"
 msgstr "Editatu koloreak"
 
@@ -1230,8 +1257,8 @@ msgid ""
 "<code>@ignore-unused</code> is set, but this component <strong>is</strong> "
 "referenced — the flag has no effect here."
 msgstr ""
-"<code>@ignore-unused</code> ezarrita dago, baina osagai hau <strong>bai</"
-"strong> dago erreferentziatuta — banderak ez du eraginik hemen."
+"<code>@ignore-unused</code> ezarrita dago, baina osagai hau "
+"<strong>bai</strong> dago erreferentziatuta — banderak ez du eraginik hemen."
 
 #: templates/django_cotton_gallery/detail.html:491
 msgid ""
@@ -1253,8 +1280,8 @@ msgid ""
 "component referenced via <code>&lt;c-X.Y&gt;</code> inside this template — "
 "delete one and this template stops rendering."
 msgstr ""
-"<strong>Osagai honek behar duena.</strong> Sarrera bakoitza katalogoko beste "
-"osagai bat da <code>&lt;c-X.Y&gt;</code> bidez txantiloi honetan "
+"<strong>Osagai honek behar duena.</strong> Sarrera bakoitza katalogoko beste"
+" osagai bat da <code>&lt;c-X.Y&gt;</code> bidez txantiloi honetan "
 "erreferentziatua — bat ezabatu eta txantiloiak errenderizatzeari uzten dio."
 
 #: templates/django_cotton_gallery/detail.html:506
@@ -1291,8 +1318,8 @@ msgid ""
 "Catches usage the gallery alone can't see and helps spot zombies."
 msgstr ""
 "<strong>Kontsumitzailearen errenderizatzaileak.</strong> Zure proiektuaren "
-"<code>templates/</code>-eko txantiloiak (katalogotik kanpo) osagai hau barne "
-"hartzen dutenak."
+"<code>templates/</code>-eko txantiloiak (katalogotik kanpo) osagai hau barne"
+" hartzen dutenak."
 
 #: templates/django_cotton_gallery/detail.html:539
 msgid "No template outside the catalog references this component."
@@ -1301,11 +1328,11 @@ msgstr ""
 
 #: templates/django_cotton_gallery/detail.html:544
 msgid ""
-"External-templates scanning is disabled by default — the gallery never reads "
-"consumer code without explicit consent."
+"External-templates scanning is disabled by default — the gallery never reads"
+" consumer code without explicit consent."
 msgstr ""
-"Kanpoko txantiloien eskaneatzea lehenetsita desgaituta dago — galeriak ez du "
-"inoiz kontsumitzailearen kodea irakurtzen baimenik gabe."
+"Kanpoko txantiloien eskaneatzea lehenetsita desgaituta dago — galeriak ez du"
+" inoiz kontsumitzailearen kodea irakurtzen baimenik gabe."
 
 #: templates/django_cotton_gallery/detail.html:545
 msgid ""
@@ -1323,8 +1350,8 @@ msgstr "Eragin zuhaitz osoa"
 
 #: templates/django_cotton_gallery/detail.html:558
 msgid ""
-"The cards above show direct neighbours — this expands the chain recursively. "
-"Click any branch to drill in."
+"The cards above show direct neighbours — this expands the chain recursively."
+" Click any branch to drill in."
 msgstr ""
 "Goiko txartelek auzokide zuzenak erakusten dituzte — honek katea "
 "errekurtsiboki zabaltzen du. Edozein adarra sakatu sakontzeko."
@@ -1350,10 +1377,11 @@ msgstr "Aurrerantzeko beharrak (Uses, errekurtsiboa)"
 #: templates/django_cotton_gallery/detail.html:571
 msgid ""
 "<strong>Walks forwards.</strong> The complete chain of catalog components "
-"this template needs to render successfully — every leaf is a base dependency."
+"this template needs to render successfully — every leaf is a base "
+"dependency."
 msgstr ""
-"<strong>Aurrera doa.</strong> Txantiloi honek behar dituen katalogo osagaien "
-"kate osoa — hosto bakoitza oinarrizko mendekotasuna da."
+"<strong>Aurrera doa.</strong> Txantiloi honek behar dituen katalogo osagaien"
+" kate osoa — hosto bakoitza oinarrizko mendekotasuna da."
 
 #: templates/django_cotton_gallery/detail.html:582
 msgid "Copy source"
@@ -1369,16 +1397,16 @@ msgid ""
 "Everything that's configurable. <strong>Configuration</strong> covers the "
 "consumer settings you put in <code>settings.py</code> — file location, "
 "ordering, asset injection. <strong>Annotations</strong> covers the "
-"<code>&#123;# @prop ... #&#125;</code> grammar the gallery's parser reads to "
-"build interactive controls. New here? Start with <a href=\"%(url)s\">Get "
+"<code>&#123;# @prop ... #&#125;</code> grammar the gallery's parser reads to"
+" build interactive controls. New here? Start with <a href=\"%(url)s\">Get "
 "started</a>."
 msgstr ""
-"Konfiguragarria den guztia. <strong>Konfigurazioak</strong> <code>settings."
-"py</code>-n jartzen dituzun kontsumitzaile-ezarpenak biltzen ditu — "
-"fitxategi-kokapena, ordenazioa, aktiboen injekzioa. <strong>Oharrek</strong> "
-"galeriaren parser-ak kontrol interaktiboak eraikitzeko irakurtzen duen "
-"<code>&#123;# @prop ... #&#125;</code> gramatika biltzen du. Berria zara "
-"hemen? Hasi <a href=\"%(url)s\">Hasi</a>-rekin."
+"Konfiguragarria den guztia. <strong>Konfigurazioak</strong> "
+"<code>settings.py</code>-n jartzen dituzun kontsumitzaile-ezarpenak biltzen "
+"ditu — fitxategi-kokapena, ordenazioa, aktiboen injekzioa. "
+"<strong>Oharrek</strong> galeriaren parser-ak kontrol interaktiboak "
+"eraikitzeko irakurtzen duen <code>&#123;# @prop ... #&#125;</code> gramatika"
+" biltzen du. Berria zara hemen? Hasi <a href=\"%(url)s\">Hasi</a>-rekin."
 
 #: templates/django_cotton_gallery/docs.html:15
 #: templates/django_cotton_gallery/get-started.html:17
@@ -1420,7 +1448,7 @@ msgid "Slots &amp; triggers"
 msgstr "Slotak eta triggerrak"
 
 #: templates/django_cotton_gallery/docs.html:25
-#: templates/django_cotton_gallery/docs.html:349
+#: templates/django_cotton_gallery/docs.html:356
 msgid "Rules &amp; gotchas"
 msgstr "Arauak eta abisuak"
 
@@ -1459,13 +1487,13 @@ msgstr ""
 "Cotton-en beraren ezarpena. Galeriak bi estiloak modu garden batean "
 "indexatzen ditu — Insights orriak abisu bat erakusten du fitxategi-izenetan "
 "marrak ETA <code>True</code> baduzu (cotton-ek ezin du konbinazio hori "
-"ebatzi, <code>foo_bar.html</code> bilatuko bailuke <code>&lt;c-foo-bar /&gt;"
-"</code>-rako)."
+"ebatzi, <code>foo_bar.html</code> bilatuko bailuke <code>&lt;c-foo-bar "
+"/&gt;</code>-rako)."
 
 #: templates/django_cotton_gallery/docs.html:50
 msgid ""
-"Cotton's own setting. Subfolder under each <code>templates/</code> root that "
-"holds the components — the gallery just reads it."
+"Cotton's own setting. Subfolder under each <code>templates/</code> root that"
+" holds the components — the gallery just reads it."
 msgstr ""
 "Cotton-en beraren ezarpena. <code>templates/</code> erro bakoitzaren azpiko "
 "azpikarpeta non osagaiak dauden — galeriak besterik gabe irakurtzen du."
@@ -1486,8 +1514,8 @@ msgstr ""
 
 #: templates/django_cotton_gallery/docs.html:66
 msgid ""
-"Top-level folders to hide from the index entirely. Folders whose name starts "
-"with <code>_</code> are excluded automatically."
+"Top-level folders to hide from the index entirely. Folders whose name starts"
+" with <code>_</code> are excluded automatically."
 msgstr ""
 "Indizetik erabat ezkutatzeko goiko mailako karpetak. <code>_</code>-rekin "
 "hasten diren karpeten izenak automatikoki baztertzen dira."
@@ -1587,8 +1615,8 @@ msgid ""
 "Preconnects, Tailwind config, design-token CSS variables, env-driven "
 "<code>window.*</code> globals (API keys, feature flags)."
 msgstr ""
-"Preconnect-ak, Tailwind konfig., diseinu-tokenen CSS aldagaiak, ingurunearen "
-"araberako <code>window.*</code> globalak (API gakoak, ezaugarri-banderak)."
+"Preconnect-ak, Tailwind konfig., diseinu-tokenen CSS aldagaiak, ingurunearen"
+" araberako <code>window.*</code> globalak (API gakoak, ezaugarri-banderak)."
 
 #: templates/django_cotton_gallery/docs.html:131
 msgid "Just before <code>&lt;/body&gt;</code>"
@@ -1599,22 +1627,24 @@ msgid ""
 "HTMX/Alpine bridges, post-mount config, anything that has to run after the "
 "components mount."
 msgstr ""
-"HTMX/Alpine zubiak, mount ondoko konfig., osagaiak muntatu ondoren exekutatu "
-"behar den edozein gauza."
+"HTMX/Alpine zubiak, mount ondoko konfig., osagaiak muntatu ondoren exekutatu"
+" behar den edozein gauza."
 
 #: templates/django_cotton_gallery/docs.html:136
 msgid ""
-"<strong>Recommended:</strong> use the partials approach for inline HTML — it "
-"keeps your <code>settings.py</code> minimal and lets your editor syntax-"
-"highlight the markup. The settings-based <code>EXTRA_CSS</code>/"
-"<code>EXTRA_JS</code> approach still works and is the way to go when you "
-"want each URL to surface as a dependency badge in the hero."
+"<strong>Recommended:</strong> use the partials approach for inline HTML — it"
+" keeps your <code>settings.py</code> minimal and lets your editor syntax-"
+"highlight the markup. The settings-based "
+"<code>EXTRA_CSS</code>/<code>EXTRA_JS</code> approach still works and is the"
+" way to go when you want each URL to surface as a dependency badge in the "
+"hero."
 msgstr ""
 "<strong>Gomendatua:</strong> erabili partial-en bidea HTML inline-rako — "
-"zure <code>settings.py</code> minimo mantentzen du eta zure editoreari kodea "
-"koloreztatzen uzten dio. Settings bidezko <code>EXTRA_CSS</code>/"
-"<code>EXTRA_JS</code> hurbilketak funtzionatzen jarraitzen du eta bide hori "
-"da URL bakoitza hero-an mendekotasun-badge gisa agertzea nahi duzunean."
+"zure <code>settings.py</code> minimo mantentzen du eta zure editoreari kodea"
+" koloreztatzen uzten dio. Settings bidezko "
+"<code>EXTRA_CSS</code>/<code>EXTRA_JS</code> hurbilketak funtzionatzen "
+"jarraitzen du eta bide hori da URL bakoitza hero-an mendekotasun-badge gisa "
+"agertzea nahi duzunean."
 
 #: templates/django_cotton_gallery/docs.html:137
 #, python-format
@@ -1625,9 +1655,9 @@ msgid ""
 "skipped."
 msgstr ""
 "Bi partial-ak <strong>aukerakoak</strong> dira. Jarri fitxategia injekzioa "
-"gehitzeko, ezabatu kentzeko. Galeriak <code>&#123;%% maybe_include %%&#125;</"
-"code> templatetag pertsonalizatua erabiltzen du, beraz, falta diren "
-"fitxategiak isilean saltatzen dira."
+"gehitzeko, ezabatu kentzeko. Galeriak <code>&#123;%% maybe_include "
+"%%&#125;</code> templatetag pertsonalizatua erabiltzen du, beraz, falta "
+"diren fitxategiak isilean saltatzen dira."
 
 #: templates/django_cotton_gallery/docs.html:139
 msgid "Example: <code>_extra_head.html</code>"
@@ -1635,8 +1665,8 @@ msgstr "Adibidea: <code>_extra_head.html</code>"
 
 #: templates/django_cotton_gallery/docs.html:140
 msgid ""
-"A typical head partial for a project that runs Tailwind via the play-CDN and "
-"exposes an API key to the components:"
+"A typical head partial for a project that runs Tailwind via the play-CDN and"
+" exposes an API key to the components:"
 msgstr ""
 "Tailwind play-CDN bidez exekutatzen duen eta osagaiei API gakoa erakusten "
 "dien proiektu baten ohiko head partziala:"
@@ -1650,7 +1680,7 @@ msgstr ""
 #: templates/django_cotton_gallery/docs.html:285
 #: templates/django_cotton_gallery/docs.html:292
 #: templates/django_cotton_gallery/docs.html:299
-#: templates/django_cotton_gallery/docs.html:319
+#: templates/django_cotton_gallery/docs.html:326
 #: templates/django_cotton_gallery/get-started.html:39
 #: templates/django_cotton_gallery/get-started.html:51
 #: templates/django_cotton_gallery/get-started.html:66
@@ -1689,18 +1719,18 @@ msgid ""
 "dead button."
 msgstr ""
 "Galeriak ingelesa, gaztelania, euskara eta frantsesa itzulpenak dakartza. "
-"Alboko barraren oinetako goitibeherakoa zure proiektuak Django-ren i18n URLa "
-"eta middleware-a konfiguratuta dituenean soilik agertzen da — horiek gabe, "
+"Alboko barraren oinetako goitibeherakoa zure proiektuak Django-ren i18n URLa"
+" eta middleware-a konfiguratuta dituenean soilik agertzen da — horiek gabe, "
 "Django-k ezin du aukeratutako hizkuntza iraunkorrarazi, beraz, galeriak "
 "kontrola ezkutatzen du botoi hil bat saihesteko."
 
 #: templates/django_cotton_gallery/docs.html:206
 msgid ""
-"Order matters: <code>LocaleMiddleware</code> must come <strong>after</"
-"strong> <code>SessionMiddleware</code> and <strong>before</strong> "
-"<code>CommonMiddleware</code>. To expose more or fewer locales, set "
-"<code>LANGUAGES</code> in your <code>settings.py</code> — the gallery picks "
-"up whatever is configured."
+"Order matters: <code>LocaleMiddleware</code> must come "
+"<strong>after</strong> <code>SessionMiddleware</code> and "
+"<strong>before</strong> <code>CommonMiddleware</code>. To expose more or "
+"fewer locales, set <code>LANGUAGES</code> in your <code>settings.py</code> —"
+" the gallery picks up whatever is configured."
 msgstr ""
 "Ordena garrantzitsua da: <code>LocaleMiddleware</code> "
 "<code>SessionMiddleware</code>-ren <strong>ondoren</strong> eta "
@@ -1715,7 +1745,8 @@ msgstr "Lint CI-an"
 #: templates/django_cotton_gallery/docs.html:209
 msgid ""
 "The same lint engine that powers the in-app Lint report ships as a Django "
-"management command. Wire it into CI to fail builds on annotation regressions:"
+"management command. Wire it into CI to fail builds on annotation "
+"regressions:"
 msgstr ""
 "App-aren barruko Lint txostena bultzatzen duen lint motor bera Django "
 "management command gisa banatzen da. Konektatu zure CI-ra build-ak hutsik "
@@ -1724,19 +1755,20 @@ msgstr ""
 #: templates/django_cotton_gallery/docs.html:215
 msgid ""
 "Same rules and severities as the web report. The CLI's exit-code logic "
-"considers <strong>errors</strong> and (with the flag) <strong>warnings</"
-"strong>; hints are surfaced in the web report but don't affect CI exit codes."
+"considers <strong>errors</strong> and (with the flag) "
+"<strong>warnings</strong>; hints are surfaced in the web report but don't "
+"affect CI exit codes."
 msgstr ""
 "Web txostenaren arau eta larritasun berberak. CLI-aren irteera-kodearen "
-"logikak <strong>erroreak</strong> eta (flag-arekin) <strong>abisuak</strong> "
-"kontuan hartzen ditu; pistak (hints) web txostenean agertzen dira baina ez "
+"logikak <strong>erroreak</strong> eta (flag-arekin) <strong>abisuak</strong>"
+" kontuan hartzen ditu; pistak (hints) web txostenean agertzen dira baina ez "
 "dute CI-aren irteera-kodean eraginik."
 
 #: templates/django_cotton_gallery/docs.html:220
 msgid ""
-"The gallery reads <code>&#123;# @prop ... #&#125;</code> comments at the top "
-"of each Cotton template to build the props table and the controls panel. The "
-"grammar below covers every annotation feature."
+"The gallery reads <code>&#123;# @prop ... #&#125;</code> comments at the top"
+" of each Cotton template to build the props table and the controls panel. "
+"The grammar below covers every annotation feature."
 msgstr ""
 "Galeriak Cotton txantiloi bakoitzaren goialdean <code>&#123;# @prop ... "
 "#&#125;</code> iruzkinak irakurtzen ditu propietate-taula eta kontrolen "
@@ -1744,13 +1776,13 @@ msgstr ""
 
 #: templates/django_cotton_gallery/docs.html:225
 msgid ""
-"One <code>@prop</code> comment per piece of API, then <code>&lt;c-vars&gt;</"
-"code> with defaults, then your markup. The shape is always <code>&#123;# "
-"@prop name:type | filter | ... #&#125;</code>."
+"One <code>@prop</code> comment per piece of API, then "
+"<code>&lt;c-vars&gt;</code> with defaults, then your markup. The shape is "
+"always <code>&#123;# @prop name:type | filter | ... #&#125;</code>."
 msgstr ""
-"API zati bakoitzeko <code>@prop</code> iruzkin bat, gero <code>&lt;c-vars&gt;"
-"</code> lehenetsiekin, gero zure markaketa. Forma beti da <code>&#123;# "
-"@prop name:type | filter | ... #&#125;</code>."
+"API zati bakoitzeko <code>@prop</code> iruzkin bat, gero "
+"<code>&lt;c-vars&gt;</code> lehenetsiekin, gero zure markaketa. Forma beti "
+"da <code>&#123;# @prop name:type | filter | ... #&#125;</code>."
 
 #: templates/django_cotton_gallery/docs.html:237
 msgid "The type after the colon decides which control the gallery renders."
@@ -1801,15 +1833,16 @@ msgstr "Kontrolaren ondoan erakusten da."
 
 #: templates/django_cotton_gallery/docs.html:261
 msgid ""
-"Marks the prop as mandatory. Only kicks in when there's no <code>default</"
-"code>."
+"Marks the prop as mandatory. Only kicks in when there's no "
+"<code>default</code>."
 msgstr ""
 "Propietatea derrigorrezko gisa markatzen du. Soilik <code>default</code>-ik "
 "ez dagoenean aplikatzen da."
 
 #: templates/django_cotton_gallery/docs.html:262
 msgid "Strikes the prop through and shows the migration note."
-msgstr "Propietatea zeharkatuta marratzen du eta migrazio-oharra erakusten du."
+msgstr ""
+"Propietatea zeharkatuta marratzen du eta migrazio-oharra erakusten du."
 
 #: templates/django_cotton_gallery/docs.html:263
 msgid "Removes the prop from the controls panel."
@@ -1829,9 +1862,9 @@ msgid ""
 "starts with <code>:</code>. Use it for numbers, booleans, lists — anything "
 "that isn't a plain string."
 msgstr ""
-"Cotton-ek balioa Python adierazpen gisa ebaluatzen du atributu-izena <code>:"
-"</code>-rekin hasten denean. Erabili zenbaki, boolean eta zerrendentzat — "
-"kate hutsa ez den edozein gauzatarako."
+"Cotton-ek balioa Python adierazpen gisa ebaluatzen du atributu-izena "
+"<code>:</code>-rekin hasten denean. Erabili zenbaki, boolean eta "
+"zerrendentzat — kate hutsa ez den edozein gauzatarako."
 
 #: templates/django_cotton_gallery/docs.html:281
 msgid ""
@@ -1847,20 +1880,20 @@ msgstr "Osagai zorrotzak (<code>@strict</code>)"
 
 #: templates/django_cotton_gallery/docs.html:289
 msgid ""
-"Add <code>&#123;# @strict #&#125;</code> to declare a <em>closed prop set</"
-"em> — every prop is listed via <code>@prop</code>. The detail page shows a "
-"<code>@strict</code> badge, and the linter turns two things into errors: an "
-"undocumented <code>&lt;c-vars&gt;</code> prop, and a stray <code>&#123;"
-"&#123; attrs &#125;&#125;</code> (which would let arbitrary attributes "
-"through, contradicting the closed set)."
+"Add <code>&#123;# @strict #&#125;</code> to declare a <em>closed prop "
+"set</em> — every prop is listed via <code>@prop</code>. The detail page "
+"shows a <code>@strict</code> badge, and the linter turns two things into "
+"errors: an undocumented <code>&lt;c-vars&gt;</code> prop, and a stray "
+"<code>&#123;&#123; attrs &#125;&#125;</code> (which would let arbitrary "
+"attributes through, contradicting the closed set)."
 msgstr ""
 "Gehitu <code>&#123;# @strict #&#125;</code> <em>prop-multzo itxi bat</em> "
 "deklaratzeko — prop bakoitza <code>@prop</code> bidez zerrendatzen da. "
 "Xehetasun-orriak <code>@strict</code> bereizgarria erakusten du, eta "
-"linterrak bi gauza errore bihurtzen ditu: dokumentatu gabeko <code>&lt;c-"
-"vars&gt;</code> prop bat, eta galdutako <code>&#123;&#123; attrs &#125;&#125;"
-"</code> bat (nahi bezalako atributuak pasatzen utziko lituzkeena, multzo "
-"itxiaren aurka)."
+"linterrak bi gauza errore bihurtzen ditu: dokumentatu gabeko "
+"<code>&lt;c-vars&gt;</code> prop bat, eta galdutako <code>&#123;&#123; attrs"
+" &#125;&#125;</code> bat (nahi bezalako atributuak pasatzen utziko "
+"lituzkeena, multzo itxiaren aurka)."
 
 #: templates/django_cotton_gallery/docs.html:295
 msgid "Intentionally unused (<code>@ignore-unused</code>)"
@@ -1888,87 +1921,146 @@ msgstr ""
 "Konponente-xehetasunen orri bakoitza zuzeneko playground bat da. Props "
 "panelaz haratago, hainbat funtzioak iterazioa azkartzen dute:"
 
+#: templates/django_cotton_gallery/docs.html:307
+msgid "Preview isolation"
+msgstr "Aurrebistaren isolamendua"
+
 #: templates/django_cotton_gallery/docs.html:308
 msgid ""
-"Switch the preview into a grid that renders <strong>every combination</"
-"strong> of the component's discrete props at once. The first two enum or "
-"boolean props become the Y/X axes; everything else stays consistent across "
-"cells. Useful for QA, visual regression, and seeing the whole API at a "
-"glance."
+"Every component renders in a <strong>document of its own</strong> — on the "
+"detail page, in both compare panels and in each index card. The gallery's "
+"CSS cannot reach it, a <code>position: fixed</code> modal stays inside its "
+"preview instead of covering the page, and the scripts a component ships with"
+" actually run. Media queries fire on the stage width, which is what makes "
+"the viewport switcher more than decoration."
 msgstr ""
-"Aldatu aurrebista sareta batera, osagaiaren prop diskretuen "
-"<strong>konbinazio guztiak</strong> aldi berean errendatzen dituena. Lehen "
-"bi enum edo boolean prop-ak Y/X ardatzak bihurtzen dira; gainerakoa gelaxken "
-"artean koherentea da. Erabilgarria QArako, erregresio bisualerako eta API "
-"osoa begirada bakar batean ikusteko."
+"Osagai bakoitza <strong>bere dokumentu propioan</strong> errendatzen da: "
+"xehetasun-orrian, konparazio-panel bietan eta indizeko txartel bakoitzean. "
+"Galeriaren CSSak ezin du hara iritsi, <code>position: fixed</code> duen "
+"modal bat bere aurrebistaren barruan geratzen da orria estali beharrean, eta"
+" osagaiak dakartzan script-ak benetan exekutatzen dira. Media query-ek "
+"eszenaren zabalerari erantzuten diote, eta horrek viewport-hautatzailea "
+"apaingarri hutsa baino gehiago bihurtzen du."
 
 #: templates/django_cotton_gallery/docs.html:309
 msgid ""
-"Toggle via the <strong>View</strong> switcher in the preview toolbar (single-"
-"frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so dense "
-"matrices don't fire 30 fetches at once."
+"Index cards drop their frame once they scroll well out of view and rebuild "
+"it on the way back — a large catalog does not keep one JS runtime alive per "
+"component."
+msgstr ""
+"Indizeko txartelek beren markoa baztertzen dute ikusmenetik nahikoa "
+"urruntzen direnean, eta itzultzean berreraiki egiten dute: katalogo handi "
+"batek ez du JS runtime bat bizirik mantentzen osagai bakoitzeko."
+
+#: templates/django_cotton_gallery/docs.html:311
+msgid "Preview height"
+msgstr "Aurrebistaren altuera"
+
+#: templates/django_cotton_gallery/docs.html:312
+msgid ""
+"Drag the <strong>bottom edge</strong> of the preview to size it, or focus "
+"the grip and use the arrow keys (hold Shift for larger steps). A component "
+"built for a screen — a modal, a drawer — contributes nothing to its own "
+"content height, so there is nothing to measure and the gallery does not "
+"guess one. Your height lasts while you stay on the component."
+msgstr ""
+"Arrastatu aurrebistaren <strong>beheko ertza</strong> tamaina emateko, edo "
+"fokatu heldulekua eta erabili gezi-teklak (Shift sakatuta, urrats "
+"handiagoak). Pantaila baterako diseinatutako osagai batek —modal bat, alboko"
+" panel bat— ez dio ezer ematen bere eduki-altuerari; beraz, ez dago zer "
+"neurturik eta galeriak ez du asmatzen. Zure altuera mantendu egiten da "
+"osagaian jarraitzen duzun bitartean."
+
+#: templates/django_cotton_gallery/docs.html:315
+msgid ""
+"Switch the preview into a grid that renders <strong>every "
+"combination</strong> of the component's discrete props at once. The first "
+"two enum or boolean props become the Y/X axes; every other prop is read from"
+" the controls panel and held the same across cells, so changing one there "
+"rebuilds the grid. Useful for QA, visual regression, and seeing the whole "
+"API at a glance."
+msgstr ""
+"Aldatu aurrebista sareta batera, osagaiaren prop diskretuen "
+"<strong>konbinazio guztiak</strong> aldi berean errendatzen dituena. Lehen "
+"bi enum edo boolean prop-ak Y/X ardatzak bihurtzen dira; gainerako prop-ak "
+"kontrol-paneletik irakurtzen dira eta berdin mantentzen dira gelaxka "
+"guztietan, beraz han bat aldatzeak sareta berreraikitzen du. Erabilgarria "
+"QArako, erregresio bisualerako eta API osoa begirada bakar batean ikusteko."
+
+#: templates/django_cotton_gallery/docs.html:316
+msgid ""
+"Toggle via the <strong>View</strong> switcher in the preview toolbar "
+"(single-frame icon ↔ grid icon). Cells lazy-load via IntersectionObserver so"
+" dense matrices don't fire 30 fetches at once."
 msgstr ""
 "Aldatu aurrebistaren tresna-barrako <strong>Ikusi</strong> hautatzailearen "
 "bidez (marko bakarreko ikonoa ↔ saretaren ikonoa). Gelaxkak "
 "IntersectionObserver bidez kargatzen dira, beraz, matrize trinkoek ez dute "
 "aldi berean 30 eskaera abiarazten."
 
-#: templates/django_cotton_gallery/docs.html:312
+#: templates/django_cotton_gallery/docs.html:319
 msgid ""
 "The <strong>Bg</strong> bar in the preview toolbar switches the backdrop "
-"between checkered, white, dark, and brand. Hit <strong>Edit</strong> to turn "
-"the last three swatches into color pickers and recolour them to your app's "
+"between checkered, white, dark, and brand. Hit <strong>Edit</strong> to turn"
+" the last three swatches into color pickers and recolour them to your app's "
 "theme — the choice previews live and is only saved on <strong>Done</strong> "
 "(persisted in <code>localStorage</code>); <strong>Reset</strong> restores "
 "the defaults."
-msgstr "Aurrebistaren tresna-barrako <strong>Bg</strong> barrak atzeko planoa aldatzen du laukien, zuriaren, ilunaren eta markaren artean. Sakatu <strong>Editatu</strong> azken hiru swatch-ak kolore-hautatzaile bihurtzeko eta zure aplikazioaren gaira birkoloreatzeko — hautaketa zuzenean aurreikusten da eta <strong>Eginda</strong> sakatzean bakarrik gordetzen da (<code>localStorage</code>-n gordeta); <strong>Reset</strong>-ek lehenetsiak berrezartzen ditu."
+msgstr ""
+"Aurrebistaren tresna-barrako <strong>Bg</strong> barrak atzeko planoa "
+"aldatzen du laukien, zuriaren, ilunaren eta markaren artean. Sakatu "
+"<strong>Editatu</strong> azken hiru swatch-ak kolore-hautatzaile bihurtzeko "
+"eta zure aplikazioaren gaira birkoloreatzeko — hautaketa zuzenean "
+"aurreikusten da eta <strong>Eginda</strong> sakatzean bakarrik gordetzen da "
+"(<code>localStorage</code>-n gordeta); <strong>Reset</strong>-ek lehenetsiak"
+" berrezartzen ditu."
 
-#: templates/django_cotton_gallery/docs.html:314
+#: templates/django_cotton_gallery/docs.html:321
 msgid "Shareable URL state"
 msgstr "URL egoera partekagarria"
 
-#: templates/django_cotton_gallery/docs.html:315
+#: templates/django_cotton_gallery/docs.html:322
 msgid ""
 "Every change in the controls panel writes the non-default values to the URL "
 "via <code>history.replaceState</code>. Copy the URL, send it, and the "
-"recipient lands on the same component with the exact same configuration — no "
-"description needed for bug reports or design reviews."
+"recipient lands on the same component with the exact same configuration — no"
+" description needed for bug reports or design reviews."
 msgstr ""
 "Kontrolen panelaren aldaketa bakoitzak lehenetsiak ez diren balioak URLan "
 "idazten ditu <code>history.replaceState</code> bidez. Kopiatu URLa, bidali "
 "eta hartzaileak osagai bera ireki dezake konfigurazio berarekin — ez da "
 "deskribapenik behar akats-txostenetarako edo diseinu-berrikuspenetarako."
 
-#: templates/django_cotton_gallery/docs.html:322
+#: templates/django_cotton_gallery/docs.html:329
 msgid "Pass-through attrs control"
 msgstr "<<Pass-through>> attrs kontrola"
 
-#: templates/django_cotton_gallery/docs.html:323
+#: templates/django_cotton_gallery/docs.html:330
 msgid ""
 "Components whose body uses <code>&#123;&#123; attrs &#125;&#125;</code> or "
 "<code>:attrs=\"attrs\"</code> accept arbitrary HTML attributes that aren't "
 "declared as <code>&lt;c-vars&gt;</code> props — <code>disabled</code>, "
-"<code>id</code>, <code>data-*</code>, <code>aria-*</code>, <code>style</"
-"code>, Alpine <code>x-*</code> directives, HTMX <code>hx-*</code> "
-"attributes, etc. The gallery auto-detects this and shows an <strong>Extra "
-"attributes</strong> input below the declared props."
+"<code>id</code>, <code>data-*</code>, <code>aria-*</code>, "
+"<code>style</code>, Alpine <code>x-*</code> directives, HTMX "
+"<code>hx-*</code> attributes, etc. The gallery auto-detects this and shows "
+"an <strong>Extra attributes</strong> input below the declared props."
 msgstr ""
-"<code>&#123;&#123; attrs &#125;&#125;</code> edo <code>:attrs=\"attrs\"</"
-"code> erabiltzen duten osagaiek <code>&lt;c-vars&gt;</code>-ekin deklaratuta "
-"ez dauden HTML atributu arbitrarioak onartzen dituzte — <code>disabled</"
-"code>, <code>id</code>, <code>data-*</code>, <code>aria-*</code>, "
-"<code>style</code>, Alpine <code>x-*</code> direktibak, HTMX <code>hx-*</"
-"code> atributuak, etab. Galeriak automatikoki hautematen du eta "
-"<strong>Extra attributes</strong> sarrera erakusten du deklaratutako propsen "
-"azpian."
+"<code>&#123;&#123; attrs &#125;&#125;</code> edo "
+"<code>:attrs=\"attrs\"</code> erabiltzen duten osagaiek "
+"<code>&lt;c-vars&gt;</code>-ekin deklaratuta ez dauden HTML atributu "
+"arbitrarioak onartzen dituzte — <code>disabled</code>, <code>id</code>, "
+"<code>data-*</code>, <code>aria-*</code>, <code>style</code>, Alpine "
+"<code>x-*</code> direktibak, HTMX <code>hx-*</code> atributuak, etab. "
+"Galeriak automatikoki hautematen du eta <strong>Extra attributes</strong> "
+"sarrera erakusten du deklaratutako propsen azpian."
 
-#: templates/django_cotton_gallery/docs.html:324
+#: templates/django_cotton_gallery/docs.html:331
 msgid ""
 "Type to filter the suggestion popover. <kbd>↓</kbd>/<kbd>↑</kbd> to "
 "navigate, <kbd>Tab</kbd> or <kbd>Enter</kbd> to insert the highlighted "
 "token. Tokens with <code>=\"\"</code> park the caret inside the quotes so "
-"you can type the value immediately. Whatever you type lands literally on the "
-"rendered HTML."
+"you can type the value immediately. Whatever you type lands literally on the"
+" rendered HTML."
 msgstr ""
 "Idatzi iradokizun-popoverra iragazteko. <kbd>↓</kbd>/<kbd>↑</kbd> "
 "nabigatzeko, <kbd>Tab</kbd> edo <kbd>Enter</kbd> nabarmendutako tokena "
@@ -1976,7 +2068,7 @@ msgstr ""
 "dute, balioa berehala idatz dezazun. Idazten duzuna literalki txertatzen da "
 "errenderizatutako HTMLan."
 
-#: templates/django_cotton_gallery/docs.html:325
+#: templates/django_cotton_gallery/docs.html:332
 msgid ""
 "<strong>Heads up</strong>: <code>class</code> may duplicate when the "
 "component's root element already declares one — HTML5 keeps the first "
@@ -1984,16 +2076,16 @@ msgid ""
 "<code>data-*</code>, or any non-conflicting attribute for visual overrides."
 msgstr ""
 "<strong>Adi</strong>: <code>class</code> bikoiztu daiteke osagaiaren erro-"
-"elementuak dagoeneko bat deklaratzen badu — HTML5-ek lehenengo <code>class</"
-"code> atributua gordetzen du eta gainerakoak baztertzen ditu. Erabili "
-"<code>style</code>, <code>data-*</code> edo gatazkarik gabeko beste edozein "
-"atributu ikusmen-gainjartzeetarako."
+"elementuak dagoeneko bat deklaratzen badu — HTML5-ek lehenengo "
+"<code>class</code> atributua gordetzen du eta gainerakoak baztertzen ditu. "
+"Erabili <code>style</code>, <code>data-*</code> edo gatazkarik gabeko beste "
+"edozein atributu ikusmen-gainjartzeetarako."
 
-#: templates/django_cotton_gallery/docs.html:327
+#: templates/django_cotton_gallery/docs.html:334
 msgid "Sidebar typeahead"
 msgstr "Alboko barraren autoosaketa"
 
-#: templates/django_cotton_gallery/docs.html:328
+#: templates/django_cotton_gallery/docs.html:335
 msgid ""
 "Press <kbd>/</kbd> from anywhere to focus the search. Start typing — a "
 "dropdown appears with name + path + description for every match. Hit "
@@ -2001,57 +2093,69 @@ msgid ""
 "whatever suggestion you've focused via <kbd>↓</kbd>). <kbd>Enter</kbd> "
 "activates the first match; <kbd>Esc</kbd> clears."
 msgstr ""
-"Sakatu <kbd>/</kbd> edozein lekutik bilaketa fokuratzeko. Idazten hasi — bat "
-"datorrena bakoitzeko izena + bidea + deskribapena dituen menua agertzen da. "
-"Sakatu <kbd>Tab</kbd> sarrera lehen bat datorrenarekin autoosatzeko (edo "
+"Sakatu <kbd>/</kbd> edozein lekutik bilaketa fokuratzeko. Idazten hasi — bat"
+" datorrena bakoitzeko izena + bidea + deskribapena dituen menua agertzen da."
+" Sakatu <kbd>Tab</kbd> sarrera lehen bat datorrenarekin autoosatzeko (edo "
 "<kbd>↓</kbd> bidez fokuratu duzun iradokizunarekin). <kbd>Enter</kbd>-ek "
 "lehen bat datorrena aktibatzen du; <kbd>Esc</kbd>-ek garbitzen du."
 
-#: templates/django_cotton_gallery/docs.html:330
-#| msgid "Live syntax highlighting"
+#: templates/django_cotton_gallery/docs.html:337
 msgid "Language-aware syntax highlighting"
 msgstr "Lengoaiaren araberako sintaxi-nabarmentzea"
 
-#: templates/django_cotton_gallery/docs.html:331
+#: templates/django_cotton_gallery/docs.html:338
 #, python-format
 msgid ""
 "The Source tab, the Cotton-tag preview, and the live editors (slot textarea "
 "+ extra-attrs field) all colour the full template stack: HTML tags, Cotton "
-"component names (<code>&lt;c-…&gt;</code>), Django <code>&#123;%%&nbsp;"
-"%%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> blocks and "
-"filters, HTMX (<code>hx-*</code>) and Alpine (<code>x-*</code> / <code>@</"
-"code> / <code>:</code>) attributes — with the Alpine value tokenised as "
-"JavaScript — embedded <code>&lt;script&gt;</code> JS and <code>&lt;style&gt;"
-"</code> CSS, and the <code>&#123;# @… #&#125;</code> annotation DSL. The "
-"slot editor uses an overlay technique; the attrs field is a "
-"<code>contenteditable</code> div so the cursor sits on top of the colored "
-"text directly."
-msgstr "Iturburu-fitxak, Cotton tag-aren aurrebistak eta zuzeneko editoreek (slot-aren textarea + atributu-editorea) txantiloi-pila osoa koloreztatzen dute: HTML etiketak, Cotton osagaien izenak (<code>&lt;c-…&gt;</code>), Django <code>&#123;%%&nbsp;%%&#125;</code> / <code>&#123;&#123;&nbsp;&#125;&#125;</code> blokeak eta iragazkiak, HTMX (<code>hx-*</code>) eta Alpine (<code>x-*</code> / <code>@</code> / <code>:</code>) atributuak — Alpine balioa JavaScript gisa tokenizatuta — <code>&lt;script&gt;</code> JS eta <code>&lt;style&gt;</code> CSS kapsulatuak, eta <code>&#123;# @… #&#125;</code> oharpen-DSLa. Slot-editoreak overlay teknika erabiltzen du; atributu-eremua <code>contenteditable</code> bat da, kurtsorea koloreztatutako testuaren gainean egoteko."
+"component names (<code>&lt;c-…&gt;</code>), Django "
+"<code>&#123;%%&nbsp;%%&#125;</code> / "
+"<code>&#123;&#123;&nbsp;&#125;&#125;</code> blocks and filters, HTMX "
+"(<code>hx-*</code>) and Alpine (<code>x-*</code> / <code>@</code> / "
+"<code>:</code>) attributes — with the Alpine value tokenised as JavaScript —"
+" embedded <code>&lt;script&gt;</code> JS and <code>&lt;style&gt;</code> CSS,"
+" and the <code>&#123;# @… #&#125;</code> annotation DSL. The slot editor "
+"uses an overlay technique; the attrs field is a <code>contenteditable</code>"
+" div so the cursor sits on top of the colored text directly."
+msgstr ""
+"Iturburu-fitxak, Cotton tag-aren aurrebistak eta zuzeneko editoreek (slot-"
+"aren textarea + atributu-editorea) txantiloi-pila osoa koloreztatzen dute: "
+"HTML etiketak, Cotton osagaien izenak (<code>&lt;c-…&gt;</code>), Django "
+"<code>&#123;%%&nbsp;%%&#125;</code> / "
+"<code>&#123;&#123;&nbsp;&#125;&#125;</code> blokeak eta iragazkiak, HTMX "
+"(<code>hx-*</code>) eta Alpine (<code>x-*</code> / <code>@</code> / "
+"<code>:</code>) atributuak — Alpine balioa JavaScript gisa tokenizatuta — "
+"<code>&lt;script&gt;</code> JS eta <code>&lt;style&gt;</code> CSS "
+"kapsulatuak, eta <code>&#123;# @… #&#125;</code> oharpen-DSLa. Slot-"
+"editoreak overlay teknika erabiltzen du; atributu-eremua "
+"<code>contenteditable</code> bat da, kurtsorea koloreztatutako testuaren "
+"gainean egoteko."
 
-#: templates/django_cotton_gallery/docs.html:333
+#: templates/django_cotton_gallery/docs.html:340
 msgid "CSS autocomplete inside style attributes"
 msgstr "CSS autoosatzea style atributuetan"
 
-#: templates/django_cotton_gallery/docs.html:334
+#: templates/django_cotton_gallery/docs.html:341
 msgid ""
 "When the caret enters a <code>style=\"…\"</code> attribute, the popover "
-"switches from HTML-attribute suggestions to CSS-aware ones. It detects three "
-"contexts:"
+"switches from HTML-attribute suggestions to CSS-aware ones. It detects three"
+" contexts:"
 msgstr ""
 "Kurtsorea <code>style=\"…\"</code> atributu batean sartzen denean, popover-"
 "ak HTML-atributuen iradokizunetatik CSS-arenetara aldatzen du. Hiru "
 "testuinguru detektatzen ditu:"
 
-#: templates/django_cotton_gallery/docs.html:336
+#: templates/django_cotton_gallery/docs.html:343
 msgid ""
 "<strong>Property name</strong> after <code>;</code> or at the start — "
-"suggests <code>display</code>, <code>padding</code>, <code>color</code>, etc."
+"suggests <code>display</code>, <code>padding</code>, <code>color</code>, "
+"etc."
 msgstr ""
 "<strong>Propietatearen izena</strong> <code>;</code>-ren ondoren edo "
 "hasieran — <code>display</code>, <code>padding</code>, <code>color</code>, "
 "etab. iradokitzen ditu."
 
-#: templates/django_cotton_gallery/docs.html:337
+#: templates/django_cotton_gallery/docs.html:344
 msgid ""
 "<strong>Property value</strong> after <code>:</code> — suggests keyword "
 "values for the current property (<code>flex</code>, <code>none</code>…), "
@@ -2060,11 +2164,11 @@ msgid ""
 msgstr ""
 "<strong>Propietatearen balioa</strong> <code>:</code>-ren ondoren — uneko "
 "propietatearen keyword balioak (<code>flex</code>, <code>none</code>…), "
-"kolore-izenak edo shorthand zatiak iradokitzen ditu (adib. <code>border: 1px "
-"solid red</code>-ek tokenak sailkatzen ditu idazten ari zarenean, beraz "
+"kolore-izenak edo shorthand zatiak iradokitzen ditu (adib. <code>border: 1px"
+" solid red</code>-ek tokenak sailkatzen ditu idazten ari zarenean, beraz "
 "falta dena soilik eskaintzen du)."
 
-#: templates/django_cotton_gallery/docs.html:338
+#: templates/django_cotton_gallery/docs.html:345
 msgid ""
 "<strong>Length unit</strong> after a number — typing <code>2</code> offers "
 "<code>px</code>/<code>rem</code>/<code>vh</code>/<code>dvh</code>/etc; "
@@ -2072,61 +2176,62 @@ msgid ""
 "(matching prefix)."
 msgstr ""
 "<strong>Luzera-unitatea</strong> zenbaki baten ondoren — <code>2</code> "
-"idazteak <code>px</code>/<code>rem</code>/<code>vh</code>/<code>dvh</code>/"
-"etab. eskaintzen ditu; <code>2d</code> idazteak <code>2dvh</code>/"
-"<code>2dvw</code>-ra iragazten du (aurrizki bat etortzea)."
+"idazteak "
+"<code>px</code>/<code>rem</code>/<code>vh</code>/<code>dvh</code>/etab. "
+"eskaintzen ditu; <code>2d</code> idazteak "
+"<code>2dvh</code>/<code>2dvw</code>-ra iragazten du (aurrizki bat etortzea)."
 
-#: templates/django_cotton_gallery/docs.html:341
+#: templates/django_cotton_gallery/docs.html:348
 msgid "Maximize editor modal"
 msgstr "Editorearen modal maximizatua"
 
-#: templates/django_cotton_gallery/docs.html:342
+#: templates/django_cotton_gallery/docs.html:349
 msgid ""
-"Both the slot textarea and the extra-attrs field have a maximize button (the "
-"diagonal-arrows icon) that opens the editor in a full-screen modal. The "
+"Both the slot textarea and the extra-attrs field have a maximize button (the"
+" diagonal-arrows icon) that opens the editor in a full-screen modal. The "
 "modal preserves the editor's contents, caret position, and bindings — "
 "autocomplete, syntax highlight, formatter, all keep working. The header has "
 "Format and Reset buttons; the footer shows live char/line counts and "
 "keyboard shortcuts. Press <kbd>Esc</kbd> or click the backdrop to close."
 msgstr ""
-"Slot textarea-k eta extra-attrs eremuak biek dute maximizatzeko botoia (gezi "
-"diagonalen ikonoa) editorea pantaila osoko modal batean irekitzen duena. "
+"Slot textarea-k eta extra-attrs eremuak biek dute maximizatzeko botoia (gezi"
+" diagonalen ikonoa) editorea pantaila osoko modal batean irekitzen duena. "
 "Modalak editorearen edukia, kurtsorearen posizioa eta bindingak gordetzen "
-"ditu — autocomplete, sintaxi-nabarmentzea, formateadorea, dena funtzionatzen "
-"jarraitzen du. Goiburuak Format eta Reset botoiak ditu; oinak karaktere/"
-"lerro-zenbaketak eta teklatuko lasterbideak zuzenean erakusten ditu. Sakatu "
-"<kbd>Esc</kbd> edo egin klik atzealdean ixteko."
+"ditu — autocomplete, sintaxi-nabarmentzea, formateadorea, dena funtzionatzen"
+" jarraitzen du. Goiburuak Format eta Reset botoiak ditu; oinak "
+"karaktere/lerro-zenbaketak eta teklatuko lasterbideak zuzenean erakusten "
+"ditu. Sakatu <kbd>Esc</kbd> edo egin klik atzealdean ixteko."
 
-#: templates/django_cotton_gallery/docs.html:344
+#: templates/django_cotton_gallery/docs.html:351
 msgid "Sidebar collapse to rail"
 msgstr "Tolestu alboko barra railera"
 
-#: templates/django_cotton_gallery/docs.html:345
+#: templates/django_cotton_gallery/docs.html:352
 msgid ""
 "On desktop, a small toggle on the sidebar's right edge collapses it to a "
 "4rem icon rail (logo + Empezar + Documentación + theme/lang/github). The "
 "component tree hides — to navigate components, expand again. The state "
-"persists across sessions via <code>localStorage</code>, applied before first "
-"paint to avoid a layout flash."
+"persists across sessions via <code>localStorage</code>, applied before first"
+" paint to avoid a layout flash."
 msgstr ""
 "Mahaigainean, alboko barraren eskuineko ertzeko etengailu txiki batek 4rem-"
-"eko ikono-erraila bihurtzen du (logo + Empezar + Documentación + gaia/"
-"hizkuntza/github). Osagaien zuhaitza ezkutatzen da — osagaietan nabigatzeko, "
-"hedatu berriro. Egoera saioen artean iraunkortzen da <code>localStorage</"
-"code> bidez, lehen errendatzearen aurretik aplikatuta diseinu-flash bat "
-"saihesteko."
+"eko ikono-erraila bihurtzen du (logo + Empezar + Documentación + "
+"gaia/hizkuntza/github). Osagaien zuhaitza ezkutatzen da — osagaietan "
+"nabigatzeko, hedatu berriro. Egoera saioen artean iraunkortzen da "
+"<code>localStorage</code> bidez, lehen errendatzearen aurretik aplikatuta "
+"diseinu-flash bat saihesteko."
 
-#: templates/django_cotton_gallery/docs.html:351
+#: templates/django_cotton_gallery/docs.html:358
 msgid ""
 "Strings in filter values are quoted (<code>default:\"primary\"</code>). "
-"Numbers and booleans are bare (<code>default:5</code>, <code>default:False</"
-"code>)."
-msgstr ""
-"Iragazki-balioetako kateak komatxoartean daude (<code>default:\"primary\"</"
-"code>). Zenbakiak eta booleanak biluzik daude (<code>default:5</code>, "
+"Numbers and booleans are bare (<code>default:5</code>, "
 "<code>default:False</code>)."
+msgstr ""
+"Iragazki-balioetako kateak komatxoartean daude "
+"(<code>default:\"primary\"</code>). Zenbakiak eta booleanak biluzik daude "
+"(<code>default:5</code>, <code>default:False</code>)."
 
-#: templates/django_cotton_gallery/docs.html:352
+#: templates/django_cotton_gallery/docs.html:359
 msgid ""
 "If <code>&lt;c-vars&gt;</code> uses <code>:prop</code> (dynamic), the "
 "matching <code>@prop</code> MUST also start with <code>:</code>."
@@ -2135,15 +2240,15 @@ msgstr ""
 "(dinamikoa), bat datorren <code>@prop</code>-ek ere <code>:</code>-rekin "
 "hasi BEHAR du."
 
-#: templates/django_cotton_gallery/docs.html:353
+#: templates/django_cotton_gallery/docs.html:360
 msgid ""
-"<code>| required</code> only takes effect when there's no <code>| default:</"
-"code>. If both are present, default wins."
+"<code>| required</code> only takes effect when there's no <code>| "
+"default:</code>. If both are present, default wins."
 msgstr ""
 "<code>| required</code> soilik <code>| default:</code> ez dagoenean "
 "aplikatzen da. Biak presente badaude, default-ek irabazten du."
 
-#: templates/django_cotton_gallery/docs.html:354
+#: templates/django_cotton_gallery/docs.html:361
 msgid ""
 "Annotations are plain Django comments — Cotton and Django ignore them at "
 "render time. Only the gallery's parser reads them."
@@ -2160,8 +2265,8 @@ msgstr "Zerotik zure lehen osagairaino"
 msgid ""
 "Drop the components into a Django project in 90 seconds. Three steps, three "
 "copy-and-pasteable snippets. Once you're up and running, head to <a "
-"href=\"%(url)s\">Documentation</a> for the full configuration and annotation "
-"reference."
+"href=\"%(url)s\">Documentation</a> for the full configuration and annotation"
+" reference."
 msgstr ""
 "Sartu osagaiak Django proiektu batean 90 segundotan. Hiru urrats, hiru "
 "kopiatu-eta-itsasteko zatiki. Martxan zaudenean, joan <a "
@@ -2191,8 +2296,8 @@ msgstr "4. Gaitu hizkuntza-aldaketa (aukerakoa)"
 #: templates/django_cotton_gallery/get-started.html:29
 msgid ""
 "Install both apps with pip, register them in <code>settings.py</code>, then "
-"mount the gallery URLs behind a <code>DEBUG</code> guard. Plug and play — no "
-"other configuration needed for first run."
+"mount the gallery URLs behind a <code>DEBUG</code> guard. Plug and play — no"
+" other configuration needed for first run."
 msgstr ""
 "Instalatu bi appak pip-ekin, erregistratu <code>settings.py</code>-n, eta "
 "muntatu galeriaren URLak <code>DEBUG</code> guard baten atzean. Plug and "
@@ -2212,8 +2317,8 @@ msgid ""
 "tool — leaving the include guarded by <code>DEBUG</code> keeps it off in "
 "production by construction."
 msgstr ""
-"Ireki <code>/gallery/</code> zure nabigatzailean. Galeria garapen-tresna bat "
-"da — <code>DEBUG</code>-ekin babestuta uzteak ekoizpenean itzalita "
+"Ireki <code>/gallery/</code> zure nabigatzailean. Galeria garapen-tresna bat"
+" da — <code>DEBUG</code>-ekin babestuta uzteak ekoizpenean itzalita "
 "mantentzen du eraikuntzaz."
 
 #: templates/django_cotton_gallery/get-started.html:54
@@ -2222,15 +2327,17 @@ msgid ""
 "Django Cotton's regex compiler runs before Django's template engine and "
 "converts <code>&lt;c-foo /&gt;</code> tags into <code>&#123;%% include "
 "%%&#125;</code> calls. The <code>COTTON_SNAKE_CASED_NAMES = False</code> "
-"setting keeps tag names kebab-case so file paths like <code>atoms/ui/button."
-"html</code> map to <code>&lt;c-atoms.ui.button /&gt;</code> directly."
+"setting keeps tag names kebab-case so file paths like "
+"<code>atoms/ui/button.html</code> map to <code>&lt;c-atoms.ui.button "
+"/&gt;</code> directly."
 msgstr ""
 "Django Cotton-en regex konpiladorea Django-ren template motorraren aurretik "
 "exekutatzen da eta <code>&lt;c-foo /&gt;</code> etiketak <code>&#123;%% "
 "include %%&#125;</code> deietara bihurtzen ditu. "
-"<code>COTTON_SNAKE_CASED_NAMES = False</code> ezarpenak etiketa-izenak kebab-"
-"case-an mantentzen ditu, beraz <code>atoms/ui/button.html</code> bezalako "
-"bideak <code>&lt;c-atoms.ui.button /&gt;</code>-ra zuzenean mapatzen dira."
+"<code>COTTON_SNAKE_CASED_NAMES = False</code> ezarpenak etiketa-izenak "
+"kebab-case-an mantentzen ditu, beraz <code>atoms/ui/button.html</code> "
+"bezalako bideak <code>&lt;c-atoms.ui.button /&gt;</code>-ra zuzenean "
+"mapatzen dira."
 
 #: templates/django_cotton_gallery/get-started.html:59
 msgid ""
@@ -2246,14 +2353,15 @@ msgid ""
 "need (Tailwind, HTMX, Alpine, your own bundle…) hooks in through "
 "<code>DJANGO_COTTON_GALLERY_EXTRA_CSS</code> / <code>_EXTRA_JS</code> in "
 "settings, or the <code>_extra_head.html</code> partial in your templates "
-"dir. Browse the sidebar to see your components live, with their props panels."
+"dir. Browse the sidebar to see your components live, with their props "
+"panels."
 msgstr ""
 "Hori da — zure osagaiak galerian zuzenean daude. Behar duten edozein stack "
 "(Tailwind, HTMX, Alpine, zure bundle propioa…) "
 "<code>DJANGO_COTTON_GALLERY_EXTRA_CSS</code> / <code>_EXTRA_JS</code> bidez "
-"settings-en, edo zure templates karpetan dagoen <code>_extra_head.html</"
-"code> partial-aren bidez konektatzen da. Arakatu alboko barra zure osagaiak "
-"zuzenean ikusteko, beren props panelekin."
+"settings-en, edo zure templates karpetan dagoen "
+"<code>_extra_head.html</code> partial-aren bidez konektatzen da. Arakatu "
+"alboko barra zure osagaiak zuzenean ikusteko, beren props panelekin."
 
 #: templates/django_cotton_gallery/get-started.html:73
 msgid ""
@@ -2269,32 +2377,34 @@ msgstr ""
 #: templates/django_cotton_gallery/get-started.html:82
 msgid ""
 "Save the file, restart the server (Cotton caches templates), and your "
-"component shows up in the gallery's sidebar with a live preview, an editable "
-"<code>name</code> control, and a generated props table."
+"component shows up in the gallery's sidebar with a live preview, an editable"
+" <code>name</code> control, and a generated props table."
 msgstr ""
 "Gorde fitxategia, berrabiarazi zerbitzaria (Cotton-ek txantiloiak gordetzen "
-"ditu cache-an), eta zure osagaia galeriaren albo-barran agertzen da zuzeneko "
-"aurrebistarekin, <code>name</code> kontrol editagarriarekin, eta sortutako "
+"ditu cache-an), eta zure osagaia galeriaren albo-barran agertzen da zuzeneko"
+" aurrebistarekin, <code>name</code> kontrol editagarriarekin, eta sortutako "
 "props-taularekin."
 
 #: templates/django_cotton_gallery/get-started.html:83
 msgid ""
-"<strong>Folder layout is flexible.</strong> Components can live at any depth "
-"— <code>cotton/button.html</code>, <code>cotton/button/index.html</code>, "
-"<code>cotton/atoms/button.html</code>, or <code>cotton/atoms/button/index."
-"html</code> all work. The first folder under <code>cotton/</code> becomes "
-"the sidebar category; loose files at the root group under \"Components\". "
-"When both <code>&lt;dir&gt;.html</code> and <code>&lt;dir&gt;/index.html</"
-"code> exist, the sibling wins (cotton's resolution order)."
+"<strong>Folder layout is flexible.</strong> Components can live at any depth"
+" — <code>cotton/button.html</code>, <code>cotton/button/index.html</code>, "
+"<code>cotton/atoms/button.html</code>, or "
+"<code>cotton/atoms/button/index.html</code> all work. The first folder under"
+" <code>cotton/</code> becomes the sidebar category; loose files at the root "
+"group under \"Components\". When both <code>&lt;dir&gt;.html</code> and "
+"<code>&lt;dir&gt;/index.html</code> exist, the sibling wins (cotton's "
+"resolution order)."
 msgstr ""
 "<strong>Karpeta-egitura malgua da.</strong> Osagaiak edozein sakoneratan "
-"bizi daitezke — <code>cotton/button.html</code>, <code>cotton/button/index."
-"html</code>, <code>cotton/atoms/button.html</code> edo <code>cotton/atoms/"
-"button/index.html</code>, denek funtzionatzen dute. <code>cotton/</code>-ren "
-"azpiko lehen karpeta alboko barraren kategoria bihurtzen da; erroan dauden "
-"fitxategi solteak \"Osagaiak\"-en azpian taldekatzen dira. <code>&lt;dir&gt;."
-"html</code> eta <code>&lt;dir&gt;/index.html</code> biak existitzen "
-"direnean, anaiak irabazten du (cotton-en ebazpen-ordena)."
+"bizi daitezke — <code>cotton/button.html</code>, "
+"<code>cotton/button/index.html</code>, <code>cotton/atoms/button.html</code>"
+" edo <code>cotton/atoms/button/index.html</code>, denek funtzionatzen dute. "
+"<code>cotton/</code>-ren azpiko lehen karpeta alboko barraren kategoria "
+"bihurtzen da; erroan dauden fitxategi solteak \"Osagaiak\"-en azpian "
+"taldekatzen dira. <code>&lt;dir&gt;.html</code> eta "
+"<code>&lt;dir&gt;/index.html</code> biak existitzen direnean, anaiak "
+"irabazten du (cotton-en ebazpen-ordena)."
 
 #: templates/django_cotton_gallery/get-started.html:84
 #, python-format
@@ -2321,19 +2431,19 @@ msgid ""
 "and <strong>before</strong> <code>CommonMiddleware</code>:"
 msgstr ""
 "Bigarrenik, gehitu <code>LocaleMiddleware</code> middleware-en pilara. "
-"Ordena garrantzitsua da: <code>SessionMiddleware</code>-ren <strong>ondoren</"
-"strong> eta <code>CommonMiddleware</code>-ren <strong>aurretik</strong> joan "
-"behar da:"
+"Ordena garrantzitsua da: <code>SessionMiddleware</code>-ren "
+"<strong>ondoren</strong> eta <code>CommonMiddleware</code>-ren "
+"<strong>aurretik</strong> joan behar da:"
 
 #: templates/django_cotton_gallery/get-started.html:113
 msgid ""
 "Refresh the page and the dropdown shows up in the sidebar with the four "
-"supported locales. To expose more or fewer locales, set <code>LANGUAGES</"
-"code> in your <code>settings.py</code> — the gallery picks up whatever is "
-"configured."
+"supported locales. To expose more or fewer locales, set "
+"<code>LANGUAGES</code> in your <code>settings.py</code> — the gallery picks "
+"up whatever is configured."
 msgstr ""
-"Birkargatu orria eta goitibeherakoa alboko barran agertuko da onartzen diren "
-"lau locale-ekin. Locale gehiago edo gutxiago erakusteko, ezarri "
+"Birkargatu orria eta goitibeherakoa alboko barran agertuko da onartzen diren"
+" lau locale-ekin. Locale gehiago edo gutxiago erakusteko, ezarri "
 "<code>LANGUAGES</code> zure <code>settings.py</code>-n — galeriak "
 "konfiguratuta dagoena hartzen du."
 
@@ -2394,23 +2504,23 @@ msgid ""
 "<code>templates/</code> folder when <code>APP_DIRS</code> is on) and drop a "
 "component file in it."
 msgstr ""
-"Sortu <code>%(subfolder)s/</code> karpeta zure <code>TEMPLATES['DIRS']</"
-"code> sarreraren batean (edo instalatutako edozein app-en <code>templates/</"
-"code> karpetan <code>APP_DIRS</code> aktibo dagoenean) eta jarri osagai-"
-"fitxategi bat bertan."
+"Sortu <code>%(subfolder)s/</code> karpeta zure "
+"<code>TEMPLATES['DIRS']</code> sarreraren batean (edo instalatutako edozein "
+"app-en <code>templates/</code> karpetan <code>APP_DIRS</code> aktibo "
+"dagoenean) eta jarri osagai-fitxategi bat bertan."
 
 #: templates/django_cotton_gallery/index.html:74
 #, python-format
 msgid ""
 "If your components live under a different folder name, change the gallery's "
-"lookup by setting <code>COTTON_DIR = '...'</code> in your <code>settings.py</"
-"code>. The default is <code>'%(subfolder)s'</code> — set it to whatever name "
-"your components folder uses."
+"lookup by setting <code>COTTON_DIR = '...'</code> in your "
+"<code>settings.py</code>. The default is <code>'%(subfolder)s'</code> — set "
+"it to whatever name your components folder uses."
 msgstr ""
 "Zure osagaiak beste karpeta-izen batean bizi badira, aldatu galeriaren "
-"bilaketa <code>COTTON_DIR = '...'</code> ezarriz zure <code>settings.py</"
-"code>-n. Lehenetsia <code>'%(subfolder)s'</code> da — ezarri zure osagaien "
-"karpetak erabiltzen duen izenera."
+"bilaketa <code>COTTON_DIR = '...'</code> ezarriz zure "
+"<code>settings.py</code>-n. Lehenetsia <code>'%(subfolder)s'</code> da — "
+"ezarri zure osagaien karpetak erabiltzen duen izenera."
 
 #: templates/django_cotton_gallery/index.html:78
 msgid "No components yet"
@@ -2449,13 +2559,13 @@ msgstr "Aukerakoa: gaitu hizkuntza-aldaketa"
 msgid ""
 "The gallery is translated into English, Spanish, Basque, and French — but "
 "the language dropdown only appears when your project mounts Django's i18n "
-"URLs and <code>LocaleMiddleware</code>. Add both in your <code>urls.py</"
-"code> and <code>settings.py</code> to enable it."
+"URLs and <code>LocaleMiddleware</code>. Add both in your "
+"<code>urls.py</code> and <code>settings.py</code> to enable it."
 msgstr ""
 "Galeria ingelesera, gaztelaniara, euskarara eta frantsesera itzulita dago — "
 "baina hizkuntza-goitibeherakoa zure proiektuak Django-ren i18n URLak eta "
-"<code>LocaleMiddleware</code> muntatzen dituenean soilik agertzen da. Gehitu "
-"biak zure <code>urls.py</code>-n eta <code>settings.py</code>-n gaitzeko."
+"<code>LocaleMiddleware</code> muntatzen dituenean soilik agertzen da. Gehitu"
+" biak zure <code>urls.py</code>-n eta <code>settings.py</code>-n gaitzeko."
 
 #: templates/django_cotton_gallery/index.html:115
 msgid "See the i18n setup steps →"
@@ -2471,10 +2581,10 @@ msgid ""
 "coverage and deprecation come from the catalog itself; zombies and most-"
 "referenced metrics require scanning your project's templates and are opt-in."
 msgstr ""
-"Zure osagaien katalogoaren osasun eta erabilera seinaleak. Lint-a, oharpenen "
-"estaldura eta zaharkitzea katalogotik bertatik datoz; zonbiak eta gehien "
-"erreferentziatutako metrikek zure proiektuaren txantiloiak eskaneatzea behar "
-"dute eta aukerakoak dira."
+"Zure osagaien katalogoaren osasun eta erabilera seinaleak. Lint-a, oharpenen"
+" estaldura eta zaharkitzea katalogotik bertatik datoz; zonbiak eta gehien "
+"erreferentziatutako metrikek zure proiektuaren txantiloiak eskaneatzea behar"
+" dute eta aukerakoak dira."
 
 #: templates/django_cotton_gallery/insights.html:16
 msgid "Catalog"
@@ -2501,12 +2611,12 @@ msgid ""
 "and <strong>1 per warning</strong>, floored at <strong>0</strong>. "
 "<strong>Hints don't subtract</strong> — they're heuristic checks (e.g. "
 "context-processor variables) that may produce false positives. So 100 = "
-"perfect, 0 = lots of issues. Click \"Open lint report\" to see exactly which "
-"rules fired."
+"perfect, 0 = lots of issues. Click \"Open lint report\" to see exactly which"
+" rules fired."
 msgstr ""
-"<strong>Altuagoa hobe.</strong> <strong>100</strong>etik hasten da (katalogo "
-"garbia, oharpen arazorik gabe) eta <strong>5 errore bakoitzeko</strong> eta "
-"<strong>1 abisu bakoitzeko</strong> kentzen du, <strong>0</strong>n "
+"<strong>Altuagoa hobe.</strong> <strong>100</strong>etik hasten da (katalogo"
+" garbia, oharpen arazorik gabe) eta <strong>5 errore bakoitzeko</strong> eta"
+" <strong>1 abisu bakoitzeko</strong> kentzen du, <strong>0</strong>n "
 "geldituta. <strong>Iradokizunek ez dute kentzen</strong> — testuinguru-"
 "prozesatzaileen aldagaiak bezalako heuristikoak dira eta faltsu positiboak "
 "eman ditzakete. Beraz 100 = ezin hobea, 0 = arazo asko."
@@ -2549,14 +2659,14 @@ msgstr "Zer esan nahi du errenkada bakoitzak?"
 
 #: templates/django_cotton_gallery/insights.html:72
 msgid ""
-"<strong>How many of your components carry which kind of annotation.</strong> "
-"Higher = the gallery has more metadata to render rich previews and the "
+"<strong>How many of your components carry which kind of annotation.</strong>"
+" Higher = the gallery has more metadata to render rich previews and the "
 "linter has more material to check. <strong>Documented</strong>: have at "
 "least one <code>@description</code> or <code>@prop</code>. <strong>With "
-"props</strong>: declare at least one <code>@prop</code>. <strong>With slots</"
-"strong>: declare at least one <code>@slot</code>. <strong>Accept attrs</"
-"strong>: render <code>&#123;&#123; attrs &#125;&#125;</code> so callers can "
-"pass extra HTML attributes through."
+"props</strong>: declare at least one <code>@prop</code>. <strong>With "
+"slots</strong>: declare at least one <code>@slot</code>. <strong>Accept "
+"attrs</strong>: render <code>&#123;&#123; attrs &#125;&#125;</code> so "
+"callers can pass extra HTML attributes through."
 msgstr ""
 "<strong>Zenbat osagaik daramaten oharpen-mota bakoitza.</strong> Altuagoa = "
 "galeriak metadatu gehiago du preview aberatsak errendatzeko eta linterrak "
@@ -2564,15 +2674,15 @@ msgstr ""
 "<code>@description</code> edo <code>@prop</code> bat dute. <strong>Prop-"
 "ekin</strong>: gutxienez <code>@prop</code> bat deklaratzen dute. "
 "<strong>Slot-ekin</strong>: gutxienez <code>@slot</code> bat deklaratzen "
-"dute. <strong>Attrs onartzen</strong>: <code>&#123;&#123; attrs &#125;&#125;"
-"</code> errendatzen dute, deitzaileek HTML atributu gehigarriak pasa ahal "
-"izan ditzaten."
+"dute. <strong>Attrs onartzen</strong>: <code>&#123;&#123; attrs "
+"&#125;&#125;</code> errendatzen dute, deitzaileek HTML atributu gehigarriak "
+"pasa ahal izan ditzaten."
 
 #: templates/django_cotton_gallery/insights.html:76
 #, python-format
 msgid ""
-"%% of components that carry each kind of annotation. Higher is better — more "
-"metadata to drive the gallery's controls and lint checks."
+"%% of components that carry each kind of annotation. Higher is better — more"
+" metadata to drive the gallery's controls and lint checks."
 msgstr ""
 "%% anotazio mota bakoitza daramaten osagaiena. Altuagoa hobeagoa da — "
 "galeriaren kontrolak eta lint-aren egiaztapenak gidatzeko metadata gehiago."
@@ -2627,11 +2737,11 @@ msgid ""
 "Cotton maps your tags to files. Mismatches between your filenames and these "
 "settings break previews silently, so this card flags them up front."
 msgstr ""
-"Galeriak axola dien Cotton-en bi ezarpenen begiratu bat — <strong>non</"
-"strong> bilatzen dituen osagaiak eta <strong>nola</strong> Cotton-ek zure "
-"tag-ak fitxategiekin lotzen dituen. Zure fitxategien eta ezarpen hauen "
-"arteko ez-bat-etortzeak preview-ak isilik hausten ditu, beraz, txartel honek "
-"aurretik markatzen ditu."
+"Galeriak axola dien Cotton-en bi ezarpenen begiratu bat — "
+"<strong>non</strong> bilatzen dituen osagaiak eta <strong>nola</strong> "
+"Cotton-ek zure tag-ak fitxategiekin lotzen dituen. Zure fitxategien eta "
+"ezarpen hauen arteko ez-bat-etortzeak preview-ak isilik hausten ditu, beraz,"
+" txartel honek aurretik markatzen ditu."
 
 #: templates/django_cotton_gallery/insights.html:126
 msgid "What is COTTON_DIR?"
@@ -2640,11 +2750,11 @@ msgstr "Zer da COTTON_DIR?"
 #: templates/django_cotton_gallery/insights.html:131
 msgid ""
 "Subfolder name (relative to <code>TEMPLATES['DIRS']</code>) where Cotton — "
-"and the gallery — look for component files. Default <code>\"cotton\"</code>. "
-"Belongs to the Cotton folder convention; the gallery just reads it."
+"and the gallery — look for component files. Default <code>\"cotton\"</code>."
+" Belongs to the Cotton folder convention; the gallery just reads it."
 msgstr ""
-"Azpikarpetaren izena (<code>TEMPLATES['DIRS']</code>-en erlatiboa) Cotton-ek "
-"— eta galeriak — osagai-fitxategiak bilatzen dituen lekuan. Lehenetsia "
+"Azpikarpetaren izena (<code>TEMPLATES['DIRS']</code>-en erlatiboa) Cotton-ek"
+" — eta galeriak — osagai-fitxategiak bilatzen dituen lekuan. Lehenetsia "
 "<code>\"cotton\"</code>. Cotton-en karpeta-konbentzioari dagokio; galeriak "
 "irakurri besterik ez du egiten."
 
@@ -2659,8 +2769,8 @@ msgstr "Zer ari da bilatzen?"
 #: templates/django_cotton_gallery/insights.html:146
 msgid ""
 "The absolute filesystem path the gallery is currently scanning. If this "
-"isn't where you expect your components to live, check your TEMPLATES['DIRS'] "
-"and COTTON_DIR settings."
+"isn't where you expect your components to live, check your TEMPLATES['DIRS']"
+" and COTTON_DIR settings."
 msgstr ""
 "Galeria orain bilatzen ari den fitxategi-sistemaren bide absolutua. Hau ez "
 "bada zure osagaiak espero dituzun lekua, egiaztatu zure TEMPLATES['DIRS'] "
@@ -2672,20 +2782,20 @@ msgstr "Zer egiten du ezarpen honek?"
 
 #: templates/django_cotton_gallery/insights.html:167
 msgid ""
-"Cotton's setting that decides how a tag like <code>&lt;c-foo-bar /&gt;</"
-"code> maps to a file. With <code>True</code> (Cotton's default) it strips "
-"hyphens and looks for <code>foo_bar.html</code>; with <code>False</code> it "
-"keeps the hyphen and looks for <code>foo-bar.html</code>. The gallery "
-"indexes both styles transparently — pick whichever you prefer and stay "
-"consistent across the catalog."
+"Cotton's setting that decides how a tag like <code>&lt;c-foo-bar "
+"/&gt;</code> maps to a file. With <code>True</code> (Cotton's default) it "
+"strips hyphens and looks for <code>foo_bar.html</code>; with "
+"<code>False</code> it keeps the hyphen and looks for <code>foo-"
+"bar.html</code>. The gallery indexes both styles transparently — pick "
+"whichever you prefer and stay consistent across the catalog."
 msgstr ""
 "Cotton-en ezarpena <code>&lt;c-foo-bar /&gt;</code> bezalako etiketa bat "
-"fitxategi batera nola mapatzen den erabakitzen duena. <code>True</code>-"
-"rekin (Cotton-en lehenetsia) marrak kentzen ditu eta <code>foo_bar.html</"
-"code> bilatzen du; <code>False</code>-rekin marra mantentzen du eta "
-"<code>foo-bar.html</code> bilatzen du. Galeriak bi estiloak modu garden "
-"batean indexatzen ditu — aukeratu nahiago duzuna eta katalogo osoan "
-"sendotasuna mantendu."
+"fitxategi batera nola mapatzen den erabakitzen duena. "
+"<code>True</code>-rekin (Cotton-en lehenetsia) marrak kentzen ditu eta "
+"<code>foo_bar.html</code> bilatzen du; <code>False</code>-rekin marra "
+"mantentzen du eta <code>foo-bar.html</code> bilatzen du. Galeriak bi "
+"estiloak modu garden batean indexatzen ditu — aukeratu nahiago duzuna eta "
+"katalogo osoan sendotasuna mantendu."
 
 #: templates/django_cotton_gallery/insights.html:187
 msgid "error component"
@@ -2703,15 +2813,15 @@ msgid ""
 "but these components have a hyphen in their filename — Cotton can't find "
 "them. <strong>Two ways to fix it:</strong> rename the files (<code>form-"
 "field.html</code> → <code>form_field.html</code>) <strong>or</strong> set "
-"<code>COTTON_SNAKE_CASED_NAMES = False</code> in your <code>settings.py</"
-"code> to keep the hyphens."
+"<code>COTTON_SNAKE_CASED_NAMES = False</code> in your "
+"<code>settings.py</code> to keep the hyphens."
 msgstr ""
 "Cotton-ek <code>-</code> <code>_</code>-ra bihurtzen du fitxategiak "
 "bilatzean, baina osagai hauek marra dute izen-fitxategian — Cotton-ek ezin "
-"ditu aurkitu. <strong>Bi modu konpontzeko:</strong> fitxategiak berrizendatu "
-"(<code>form-field.html</code> → <code>form_field.html</code>) <strong>edo</"
-"strong> ezarri <code>COTTON_SNAKE_CASED_NAMES = False</code> zure "
-"<code>settings.py</code>-n marrak mantentzeko."
+"ditu aurkitu. <strong>Bi modu konpontzeko:</strong> fitxategiak berrizendatu"
+" (<code>form-field.html</code> → <code>form_field.html</code>) "
+"<strong>edo</strong> ezarri <code>COTTON_SNAKE_CASED_NAMES = False</code> "
+"zure <code>settings.py</code>-n marrak mantentzeko."
 
 #: templates/django_cotton_gallery/insights.html:198
 msgid "Affected components:"
@@ -2727,17 +2837,17 @@ msgstr "Zergatik azpioptimoa?"
 
 #: templates/django_cotton_gallery/insights.html:214
 msgid ""
-"Your filenames have no hyphens and <code>COTTON_SNAKE_CASED_NAMES = True</"
-"code> — cotton's default. Cotton resolves your tags fine. If you'd rather "
-"have kebab-case filenames matching your tags 1:1 (e.g. <code>form-field."
-"html</code> → <code>&lt;c-form-field /&gt;</code>), set the setting to "
-"<code>False</code>; both styles work."
+"Your filenames have no hyphens and <code>COTTON_SNAKE_CASED_NAMES = "
+"True</code> — cotton's default. Cotton resolves your tags fine. If you'd "
+"rather have kebab-case filenames matching your tags 1:1 (e.g. <code>form-"
+"field.html</code> → <code>&lt;c-form-field /&gt;</code>), set the setting to"
+" <code>False</code>; both styles work."
 msgstr ""
 "Zure fitxategi-izenek ez dute marrarik eta <code>COTTON_SNAKE_CASED_NAMES = "
 "True</code> — cotton-en lehenetsia. Cotton-ek zure etiketak ondo ebazten "
 "ditu. Nahiago baduzu kebab-case fitxategi-izenak zure etiketekin 1:1 bat "
-"datozkienak (adib. <code>form-field.html</code> → <code>&lt;c-form-field /"
-"&gt;</code>), ezarri ezarpena <code>False</code>-ra; bi estiloek "
+"datozkienak (adib. <code>form-field.html</code> → <code>&lt;c-form-field "
+"/&gt;</code>), ezarri ezarpena <code>False</code>-ra; bi estiloek "
 "funtzionatzen dute."
 
 #: templates/django_cotton_gallery/insights.html:219
@@ -2765,12 +2875,13 @@ msgstr "Zergatik optimoa?"
 
 #: templates/django_cotton_gallery/insights.html:230
 msgid ""
-"Your filenames map 1:1 to Cotton tags (e.g. <code>atoms/form-field.html</"
-"code> → <code>&lt;c-atoms.form-field /&gt;</code>). No surprises."
+"Your filenames map 1:1 to Cotton tags (e.g. <code>atoms/form-"
+"field.html</code> → <code>&lt;c-atoms.form-field /&gt;</code>). No "
+"surprises."
 msgstr ""
-"Zure fitxategi-izenek 1:1 lotzen dira Cotton tag-ekin (adib. <code>atoms/"
-"form-field.html</code> → <code>&lt;c-atoms.form-field /&gt;</code>). "
-"Ezustekorik gabe."
+"Zure fitxategi-izenek 1:1 lotzen dira Cotton tag-ekin (adib. "
+"<code>atoms/form-field.html</code> → <code>&lt;c-atoms.form-field "
+"/&gt;</code>). Ezustekorik gabe."
 
 #: templates/django_cotton_gallery/insights.html:235
 #, python-format
@@ -2778,14 +2889,14 @@ msgid ""
 "All <strong>%(counter)s</strong> component maps 1:1 to its Cotton tag. No "
 "surprises."
 msgid_plural ""
-"All <strong>%(counter)s</strong> components map 1:1 to their Cotton tags. No "
-"surprises."
+"All <strong>%(counter)s</strong> components map 1:1 to their Cotton tags. No"
+" surprises."
 msgstr[0] ""
-"Osagaia (<strong>%(counter)s</strong>) 1:1 lotzen da bere Cotton tag-arekin. "
-"Ezustekorik gabe."
+"Osagaia (<strong>%(counter)s</strong>) 1:1 lotzen da bere Cotton tag-arekin."
+" Ezustekorik gabe."
 msgstr[1] ""
-"<strong>%(counter)s</strong> osagaiek 1:1 lotzen dira beren Cotton tag-ekin. "
-"Ezustekorik gabe."
+"<strong>%(counter)s</strong> osagaiek 1:1 lotzen dira beren Cotton tag-ekin."
+" Ezustekorik gabe."
 
 #: templates/django_cotton_gallery/insights.html:251
 msgid "No component declares deprecated props."
@@ -2818,11 +2929,11 @@ msgstr "Nola funtzionatzen du eskaneatzeak?"
 #: templates/django_cotton_gallery/insights.html:281
 msgid ""
 "When opted in, the gallery walks every <code>.html</code> file under your "
-"<code>TEMPLATES['DIRS']</code> entries and each app's <code>templates/</"
-"code> folder, looking for <code>&lt;c-X.Y /&gt;</code> tags that reference "
-"catalog components. The catalog itself (your <code>cotton/</code>) is "
-"excluded — the scan only looks at consumer code. Read-only, dev-only, only "
-"template paths surface in the UI."
+"<code>TEMPLATES['DIRS']</code> entries and each app's "
+"<code>templates/</code> folder, looking for <code>&lt;c-X.Y /&gt;</code> "
+"tags that reference catalog components. The catalog itself (your "
+"<code>cotton/</code>) is excluded — the scan only looks at consumer code. "
+"Read-only, dev-only, only template paths surface in the UI."
 msgstr ""
 "Aktibatzen baduzu, galeriak <code>TEMPLATES['DIRS']</code>-en sarrera "
 "bakoitzeko eta aplikazio bakoitzaren <code>templates/</code> karpetako "
@@ -2867,8 +2978,8 @@ msgid ""
 "Components with zero references — neither inside the catalog nor in your "
 "project's templates."
 msgstr ""
-"Erreferentziarik gabeko osagaiak — ez katalogo barruan, ez zure proiektuaren "
-"txantiloietan."
+"Erreferentziarik gabeko osagaiak — ez katalogo barruan, ez zure proiektuaren"
+" txantiloietan."
 
 #: templates/django_cotton_gallery/insights.html:320
 msgid "Every component is used somewhere — clean catalog."
@@ -2885,12 +2996,12 @@ msgstr ""
 #: templates/django_cotton_gallery/insights.html:328
 msgid ""
 "The gallery never reads consumer code without consent. Set "
-"<code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> in your Django "
-"settings to enable. Read-only, dev-only — only template paths are exposed in "
-"the gallery UI."
+"<code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> in your Django"
+" settings to enable. Read-only, dev-only — only template paths are exposed "
+"in the gallery UI."
 msgstr ""
-"Galeriak ez du inoiz kontsumitzaile-koderik irakurtzen baimenik gabe. Ezarri "
-"<code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> zure Django "
+"Galeriak ez du inoiz kontsumitzaile-koderik irakurtzen baimenik gabe. Ezarri"
+" <code>DJANGO_COTTON_GALLERY_SCAN_EXTERNAL_USERS = True</code> zure Django "
 "settings-etan gaitzeko. Irakurtzeko soilik, garapenerako soilik — txantiloi-"
 "bideak soilik agertzen dira galeriaren UIan."
 
@@ -2984,8 +3095,8 @@ msgid ""
 "`%(prop)s`: `:` prefix mismatch — @prop is `%(prop_name)s` but <c-vars> has "
 "`%(cvar_name)s`."
 msgstr ""
-"`%(prop)s`: `:` aurrizki bat ez dator — @prop `%(prop_name)s` da baina <c-"
-"vars>-ek `%(cvar_name)s` du."
+"`%(prop)s`: `:` aurrizki bat ez dator — @prop `%(prop_name)s` da baina "
+"<c-vars>-ek `%(cvar_name)s` du."
 
 #: templatetags/catalog_tags.py:36
 #, python-format
@@ -3015,8 +3126,8 @@ msgid ""
 "`%(prop)s`: @prop is declared but missing from <c-vars> — the prop will "
 "never reach the template."
 msgstr ""
-"`%(prop)s`: @prop deklaratuta dago baina <c-vars>-en falta da — prop-a ez da "
-"inoiz txantiloira iritsiko."
+"`%(prop)s`: @prop deklaratuta dago baina <c-vars>-en falta da — prop-a ez da"
+" inoiz txantiloira iritsiko."
 
 #: templatetags/catalog_tags.py:46
 #, python-format
@@ -3100,33 +3211,39 @@ msgstr ""
 #: templatetags/catalog_tags.py:91
 #, python-format
 msgid ""
-"`%(prop)s`: unknown filter `%(key)s` — expected one of default, description, "
-"required, deprecated, hidden, example."
+"`%(prop)s`: unknown filter `%(key)s` — expected one of default, description,"
+" required, deprecated, hidden, example."
 msgstr ""
-"`%(prop)s`: `%(key)s` iragazki ezezaguna — hauetako bat espero zen: default, "
-"description, required, deprecated, hidden, example."
+"`%(prop)s`: `%(key)s` iragazki ezezaguna — hauetako bat espero zen: default,"
+" description, required, deprecated, hidden, example."
+
+#~ msgid "No discrete props on this component."
+#~ msgstr "Osagai honek ez du prop diskreturik."
+
+#~ msgid "real viewport for media queries"
+#~ msgstr "benetako viewport media query-etarako"
 
 #, python-format
 #~ msgid ""
-#~ "Both the slot textarea and the extra-attrs editor render token colors AS "
-#~ "you type — HTML tags, Cotton component names, attribute names, strings, "
-#~ "Django <code>&#123;%%&nbsp;%%&#125;</code> blocks, and CSS properties "
-#~ "inside <code>style=\"…\"</code> all get their own color. The slot editor "
-#~ "uses an overlay technique; the attrs field is a <code>contenteditable</"
-#~ "code> div so the cursor sits on top of the colored text directly."
+#~ "Both the slot textarea and the extra-attrs editor render token colors AS you"
+#~ " type — HTML tags, Cotton component names, attribute names, strings, Django "
+#~ "<code>&#123;%%&nbsp;%%&#125;</code> blocks, and CSS properties inside "
+#~ "<code>style=\"…\"</code> all get their own color. The slot editor uses an "
+#~ "overlay technique; the attrs field is a <code>contenteditable</code> div so "
+#~ "the cursor sits on top of the colored text directly."
 #~ msgstr ""
-#~ "Slot textarea-k eta extra-attrs editoreak token-koloreak idazten ari "
-#~ "zaren bitartean errendatzen dituzte — HTML etiketak, Cotton osagai-"
-#~ "izenak, atributu-izenak, kateak, Django <code>&#123;%%&nbsp;%%&#125;</"
-#~ "code> blokeak eta <code>style=\"…\"</code>-ren barruko CSS propietateak, "
-#~ "denek beren kolorea jasotzen dute. Slot editoreak overlay teknika "
-#~ "erabiltzen du; attrs eremua <code>contenteditable</code> div bat da, "
-#~ "beraz kurtsorea koloreztatutako testuaren gainean kokatzen da zuzenean."
+#~ "Slot textarea-k eta extra-attrs editoreak token-koloreak idazten ari zaren "
+#~ "bitartean errendatzen dituzte — HTML etiketak, Cotton osagai-izenak, "
+#~ "atributu-izenak, kateak, Django <code>&#123;%%&nbsp;%%&#125;</code> blokeak "
+#~ "eta <code>style=\"…\"</code>-ren barruko CSS propietateak, denek beren "
+#~ "kolorea jasotzen dute. Slot editoreak overlay teknika erabiltzen du; attrs "
+#~ "eremua <code>contenteditable</code> div bat da, beraz kurtsorea "
+#~ "koloreztatutako testuaren gainean kokatzen da zuzenean."
 
 #~ msgid ""
-#~ "Compose <code>@prop</code> annotations and the matching <code>&lt;c-"
-#~ "vars&gt;</code> line interactively. Add as many props as you need, fill "
-#~ "the fields, and copy the result into a new component template."
+#~ "Compose <code>@prop</code> annotations and the matching "
+#~ "<code>&lt;c-vars&gt;</code> line interactively. Add as many props as you "
+#~ "need, fill the fields, and copy the result into a new component template."
 #~ msgstr ""
-#~ "<code>@prop</code> oharpenak eta dagokion <code>&lt;c-vars&gt;</code> "
-#~ "lerroa modu interaktiboan osatu."
+#~ "<code>@prop</code> oharpenak eta dagokion <code>&lt;c-vars&gt;</code> lerroa"
+#~ " modu interaktiboan osatu."

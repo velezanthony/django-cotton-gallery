@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from playwright.sync_api import Page, expect
 
+from ._frames import stage_frame
+
 
 def test_modal_opens_with_maximize_button(page: Page, live_gallery: str) -> None:
     """Clicking the maximize button moves the editor into the modal panel."""
@@ -97,7 +99,7 @@ def test_modal_edit_refreshes_preview_on_close(page: Page, live_gallery: str) ->
     change or the edit is silently dropped from the preview.
     """
     page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
-    stage = page.locator("[data-cg-preview-stage]")
+    stage = stage_frame(page)
     expect(stage.locator("button")).to_be_attached()
 
     # Maximize the attrs editor, add an attribute, close.

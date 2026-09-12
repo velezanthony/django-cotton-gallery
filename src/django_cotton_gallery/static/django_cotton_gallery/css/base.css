@@ -129,9 +129,11 @@ body {
    default (1px 6px) because some chrome classes (`cg-link__cta`, etc.) lean
    on it and don't redeclare; classes that want their own (`cg-vp-btn`)
    override it via `padding: 0`.
-   `:not([data-cg-preview-rendered] *)` excludes user-component buttons —
-   they need to keep UA defaults so frameworks like Tailwind can paint over
-   them via utility classes without specificity fights. */
+   `:not([data-cg-preview-rendered] *)` no longer excludes anything — the
+   component renders in its own document, which this sheet never reaches.
+   Do NOT delete it: `:where()` scores zero, so that `:not()` is the only
+   specificity this rule has, and without it a consumer's `*` reset (Tailwind
+   preflight, say) wins on source order and takes the button reset with it. */
 :where(.cg-app, .cg-cheatsheet, .cg-switcher) :where(button):not([data-cg-preview-rendered] *) {
   background: transparent;
   border: 0;

@@ -133,6 +133,12 @@ The gallery has minimal chrome of its own. Your components likely need a CSS fra
 | `window.MY_API_KEY = "..."` env globals | **Partial** — `_extra_head.html` |
 | Post-mount JS bridges (HTMX/Alpine init hooks) | **Partial** — `_extra_body.html` |
 
+!!! info "Both layers reach the preview"
+    Components render in a document of their own, and the gallery rebuilds your
+    stack inside it from the same two layers — URLs *and* partials. A stack
+    declared only in `_extra_head.html` reaches the preview exactly like one
+    declared in settings.
+
 **Rule of thumb:** prefer the partials for inline HTML — your editor syntax-highlights it and `settings.py` stays minimal. Use the settings approach for flat URL lists you also want to surface as **dependency badges** in the hero.
 
 ### Settings — for URL lists

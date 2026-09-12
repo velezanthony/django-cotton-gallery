@@ -35,7 +35,7 @@ body:
     id: package-version
     attributes:
       label: django-cotton-gallery version
-      placeholder: "0.1.0"
+      placeholder: "0.3.0"
     validations:
       required: true
 

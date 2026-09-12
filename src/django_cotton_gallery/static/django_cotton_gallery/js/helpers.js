@@ -154,10 +154,13 @@ const isInstantTarget = (t) =>
 export const wireFormDebounce = (form, fetchFn, delayMs) => {
   if (!form) return () => {};
   let timer = null;
+  // One job each. Instant controls fire `input` AND `change` — natively, and
+  // by hand in the custom dropdown — so handling them in both fetches twice
+  // and aborts its own first attempt.
   const onInput = (e) => {
+    if (isInstantTarget(e.target)) return;
     if (timer) clearTimeout(timer);
-    if (isInstantTarget(e.target)) fetchFn();
-    else timer = setTimeout(fetchFn, delayMs);
+    timer = setTimeout(fetchFn, delayMs);
   };
   const onChange = (e) => {
     if (!isInstantTarget(e.target)) return;
@@ -172,3 +175,42 @@ export const wireFormDebounce = (form, fetchFn, delayMs) => {
     form.removeEventListener('change', onChange);
   };
 };
+
+/**
+ * Serialize a controls form the way the preview endpoint expects.
+ *
+ * An absent param falls back to the prop default server-side
+ * (`tag_builder._resolve_attrs`), so an unchecked checkbox has to say `false`
+ * out loud or a default-True bool can never be switched off.
+ *
+ * @param {HTMLFormElement} form
+ * @param {Object<string, boolean>} [skip]  Names to leave out — the matrix
+ *        varies its axis props per cell, so they must not come from the form.
+ * @returns {string} Query string, without the leading `?`.
+ */
+export const buildQueryString = (form, skip) => {
+  const params = new URLSearchParams();
+  const elements = form.elements;
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    if (!el.name || (skip && skip[el.name])) continue;
+    // Unchecked checkboxes send an explicit `false` — omitted, a default-True
+    // bool would win server-side. Radios still serialize only when checked.
+    if (el.type === 'radio' && !el.checked) continue;
+    if (el.type === 'checkbox' && !el.checked) {
+      params.append(el.name, 'false');
+      continue;
+    }
+    params.append(el.name, el.value);
+  }
+  return params.toString();
+};
+
+/**
+ * True when `scope`'s view switcher is on Matrix, which hides the single
+ * stage. Rendering into it then is work nobody sees.
+ *
+ * @param {Document|HTMLElement} scope
+ * @returns {boolean}
+ */
+export const isMatrixView = (scope) => !!scope.querySelector("[data-cg-view='matrix'].cg-active");

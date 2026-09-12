@@ -75,11 +75,46 @@ src/tests/
 └── e2e/                         # Browser tests via Playwright
     ├── conftest.py              # live_gallery fixture (Django LiveServer + override settings)
     ├── test_navigation.py       # SPA navigation, back button, active link
-    ├── test_search.py           # Sidebar search + suggestions + shortcuts
+    ├── test_search.py           # Sidebar search + shortcuts
+    ├── test_search_suggestions.py # Suggestion layout: name vs path
+    ├── test_quick_switcher.py   # Ctrl+K switcher + structured filters
+    ├── test_sidebar_state.py    # Tree expand/collapse persistence
+    ├── test_pins_recents.py     # Pinned + Recent sidebar sections
     ├── test_preview.py          # Live preview update on control change
+    ├── test_preview_requests.py # One interaction, one request
+    ├── test_preview_isolation.py # Typography, layout and viewport in the frame
+    ├── test_preview_scripts.py  # A component's own <script> runs
+    ├── test_preview_sizing.py   # Fullscreen fills instead of measuring
+    ├── test_preview_resize.py   # The drag grip
+    ├── test_preview_bg.py       # Backdrop switcher + custom colours
+    ├── test_view_switcher.py    # Single ↔ Matrix, shared viewport buttons
+    ├── test_matrix_isolation.py # One document per cell
+    ├── test_matrix_follows_form.py # Non-axis props come from the controls
+    ├── test_thumbnails.py       # Index cards: isolation + recycling
+    ├── test_compare_isolation.py # Both panels, independent grips
+    ├── test_compare_booleans.py # A default-True bool can be switched off
+    ├── test_copy_share.py       # Copy tag + shareable URL state
     ├── test_theme.py            # Theme toggle + persistence
+    ├── test_version_tag.py      # Sidebar version matches the package
     ├── test_editor_modal.py     # Editor modal flow
-    └── test_css_autocomplete.py # CSS class autocomplete
+    ├── test_builder.py          # Annotation builder
+    ├── test_highlighting.py     # Prism across the template stack
+    ├── test_source_lint.py      # Inline lint markers in the Source tab
+    ├── test_css_autocomplete.py # CSS class autocomplete
+    └── _frames.py               # Reaching into the preview (not a test module)
+```
+
+### Reaching into a preview
+
+Components render in an iframe, so `page.locator(...)` stops at the frame
+boundary. Use the helper instead of hand-writing the selector:
+
+```python
+from ._frames import stage_frame
+
+def test_something(page, live_gallery):
+    page.goto(f"{live_gallery}/django-cotton-gallery/atoms/button/")
+    expect(stage_frame(page).locator("button")).to_be_attached()
 ```
 
 ## Why this layout

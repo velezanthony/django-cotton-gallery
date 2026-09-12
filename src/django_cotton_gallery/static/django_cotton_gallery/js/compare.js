@@ -12,9 +12,13 @@
  * detail page uses, so your preference carries over.
  */
 
-import { bindOnce, readJSON, wireFormDebounce } from './helpers.js';
+import { releaseSurface, renderErrorText, surfaceFor } from './preview-surface.js';
+import { attachResizeGrip } from './stage-resize.js';
+import { bindOnce, buildQueryString, isMatrixView, readJSON, wireFormDebounce } from './helpers.js';
 import {
+  Background,
   PREVIEW_DEBOUNCE_MS,
+  Viewport,
   STORAGE_PREVIEW_BG as STORAGE_BG,
   STORAGE_PREVIEW_VIEWPORT as STORAGE_VP,
 } from './constants.js';
@@ -36,7 +40,7 @@ const initSharedViewport = (root = document) => {
 
   // Initial state — read from storage, fall back to "desktop" (matches the
   // detail-page default in preview.js so the two don't diverge on ordering).
-  const stored = readJSON(STORAGE_VP) || 'desktop';
+  const stored = readJSON(STORAGE_VP) || Viewport.DESKTOP;
   apply(stored);
 
   switcher.querySelectorAll('[data-cg-viewport]').forEach((btn) => {
@@ -59,7 +63,7 @@ const initSharedBg = (root = document) => {
     try { localStorage.setItem(STORAGE_BG, JSON.stringify(bg)); } catch (_) { /* ignore */ }
   };
 
-  const stored = readJSON(STORAGE_BG) || 'checkered';
+  const stored = readJSON(STORAGE_BG) || Background.CHECKERED;
   apply(stored);
 
   switcher.querySelectorAll('[data-cg-bg]').forEach((btn) => {
@@ -112,6 +116,9 @@ const fetchAndReplaceSide = async (side, params, bindContent) => {
     if (placeholder) {
       document.querySelector('[data-cg-editor-modal] [data-cg-editor-modal-close]')?.click();
     }
+    // `sideAbort` only covers the fetch for this chrome — the one rendering
+    // the component would resolve into a stage nobody can see.
+    releaseSurface(container.querySelector('[data-cg-preview-stage]'));
     container.replaceWith(newPanel);
     if (typeof bindContent === 'function') bindContent();
     else initComparePanels(document);
@@ -359,50 +366,35 @@ const initComparePanels = (root = document) => {
     const url = preview.getAttribute('data-cg-preview');
     if (!url) return;
     const stage = preview.querySelector('[data-cg-preview-stage]');
+    attachResizeGrip(stage);
     const tagEl = preview.querySelector('[data-cg-preview-tag]');
     const form = preview.closest('[data-cg-compare-side]').querySelector('[data-cg-controls]');
 
-    const buildQuery = () => {
-      if (!form) return '';
-      const params = new URLSearchParams();
-      for (const el of form.elements) {
-        if (!el.name) continue;
-        if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
-        params.append(el.name, el.value);
-      }
-      return params.toString();
-    };
-
-    // Abort the in-flight fetch when a newer input supersedes it — a slow
-    // stale response must not clobber the panel or a detached stage.
-    let activeController = null;
-
+    const side = preview.closest('[data-cg-compare-side]');
+    let staleWhileHidden = false;
     const fetchPreview = () => {
-      const qs = buildQuery();
-      const fullUrl = url + (qs ? '?' + qs : '');
+      if (isMatrixView(side)) { staleWhileHidden = true; return; }
+      const qs = form ? buildQueryString(form) : '';
 
-      if (activeController) activeController.abort();
-      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-      activeController = controller;
-
-      const fetchOpts = { headers: { 'X-Requested-With': 'cg-compare' } };
-      if (controller) fetchOpts.signal = controller.signal;
-
-      fetch(fullUrl, fetchOpts)
-        .then((res) => res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)))
+      surfaceFor(stage)
+        .load(url + (qs ? '?' + qs : ''))
         .then((data) => {
-          // Stage may have been swapped out between fetch start and resolve.
-          if (!stage || !stage.isConnected) return;
-          stage.innerHTML = data.html || '';
-          if (tagEl && tagEl.isConnected) {
-            tagEl.textContent = data.tag || '';
-            if (window.Prism) window.Prism.highlightElement(tagEl);
-          }
+          if (!data || !tagEl || !tagEl.isConnected) return;
+          tagEl.textContent = data.tag || '';
+          if (window.Prism) window.Prism.highlightElement(tagEl);
         })
         .catch((err) => {
           if (err && err.name === 'AbortError') return;
-          if (stage && stage.isConnected) stage.innerHTML = '<p class="cg-preview-error">Render error</p>';
+          if (stage.isConnected) {
+            surfaceFor(stage).fail('<p class="cg-preview-error">' + renderErrorText() + '</p>');
+          }
         });
+    };
+
+    preview.__cgRefresh = () => {
+      if (!staleWhileHidden) return;
+      staleWhileHidden = false;
+      fetchPreview();
     };
 
     // Same shared form-debounce wiring used by preview.js (helpers.js).
