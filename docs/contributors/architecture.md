@@ -153,7 +153,7 @@ The Source / preview / slot surfaces are coloured by **Prism 1.29.0, vendored lo
 
 ### Preview: the component gets its own document
 
-Every surface that renders a user component mounts an **iframe** through `static/django_cotton_gallery/js/isolated-stage.js` instead of writing the markup into the gallery page. Sharing our document broke the component in ways nobody saw until someone measured it:
+Every surface that renders a user component mounts an **iframe** instead of writing the markup into the gallery page. Sharing our document broke the component in ways nobody saw until someone measured it:
 
 - Our heading reset in `css/base.css` (`:where(.cg-app) :where(h1..h6) { font-size: inherit }`) is **unlayered**, and an unlayered rule beats anything inside an `@layer` regardless of specificity. A consumer on Tailwind — utilities live in `@layer utilities` — lost every heading size inside the preview.
 - `.cg-preview__stage` centers with flex, so a block-level component root became a `flex: 0 1 auto` item and shrank to its content. Children with `flex: 1` then had no free space and collapsed to `0px`.
@@ -164,6 +164,12 @@ A separate document fixes all three, and turns the viewport switcher from decora
 The shell is built from two inert `<template>` elements that `base.html` emits with the **same loops** that render the gallery's own head and body — `#cg-frame-head` and `#cg-frame-body`. Markup, not a URL list: a consumer that declares its stack inline in `_extra_head.html` (a play-CDN and its config, an `@layer` block, design tokens) has no URLs to hand us, and rebuilding from URLs alone would drop it silently.
 
 The frame loads **once**; `update()` swaps its body. Pointing `src` at a fresh URL per keystroke would reload the document, re-parse the consumer's CSS and restart Alpine on every character typed into a control. Alpine and HTMX are rehydrated inside the frame, against the consumer's own copies — the gallery's `rebindAfterSwap` never touches component markup.
+
+Two layers. `js/isolated-stage.js` owns the frame — shell, rehydration, measuring. `js/preview-surface.js` owns what every caller repeats around it: fetch, abort the request a newer one supersedes, paint, tear down. One surface per host element, handed out by `surfaceFor(host)`.
+
+The surface owns **no policy**. When to load, the resize grip, scroll recycling, the Prism tag, the shareable URL — those differ per page and stay there. A surface configured with flags for each would be a carve-out list: fine until the fifth caller needs something the config cannot say. The four callers today are the detail preview, both compare panels, each matrix cell and each index thumbnail.
+
+Adding a fifth surface means calling `surfaceFor(host).load(url)` — not writing another fetch loop. The three that existed had already drifted: one of them skipped unchecked checkboxes when serializing the form, so a `default:True` boolean could not be switched off.
 
 E2E tests reach into the preview through `src/tests/e2e/_frames.py`; `page.locator(...)` stops at the frame boundary.
 
