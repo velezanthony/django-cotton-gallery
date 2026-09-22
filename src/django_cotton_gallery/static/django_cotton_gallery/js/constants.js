@@ -19,6 +19,7 @@ export const TOOLTIP_BUBBLE_FALLBACK_HEIGHT_PX = 120;  // assumed bubble height 
 
 export const POPOVER_FLIP_THRESHOLD_PX = 240;
 export const POPOVER_OFFSET_PX = 4;
+export const POPOVER_VIEWPORT_MARGIN_PX = 8;  // breathing room when clamped to an edge
 export const TOOLTIP_OFFSET_PX = 6;
 export const SIDEBAR_DESKTOP_BREAKPOINT_PX = 1024;
 // rootMargin strings for IntersectionObservers — kept as strings since

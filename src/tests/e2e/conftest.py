@@ -51,6 +51,7 @@ def cotton_tree(tmp_path: Path) -> Path:
         "{# @description Primary action button #}\n"
         "{# @prop variant:select['primary', 'secondary', 'danger'] | default:\"primary\" | description:\"Style\" #}\n"
         '{# @prop loading:boolean | default:False | description:"Show spinner" #}\n'
+        "{# @slot Save — Button label #}\n"
         '<c-vars variant="primary" loading=False />\n'
         '<button class="btn btn-{{ variant }}" {{ attrs }}>{{ slot }}</button>\n'
     )
