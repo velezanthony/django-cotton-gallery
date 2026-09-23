@@ -48,13 +48,12 @@ export const createPopover = (anchor, menu, options) => {
     if (opts.matchAnchorWidth) {
       menu.style.width = rect.width + 'px';
     }
-    // Caret-anchored menus open deep inside the right-hand controls panel and
-    // are far wider than the space left of the viewport edge — clamp so the
-    // menu never runs off-screen. Needs the menu laid out, hence `open()`
-    // unhiding before it repositions.
+    // clientWidth, not innerWidth: the latter counts the vertical scrollbar, so
+    // clamping to it leaves the menu's last pixels underneath it.
     const margin = POPOVER_VIEWPORT_MARGIN_PX;
     const width = menu.offsetWidth || rect.width;
-    const maxLeft = window.innerWidth - width - margin;
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    const maxLeft = viewportWidth - width - margin;
     menu.style.left = Math.max(margin, Math.min(rect.left, maxLeft)) + 'px';
 
     if (opts.flipAbove) {
@@ -94,10 +93,8 @@ export const createPopover = (anchor, menu, options) => {
     if (anchor.contains(e.target) || menu.contains(e.target)) return;
     close();
   };
-  // Capture-phase, so it catches any scroll container between the anchor and
-  // the viewport — but that also catches the menu's OWN list scrolling, which
-  // must not dismiss it (arrowing past the fold calls scrollIntoView, and the
-  // wheel scrolls it directly).
+  // Capture-phase to catch any scroll container under the anchor — but the
+  // menu's own list scrolls too (scrollIntoView, wheel) and must survive it.
   const onWindowScroll = (e) => {
     if (!isOpen()) return;
     if (e && e.target instanceof Node && menu.contains(e.target)) return;

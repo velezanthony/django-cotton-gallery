@@ -72,11 +72,13 @@ def test_intellisense_stays_inside_the_viewport(page: Page, live_gallery: str) -
 
     box = page.locator(MENU).bounding_box()
     assert box is not None
-    viewport_width = page.evaluate("() => window.innerWidth")
+    # clientWidth, not innerWidth: the latter counts the vertical scrollbar, so
+    # clamping to it leaves the menu's last pixels underneath it.
+    content_width = page.evaluate("() => document.documentElement.clientWidth")
 
     right = box["x"] + box["width"]
-    assert right <= viewport_width, (
-        f"menu right edge {right} overflows the {viewport_width}px viewport "
-        f"by {right - viewport_width}px"
+    assert right <= content_width, (
+        f"menu right edge {right} overflows the {content_width}px content area "
+        f"by {right - content_width}px"
     )
     assert box["x"] >= 0, f"menu left edge {box['x']} is off-screen"
