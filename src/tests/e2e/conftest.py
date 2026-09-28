@@ -53,13 +53,17 @@ def cotton_tree(tmp_path: Path) -> Path:
         '{# @prop loading:boolean | default:False | description:"Show spinner" #}\n'
         "{# @slot Save — Button label #}\n"
         '<c-vars variant="primary" loading=False />\n'
-        '<button class="btn btn-{{ variant }}" {{ attrs }}>{{ slot }}</button>\n'
+        '<button class="btn btn-{{ variant }}" {{ attrs }}>{{ slot }}</button>\n',
+        # Explicit: Django's template loader reads UTF-8 only, and without this
+        # Windows writes the locale codepage — the render dies, the parse does not.
+        encoding="utf-8",
     )
     (atoms / "input.html").write_text(
         "{# @description Text input #}\n"
         '{# @prop label:text | default:"" #}\n'
         '<c-vars label="" />\n'
-        "<label>{{ label }}<input {{ attrs }}></label>\n"
+        "<label>{{ label }}<input {{ attrs }}></label>\n",
+        encoding="utf-8",
     )
     return templates_dir
 
