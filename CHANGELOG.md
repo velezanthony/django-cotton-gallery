@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Autocomplete menus survive scrolling their own list. Arrowing past the visible items scrolls the highlighted one into view, and that scroll used to dismiss the menu — the popover closed on the sixth suggestion of a forty-item list. Wheeling over the list closed it too.
+- Autocomplete menus stay inside the window. Anchored to the caret in the right-hand controls panel, they ran off the right edge — roughly 225px of a 576px menu, so the suggestion descriptions were unreadable. They are now clamped to the viewport.
+
 ## [1.0.0] - 2026-09-12
 
 First stable release. The `@prop` / `@slot` / `@trigger` annotation grammar and

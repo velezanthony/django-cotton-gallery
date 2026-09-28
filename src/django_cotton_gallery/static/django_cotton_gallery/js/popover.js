@@ -10,7 +10,11 @@
  * reposition }` controller that owns those concerns.
  */
 
-import { POPOVER_FLIP_THRESHOLD_PX, POPOVER_OFFSET_PX } from './constants.js';
+import {
+  POPOVER_FLIP_THRESHOLD_PX,
+  POPOVER_OFFSET_PX,
+  POPOVER_VIEWPORT_MARGIN_PX,
+} from './constants.js';
 
 /**
  * Wire a popover menu to its anchor element.
@@ -44,7 +48,13 @@ export const createPopover = (anchor, menu, options) => {
     if (opts.matchAnchorWidth) {
       menu.style.width = rect.width + 'px';
     }
-    menu.style.left = rect.left + 'px';
+    // clientWidth, not innerWidth: the latter counts the vertical scrollbar, so
+    // clamping to it leaves the menu's last pixels underneath it.
+    const margin = POPOVER_VIEWPORT_MARGIN_PX;
+    const width = menu.offsetWidth || rect.width;
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    const maxLeft = viewportWidth - width - margin;
+    menu.style.left = Math.max(margin, Math.min(rect.left, maxLeft)) + 'px';
 
     if (opts.flipAbove) {
       const spaceBelow = window.innerHeight - rect.bottom;
@@ -61,8 +71,10 @@ export const createPopover = (anchor, menu, options) => {
   };
 
   const open = () => {
-    reposition();
+    // Unhide first: `reposition()` measures the menu to clamp it, and a hidden
+    // menu measures 0. Both happen in the same task, so nothing paints between.
     menu.removeAttribute('hidden');
+    reposition();
   };
 
   const close = () => {
@@ -81,7 +93,13 @@ export const createPopover = (anchor, menu, options) => {
     if (anchor.contains(e.target) || menu.contains(e.target)) return;
     close();
   };
-  const onWindowScroll = () => { if (isOpen()) close(); };
+  // Capture-phase to catch any scroll container under the anchor — but the
+  // menu's own list scrolls too (scrollIntoView, wheel) and must survive it.
+  const onWindowScroll = (e) => {
+    if (!isOpen()) return;
+    if (e && e.target instanceof Node && menu.contains(e.target)) return;
+    close();
+  };
   const onWindowResize = () => { if (isOpen()) reposition(); };
   const onContentSwapped = () => {
     // After an SPA swap, if anchor/menu are no longer in the document
