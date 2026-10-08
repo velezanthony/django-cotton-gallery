@@ -323,27 +323,18 @@ const HTML_TAG_SUGGESTIONS = [
 ];
 
 let _cottonIndexCache = null;
+// `[]` is truthy, so an empty index would cache for the whole session.
+document.addEventListener('cg-content-swapped', () => { _cottonIndexCache = null; });
 const getCottonIndex = () => {
-  if (_cottonIndexCache) return _cottonIndexCache;
-  // Mine the sidebar — every link with data-cg-component is a component.
-  // The cotton tag for `cotton/atoms/button.html` is `<c-atoms.button>`, so
-  // we need the path segments AFTER the gallery mount. The mount itself is
-  // user-configurable (defaults to `/django-cotton-gallery/` but consumers
-  // can mount anywhere), so we derive it at runtime from the current page:
-  // the body carries `data-cg-component-path="atoms/button"` on detail
-  // pages, and `location.pathname` ends with that same path — stripping
-  // one from the other yields the mount prefix.
-  const currentPath = document.body.getAttribute('data-cg-component-path') || '';
-  const pathname = location.pathname.replace(/\/+$/, '');
-  let mount = '';
-  if (currentPath && pathname.endsWith('/' + currentPath)) {
-    mount = pathname.slice(0, pathname.length - currentPath.length - 1);
-  }
+  if (_cottonIndexCache && _cottonIndexCache.length) return _cottonIndexCache;
+  // Server-provided: deriving the mount from the component on screen leaves
+  // compare, and every other non-detail page, without a prefix.
+  const mount = (document.body.getAttribute('data-cg-mount') || '').replace(/\/+$/, '');
   const index = [];
   const seen = new Set();
   document.querySelectorAll('a[data-cg-component]').forEach((a) => {
     const href = (a.getAttribute('href') || '').replace(/\/+$/, '');
-    if (!mount || !href.startsWith(mount + '/')) return;
+    if (!href.startsWith(mount + '/')) return;
     const path = href.slice(mount.length + 1).replace(/\//g, '.');
     if (!path || seen.has(path)) return;
     seen.add(path);
