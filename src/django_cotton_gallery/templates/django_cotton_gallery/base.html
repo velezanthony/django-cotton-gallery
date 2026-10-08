@@ -96,7 +96,7 @@
   {# Per-page injection point — extras for the document head. #}
   {% block extra_head %}{% endblock %}
 </head>
-<body{% if component_path %} data-cg-component-path="{{ component_path }}"{% endif %}>
+<body data-cg-mount="{% url 'django_cotton_gallery:index' %}"{% if component_path %} data-cg-component-path="{{ component_path }}"{% endif %}>
 <div class="cg-app" data-cg-app>
   <button type="button" class="cg-mobile-toggle" data-cg-mobile-toggle aria-label="{% trans 'Toggle navigation' %}" aria-expanded="false">
     <svg class="cg-mobile-toggle__icon cg-mobile-toggle__icon--open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

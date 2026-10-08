@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.1] - 2026-10-08
+
+Three fixes to the slot editor's autocomplete. No API change.
 
 ### Fixed
 
 - Autocomplete menus survive scrolling their own list. Arrowing past the visible items scrolls the highlighted one into view, and that scroll used to dismiss the menu — the popover closed on the sixth suggestion of a forty-item list. Wheeling over the list closed it too.
-- Autocomplete menus stay inside the window. Anchored to the caret in the right-hand controls panel, they ran off the right edge — roughly 225px of a 576px menu, so the suggestion descriptions were unreadable. They are now clamped to the viewport.
+- Autocomplete menus stay inside the window. Anchored to the caret in the right-hand controls panel, they ran off the right edge — roughly 225px of a 576px menu, so the suggestion descriptions were unreadable. They are now clamped to the content width, which excludes the scrollbar the menu used to hide its own under.
+- Cotton component suggestions work away from a component's own page. The mount prefix that turns a sidebar link into a `<c-…>` tag was derived from the component being shown, so the compare page had none and `<c-` offered nothing there. The empty index was then cached for the rest of the session — SPA navigation back to a component did not recover it, only a reload did. The prefix now comes from the server on every page.
 
 ## [1.0.0] - 2026-09-12
 
