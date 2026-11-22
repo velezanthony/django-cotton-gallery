@@ -10,7 +10,7 @@ The package has **one public surface** (the URL config + 8 views) and **one inte
 
 ## Layout: package by feature, not by layer
 
-```
+```text
 src/django_cotton_gallery/
 ├── core/                       # Pure-domain logic (no Django imports)
 │   ├── catalog/                # "Discover and resolve components"
@@ -41,7 +41,7 @@ This is **package-by-feature** ("Screaming Architecture"): the folder names tell
 
 ## The pipeline (data flow)
 
-```
+```text
 filesystem (cotton/)
     │
     │  core/catalog/scanner.py walks files

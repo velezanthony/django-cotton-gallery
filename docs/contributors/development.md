@@ -35,7 +35,7 @@ Open `http://localhost:8000/django-cotton-gallery/`. You should see the gallery 
 
 ## Repository layout
 
-```
+```text
 django-cotton-gallery/
 ├── src/                            # Everything that is code lives here
 │   ├── django_cotton_gallery/      # The library (only this ships in the wheel)
