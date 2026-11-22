@@ -14,13 +14,13 @@ from collections.abc import Callable, Iterable
 from ..annotations import AnnotationParser
 from ..schemas import CatalogConfig, Component
 from ..source_reader import read_text
+from .resolver import INDEX_FILENAME
 
 COMPONENT_GLOB = "*.html"
 # The bare extension the glob matches — used by the scandir-based signature
 # walk, which filters by suffix instead of shelling out to a glob per entry.
 _COMPONENT_SUFFIX = COMPONENT_GLOB.lstrip("*")
 PRIVATE_PREFIX = "_"
-INDEX_FILENAME = "index.html"
 
 
 def scan(config: CatalogConfig, parser: AnnotationParser | None = None) -> Iterable[Component]:
