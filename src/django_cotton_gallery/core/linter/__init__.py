@@ -53,18 +53,11 @@ from ._scanners import (
     scan_undeclared_template_vars,
     scan_unknown_components,
 )
-from ._types import ComponentReport, LintIssue, LintReport, RuleCode, Severity
-
-__all__ = [
-    "ComponentReport",
-    "LintIssue",
-    "LintReport",
-    "RuleCode",
-    "Severity",
-    "lint_catalog",
-    "lint_component",
-    "lint_summary",
-]
+from ._types import ComponentReport as ComponentReport
+from ._types import LintIssue as LintIssue
+from ._types import LintReport as LintReport
+from ._types import RuleCode as RuleCode
+from ._types import Severity as Severity
 
 
 def lint_component(

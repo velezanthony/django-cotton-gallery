@@ -12,17 +12,10 @@ from django.http import HttpRequest
 
 from ..schemas import ParsedComponent
 from .renderer import render as _render
-from .sanitizer import sanitize_extra_attrs
-from .tag_builder import build_default_tag, build_tag
-from .thumb_cache import ThumbCache
-
-__all__ = [
-    "PreviewService",
-    "ThumbCache",
-    "build_default_tag",
-    "build_tag",
-    "sanitize_extra_attrs",
-]
+from .sanitizer import sanitize_extra_attrs as sanitize_extra_attrs
+from .tag_builder import build_default_tag as build_default_tag
+from .tag_builder import build_tag as build_tag
+from .thumb_cache import ThumbCache as ThumbCache
 
 
 class PreviewService:
