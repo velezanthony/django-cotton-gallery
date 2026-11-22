@@ -684,7 +684,11 @@
 
 [data-theme="dark"] .cg-insight-card {
   background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.10);
+  /* Left side left out on purpose: status cards paint it (lint, config,
+     competing) and this selector would outrank their modifiers. */
+  border-top-color: rgba(255, 255, 255, 0.10);
+  border-right-color: rgba(255, 255, 255, 0.10);
+  border-bottom-color: rgba(255, 255, 255, 0.10);
 }
 [data-theme="dark"] .cg-insight-card__count,
 [data-theme="dark"] .cg-insight-card__rank,
