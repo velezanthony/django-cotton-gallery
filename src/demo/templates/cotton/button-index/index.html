@@ -1,0 +1,9 @@
+{# @description Button served from a folder's index.html file #}
+{# @prop variant:select['primary', 'secondary'] | default:"primary" | description:"Button variant" #}
+{# @slot Click me — Button label #}
+
+<c-vars variant="primary" />
+
+<button type="button" class="btn btn--{{ variant }}" {{ attrs }}>
+  {{ slot }}
+</button>
