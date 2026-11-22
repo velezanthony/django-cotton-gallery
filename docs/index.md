@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Django Cotton component gallery"
+  description: "A drop-in Django app that turns your Cotton components into a browsable gallery with live previews, prop controls, linting and copy-ready snippets."
+---
+
 # django-cotton-gallery
 
 **Drop-in playground for Django Cotton component libraries** — annotated, copy-and-pasteable, themable.
@@ -93,6 +99,8 @@ Open `http://localhost:8000/django-cotton-gallery/`. If you don't have any compo
 ![The gallery](https://raw.githubusercontent.com/velezanthony/django-cotton-gallery/main/docs/assets/screenshot-index.png)
 
 → Continue to **[Getting started](users/getting-started.md)** for production access patterns (staff-only, feature flags) and the first annotated component example.
+
+Curious why the gallery is built this way? The [case study](https://velezanthony.github.io/en/projects/django-cotton-gallery/) tells the story behind its design decisions.
 
 ## License
 

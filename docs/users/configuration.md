@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Gallery settings reference"
+  description: "Every DJANGO_COTTON_GALLERY setting: component discovery, categories and ordering, the language switcher, and injecting Tailwind, HTMX or Alpine assets."
+---
+
 # Configuration
 
 Every setting the gallery reads from `settings.py`. All of them are optional.

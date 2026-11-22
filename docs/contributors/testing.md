@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Running the test suite"
+  description: "Run the pytest suite, the Playwright e2e tests and the tox Python × Django matrix for django-cotton-gallery, and learn where to add new tests."
+---
+
 # Testing
 
 Where tests live, how to run them, how the suite is structured, and how to add new ones.

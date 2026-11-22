@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Install a Django Cotton gallery"
+  description: "Install django-cotton-gallery, add it to INSTALLED_APPS, mount its URL behind DEBUG and browse every Cotton component in your project in minutes."
+---
+
 # Getting started
 
 Three edits and `runserver` — that's it.

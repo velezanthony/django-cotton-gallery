@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Local development setup"
+  description: "Clone django-cotton-gallery, install the dev extras with uv, run the bundled demo project and preview the docs site locally before sending a change."
+---
+
 # Development setup
 
 How to clone the repo, install everything, and run the demo locally.

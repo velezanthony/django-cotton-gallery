@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Architecture and code layout"
+  description: "How django-cotton-gallery is organised by feature: the catalog, preview and linter domain modules, the Django glue, and what ships in the wheel."
+---
+
 # Architecture
 
 How the library is laid out and why. Read this once before making structural changes.
