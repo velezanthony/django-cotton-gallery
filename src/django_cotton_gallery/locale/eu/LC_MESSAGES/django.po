@@ -2898,6 +2898,38 @@ msgstr[1] ""
 "<strong>%(counter)s</strong> osagaiek 1:1 lotzen dira beren Cotton tag-ekin."
 " Ezustekorik gabe."
 
+#: templates/django_cotton_gallery/insights.html:278
+msgid "Competing"
+msgstr "Lehian"
+
+#: templates/django_cotton_gallery/insights.html:251
+msgid "Which file wins?"
+msgstr "Zein fitxategik irabazten du?"
+
+#: templates/django_cotton_gallery/insights.html:256
+msgid ""
+"Two files are claiming the same tag. For <code>&lt;c-button /&gt;</code>, "
+"Cotton loads <code>button.html</code> and only falls back to "
+"<code>button/index.html</code> when <code>button.html</code> doesn't exist. "
+"When both exist, the <code>index.html</code> is never rendered, so any "
+"change you make to it won't show up. Keep only one of the two files."
+msgstr ""
+"Bi fitxategik etiketa bera eskatzen dute. <code>&lt;c-button "
+"/&gt;</code>-rentzat, Cotton-ek <code>button.html</code> kargatzen du eta "
+"<code>button.html</code> ez dagoenean bakarrik jotzen du "
+"<code>button/index.html</code>-ra. Biak badaude, <code>index.html</code> ez "
+"da inoiz errendatzen, beraz bertan egiten duzun aldaketarik ez da ikusiko. "
+"Gorde bi fitxategietako bat bakarrik."
+
+#: templates/django_cotton_gallery/insights.html:266
+#, python-format
+msgid "Used <code>%(winner)s</code> · ignored <code>%(shadowed)s</code>"
+msgstr "<code>%(winner)s</code> erabiltzen da · <code>%(shadowed)s</code> baztertzen da"
+
+#: templates/django_cotton_gallery/insights.html:298
+msgid "No components are competing."
+msgstr "Ez dago lehian dagoen osagairik."
+
 #: templates/django_cotton_gallery/insights.html:251
 msgid "No component declares deprecated props."
 msgstr "Inolako osagaik ez du prop zaharkiturik adierazten."

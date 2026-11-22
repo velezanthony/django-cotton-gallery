@@ -2906,6 +2906,38 @@ msgstr[1] ""
 "Les <strong>%(counter)s</strong> composants se mappent 1:1 à leurs balises "
 "Cotton. Aucune surprise."
 
+#: templates/django_cotton_gallery/insights.html:278
+msgid "Competing"
+msgstr "En concurrence"
+
+#: templates/django_cotton_gallery/insights.html:251
+msgid "Which file wins?"
+msgstr "Quel fichier l'emporte ?"
+
+#: templates/django_cotton_gallery/insights.html:256
+msgid ""
+"Two files are claiming the same tag. For <code>&lt;c-button /&gt;</code>, "
+"Cotton loads <code>button.html</code> and only falls back to "
+"<code>button/index.html</code> when <code>button.html</code> doesn't exist. "
+"When both exist, the <code>index.html</code> is never rendered, so any "
+"change you make to it won't show up. Keep only one of the two files."
+msgstr ""
+"Deux fichiers revendiquent la même balise. Pour <code>&lt;c-button "
+"/&gt;</code>, Cotton charge <code>button.html</code> et ne se rabat sur "
+"<code>button/index.html</code> que si <code>button.html</code> n'existe pas. "
+"Si les deux existent, le <code>index.html</code> n'est jamais rendu : aucune "
+"modification que vous y faites ne sera visible. Ne gardez qu'un seul des "
+"deux fichiers."
+
+#: templates/django_cotton_gallery/insights.html:266
+#, python-format
+msgid "Used <code>%(winner)s</code> · ignored <code>%(shadowed)s</code>"
+msgstr "Utilisé : <code>%(winner)s</code> · ignoré : <code>%(shadowed)s</code>"
+
+#: templates/django_cotton_gallery/insights.html:298
+msgid "No components are competing."
+msgstr "Aucun composant en concurrence."
+
 #: templates/django_cotton_gallery/insights.html:251
 msgid "No component declares deprecated props."
 msgstr "Aucun composant ne déclare de prop obsolète."

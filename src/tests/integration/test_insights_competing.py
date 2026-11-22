@@ -111,6 +111,28 @@ class TestInsightsCompetingComponentsCard:
         assert "competing" not in config.lower()
         assert 'id="index-conflicts"' not in body
 
+    def test_card_translates_to_spanish(self, client, gallery_setup):
+        _add_conflict(gallery_setup / "cotton", "atoms/button")
+        response = client.get("/django-cotton-gallery/insights/", HTTP_ACCEPT_LANGUAGE="es")
+        card = _text(_card(response.content.decode("utf-8"), "competing-components"))
+        assert "En competencia" in card
+        assert "Se usa atoms/button.html · se ignora atoms/button/index.html" in card
+
+    @pytest.mark.parametrize(
+        ("lang", "title"),
+        [("fr", "En concurrence"), ("eu", "Lehian")],
+    )
+    def test_title_is_short_in_every_language(self, client, gallery_setup, lang, title):
+        """The card is ~288px wide at four columns: a longer title wraps."""
+        response = client.get("/django-cotton-gallery/insights/", HTTP_ACCEPT_LANGUAGE=lang)
+        card = _text(_card(response.content.decode("utf-8"), "competing-components"))
+        assert f"{title} 0" in card
+
+    def test_empty_state_translates_to_spanish(self, client, gallery_setup):
+        response = client.get("/django-cotton-gallery/insights/", HTTP_ACCEPT_LANGUAGE="es")
+        card = _card(response.content.decode("utf-8"), "competing-components")
+        assert "Ningún componente compite." in card
+
 
 class TestInsightsCatalogBreakdown:
     def test_root_level_components_get_a_label(self, client, index_component):
