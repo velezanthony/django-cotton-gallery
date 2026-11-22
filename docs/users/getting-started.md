@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Install a Django Cotton gallery"
+  description: "Install django-cotton-gallery, add it to INSTALLED_APPS, mount its URL behind DEBUG and browse every Cotton component in your project in minutes."
+---
+
 # Getting started
 
 Three edits and `runserver` — that's it.
@@ -31,8 +37,9 @@ INSTALLED_APPS = [
 ]
 ```
 
-!!! note "Cotton template setup"
-    Cotton itself (loaders, `builtins`, kebab vs. snake) is configured by **django-cotton**, not by this gallery. Recent cotton versions auto-register their loader and `builtins` when you add `django_cotton` to `INSTALLED_APPS`, so usually there's nothing else to do. If you haven't set up cotton yet, follow [Django Cotton's quickstart](https://django-cotton.com/docs/quickstart).
+:::note[Cotton template setup]
+Cotton itself (loaders, `builtins`, kebab vs. snake) is configured by **django-cotton**, not by this gallery. Recent cotton versions auto-register their loader and `builtins` when you add `django_cotton` to `INSTALLED_APPS`, so usually there's nothing else to do. If you haven't set up cotton yet, follow [Django Cotton's quickstart](https://django-cotton.com/docs/quickstart).
+:::
 
 ## 3. Mount the URL
 
@@ -52,8 +59,9 @@ if settings.DEBUG:
     urlpatterns += [path("", include("django_cotton_gallery.urls"))]
 ```
 
-!!! warning "Restrict access before going to production"
-    The gallery exposes the **source code** of every component in `templates/cotton/`, plus a live preview surface. The `if` is yours — `settings.DEBUG`, a custom flag, an env var, whatever fits. The library reads no flag of its own; whenever it detects its URLs are wired in the running process, it emits a startup warning so you never deploy it by accident.
+:::warning[Restrict access before going to production]
+The gallery exposes the **source code** of every component in `templates/cotton/`, plus a live preview surface. The `if` is yours — `settings.DEBUG`, a custom flag, an env var, whatever fits. The library reads no flag of its own; whenever it detects its URLs are wired in the running process, it emits a startup warning so you never deploy it by accident.
+:::
 
 ## 4. Open the gallery
 
@@ -84,7 +92,7 @@ To make a component come alive with live controls, drop `@prop` comments on it �
 ## Optional next steps
 
 - **Locale dropdown?** See [Configuration → Enabling the language switcher](configuration.md#enabling-the-language-switcher).
-- **Lint in CI?** The same checks ship as `python manage.py cotton_lint` — see [Features → `cotton_lint`](features.md#cotton_lint-the-same-checks-in-your-ci).
+- **Lint in CI?** The same checks ship as `python manage.py cotton_lint` — see [Features → `cotton_lint`](features.md#cotton_lint--the-same-checks-in-your-ci).
 
 ## What's next
 
@@ -94,34 +102,39 @@ To make a component come alive with live controls, drop `@prop` comments on it �
 
 ## Common issues
 
-??? question "The gallery shows no components"
-    Two possible causes:
+:::question[The gallery shows no components]{collapsed}
+Two possible causes:
 
-    1. The gallery cannot find your `cotton/` folder. It looks in every `TEMPLATES[*]['DIRS']` entry **and** in each installed app's `templates/cotton/`. If your folder is somewhere Django itself can't resolve, neither cotton nor the gallery will see it. Check that you have either `'DIRS': [BASE_DIR / 'templates']` or your components inside an app's `templates/cotton/`.
-    2. You set `COTTON_DIR` to something other than `cotton`. The gallery reads that setting too.
+1. The gallery cannot find your `cotton/` folder. It looks in every `TEMPLATES[*]['DIRS']` entry **and** in each installed app's `templates/cotton/`. If your folder is somewhere Django itself can't resolve, neither cotton nor the gallery will see it. Check that you have either `'DIRS': [BASE_DIR / 'templates']` or your components inside an app's `templates/cotton/`.
+2. You set `COTTON_DIR` to something other than `cotton`. The gallery reads that setting too.
 
-    Helpers and snippets that aren't components should be prefixed with `_` (e.g. `cotton/_helpers/snippet.html`) — anything starting with `_` is skipped by the catalog scan.
+Helpers and snippets that aren't components should be prefixed with `_` (e.g. `cotton/_helpers/snippet.html`) — anything starting with `_` is skipped by the catalog scan.
+:::
 
-??? question "I only see the 'Django Cotton' badge in the hero — no Tailwind / HTMX / etc."
-    Two requirements have to be met for the dynamic dependency badges to render:
+:::question[I only see the 'Django Cotton' badge in the hero — no Tailwind / HTMX / etc.]{collapsed}
+Two requirements have to be met for the dynamic dependency badges to render:
 
-    1. **You must declare your asset URLs.** The detector reads them from `DJANGO_COTTON_GALLERY_EXTRA_CSS` and `DJANGO_COTTON_GALLERY_EXTRA_JS` in `settings.py`. URLs injected via the `_extra_head.html` partial are intentionally not parsed (see [Asset injection](configuration.md#asset-injection)).
-    2. **You must wire the `gallery_assets` context processor.** Open `settings.py` → `TEMPLATES[0]["OPTIONS"]["context_processors"]` and add `"django_cotton_gallery.context_processors.gallery_assets"`. Without it, even declared URLs render as empty.
+1. **You must declare your asset URLs.** The detector reads them from `DJANGO_COTTON_GALLERY_EXTRA_CSS` and `DJANGO_COTTON_GALLERY_EXTRA_JS` in `settings.py`. URLs injected via the `_extra_head.html` partial are intentionally not parsed (see [Asset injection](configuration.md#asset-injection)).
+2. **You must wire the `gallery_assets` context processor.** Open `settings.py` → `TEMPLATES[0]["OPTIONS"]["context_processors"]` and add `"django_cotton_gallery.context_processors.gallery_assets"`. Without it, even declared URLs render as empty.
 
-    The "Django Cotton" badge is hardcoded in the hero template — it always shows regardless of these two settings, so seeing only it is the canonical signal that one of the two above is missing.
+The "Django Cotton" badge is hardcoded in the hero template — it always shows regardless of these two settings, so seeing only it is the canonical signal that one of the two above is missing.
+:::
 
-??? question "I see `TemplateDoesNotExist` for `django_cotton_gallery/base.html`"
-    Make sure `"django_cotton_gallery"` is in `INSTALLED_APPS` and that `app_directories.Loader` is in your loaders list (it usually is).
+:::question[I see `TemplateDoesNotExist` for `django_cotton_gallery/base.html`]{collapsed}
+Make sure `"django_cotton_gallery"` is in `INSTALLED_APPS` and that `app_directories.Loader` is in your loaders list (it usually is).
+:::
 
-??? question "The component renders but my CSS isn't applied"
-    The gallery has its own chrome but does not import your stylesheets. Two ways to inject yours:
+:::question[The component renders but my CSS isn't applied]{collapsed}
+The gallery has its own chrome but does not import your stylesheets. Two ways to inject yours:
 
-    - **URL list** — add `DJANGO_COTTON_GALLERY_EXTRA_CSS = ["..."]` to `settings.py`.
-    - **Inline HTML** — drop `templates/django_cotton_gallery/_extra_head.html` in your project (e.g. for `tailwind.config = {...}`, design-token CSS variables).
+- **URL list** — add `DJANGO_COTTON_GALLERY_EXTRA_CSS = ["..."]` to `settings.py`.
+- **Inline HTML** — drop `templates/django_cotton_gallery/_extra_head.html` in your project (e.g. for `tailwind.config = {...}`, design-token CSS variables).
 
-    See [Configuration → Asset injection](configuration.md#asset-injection) for the full table of when to use which.
+See [Configuration → Asset injection](configuration.md#asset-injection) for the full table of when to use which.
+:::
 
-??? question "A component looks broken in the gallery but works in my real pages"
-    The gallery's chrome (sidebar, header, etc.) might be interacting with your component's styles. Open the component's **`/raw/`** URL — it renders the component standalone with zero gallery chrome. If it looks correct there, the gallery's chrome is the variable; if it still looks broken, the bug is in your component or your assets.
+:::question[A component looks broken in the gallery but works in my real pages]{collapsed}
+The gallery's chrome (sidebar, header, etc.) might be interacting with your component's styles. Open the component's **`/raw/`** URL — it renders the component standalone with zero gallery chrome. If it looks correct there, the gallery's chrome is the variable; if it still looks broken, the bug is in your component or your assets.
 
-    For total control of the standalone preview environment, drop `templates/django_cotton_gallery/raw.html` in your project — the loader will use yours instead of the library's. Keep `{{ component_html|safe }}` in there and add whatever you need around it.
+For total control of the standalone preview environment, drop `templates/django_cotton_gallery/raw.html` in your project — the loader will use yours instead of the library's. Keep `{{ component_html|safe }}` in there and add whatever you need around it.
+:::

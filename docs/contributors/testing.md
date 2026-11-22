@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Running the test suite"
+  description: "Run the pytest suite, the Playwright e2e tests and the tox Python × Django matrix for django-cotton-gallery, and learn where to add new tests."
+---
+
 # Testing
 
 Where tests live, how to run them, how the suite is structured, and how to add new ones.
@@ -26,17 +32,18 @@ uv run tox -e py312-django52              # One specific combo
 uv run tox -p auto                        # Run matrix in parallel
 ```
 
-!!! note "First e2e run needs a browser"
-    The e2e tier drives a real Chromium browser via Playwright. Install it once with
-    `uv run --extra test python -m playwright install chromium` — CI runs the same
-    step. Without it, the Playwright tests error with "Executable doesn't exist… run
-    `playwright install`".
+:::note[First e2e run needs a browser]
+The e2e tier drives a real Chromium browser via Playwright. Install it once with
+`uv run --extra test python -m playwright install chromium` — CI runs the same
+step. Without it, the Playwright tests error with "Executable doesn't exist… run
+`playwright install`".
+:::
 
 ## Suite structure
 
 `src/tests/` mirrors the source layout for the pure-domain tests, groups Django-aware tests by their nature, and isolates browser tests:
 
-```
+```text
 src/tests/
 ├── conftest.py                  # gallery_setup fixture (Django settings + cotton tree)
 ├── settings.py                  # DJANGO_SETTINGS_MODULE for the suite
@@ -141,7 +148,7 @@ For the live test count, run the suite with `make test`.
 
 `tox` builds isolated venvs for each Python × Django combination. The matrix is defined in `tox.ini`:
 
-```
+```text
 py310-django{42,50,51,52}
 py311-django{42,50,51,52}
 py312-django{42,50,51,52,60}

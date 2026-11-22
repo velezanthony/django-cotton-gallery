@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Release process to PyPI"
+  description: "Cut a new django-cotton-gallery version: one-time PyPI trusted publishing setup, the release checklist, tagging and the GitHub Actions publish flow."
+---
+
 # Releasing
 
 How to cut a new version of `django-cotton-gallery` and publish it to PyPI.

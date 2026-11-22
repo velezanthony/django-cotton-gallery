@@ -5,8 +5,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
-      - "overrides/**"
-      - "mkdocs.yml"
+      - "docs-site/**"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -23,33 +22,34 @@ jobs:
   build:
     name: Build site
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs-site
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v7
         with:
-          enable-cache: true
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
 
-      - name: Set up Python
-        run: uv venv --python 3.12
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
 
-      - name: Install docs extras
-        run: uv pip install -e ".[docs]"
+      - name: Install dependencies
+        run: npm ci
 
       - name: Build site
         env:
           PUBLIC_GTM_ID: ${{ secrets.PUBLIC_GTM_ID }}
-        run: uv run --no-sync mkdocs build --strict
+        run: npm run build
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
-          path: site/
+          path: docs-site/dist/
 
   deploy:
     name: Deploy to GitHub Pages
@@ -60,4 +60,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

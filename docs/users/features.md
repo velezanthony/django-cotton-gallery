@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Features: live preview, lint, docs"
+  description: "Tour the gallery: live previews with prop controls, a Ctrl+K switcher, side-by-side compare, the lint report, insights and cotton_lint for your CI."
+---
+
 # Features
 
 A guided tour of everything the gallery gives you once it's installed.

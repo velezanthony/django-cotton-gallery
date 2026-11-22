@@ -52,6 +52,3 @@ staticfiles/
 
 # ENV
 .env
-
-# MkDocs build output
-site/
