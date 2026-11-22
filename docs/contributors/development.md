@@ -20,7 +20,7 @@ pre-commit install
 python -m playwright install chromium   # browser for the e2e suite
 ```
 
-The `[dev]` extra pulls in `[test]` (pytest, pytest-django, pytest-playwright) and `[docs]` (mkdocs-material), plus `tox`, `build`, `twine`, `ruff`, `polib`, and `pre-commit`. The `playwright install` step fetches the Chromium build the e2e tests drive — skip it and those tests error with "Executable doesn't exist".
+The `[dev]` extra pulls in `[test]` (pytest, pytest-django, pytest-playwright), plus `tox`, `build`, `twine`, `ruff`, `polib`, and `pre-commit`. The `playwright install` step fetches the Chromium build the e2e tests drive — skip it and those tests error with "Executable doesn't exist".
 
 ## Run the demo
 
@@ -32,6 +32,16 @@ make serve   # → uv run python src/demo/manage.py runserver
 ```
 
 Open `http://localhost:8000/django-cotton-gallery/`. You should see the gallery with the demo components from `src/demo/templates/cotton/`.
+
+## Preview the docs site
+
+The pages live in `docs/`; `docs-site/` is the Astro project that builds them (it needs Node >=22.23.4).
+
+```bash
+npm --prefix docs-site ci
+npm --prefix docs-site run dev     # live preview, no search
+npm --prefix docs-site run build   # what CI deploys to GitHub Pages
+```
 
 ## Repository layout
 
@@ -70,13 +80,15 @@ django-cotton-gallery/
 │       ├── settings.py  conftest.py
 │       └── test_architecture.py  test_smoke.py  urls*.py
 │
-├── docs/                           # All documentation (mkdocs Material site)
+├── docs/                           # All documentation (Markdown pages)
 │   ├── index.md                    # Landing
 │   ├── users/                      # Consumer-facing: getting-started, features,
 │   │                               # configuration, annotations
 │   ├── contributors/               # Maintainer-facing: development (this file),
 │   │                               # testing, architecture, i18n, release
 │   └── assets/                     # Screenshots
+│
+├── docs-site/                      # Astro project that builds docs/ for GitHub Pages
 │
 ├── .github/                        # CI workflows + issue templates
 │   ├── workflows/                  # test.yml, lint.yml, release.yml, docs.yml
@@ -88,7 +100,6 @@ django-cotton-gallery/
 ├── pyproject.toml                  # Package metadata + tool configs
 ├── Makefile                        # serve, test, messages, compile-messages, …
 ├── tox.ini                         # Compatibility matrix
-├── mkdocs.yml                      # Public docs site config
 ├── uv.lock                         # Locked dependency graph
 ├── README.md                       # Repo landing
 ├── CHANGELOG.md                    # Keep-a-Changelog
