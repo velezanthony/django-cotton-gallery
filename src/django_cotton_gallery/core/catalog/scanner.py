@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable, Iterable
 
 from ..annotations import AnnotationParser
-from ..schemas import CatalogConfig, Component
+from ..schemas import CatalogConfig, Component, IndexConflict
 from ..source_reader import read_text
 from .resolver import INDEX_FILENAME
 
@@ -34,7 +34,8 @@ def scan(config: CatalogConfig, parser: AnnotationParser | None = None) -> Itera
 
     Conflict: when both `<dir>.html` and `<dir>/index.html` exist, the
     sibling file wins (matches cotton's resolution order). The index
-    file is silently dropped to avoid duplicate catalog entries.
+    file is dropped to avoid duplicate catalog entries;
+    `find_index_conflicts()` reports these pairs so the UI can warn.
     """
     if not config.cotton_dir.exists():
         return
@@ -85,6 +86,36 @@ def scan(config: CatalogConfig, parser: AnnotationParser | None = None) -> Itera
             description=parser.extract_description(source),
             source=source,
         )
+
+
+def find_index_conflicts(config: CatalogConfig) -> tuple[IndexConflict, ...]:
+    """Every component where `<dir>.html` shadows `<dir>/index.html`.
+
+    Applies the same inclusion rules as `scan()` (private prefix, excluded
+    categories), so each conflict names a component the catalog lists.
+    The root `cotton/index.html` is a plain component, never a conflict.
+    Sorted by component path.
+    """
+    root = config.cotton_dir
+    if not root.exists():
+        return ()
+    conflicts = []
+    for index_file in sorted(root.rglob(INDEX_FILENAME)):
+        rel_parts = index_file.relative_to(root).parts
+        if len(rel_parts) < 2 or not _should_include(rel_parts, config.excluded_categories):
+            continue
+        sibling = index_file.parent.parent / f"{index_file.parent.name}{_COMPONENT_SUFFIX}"
+        if not sibling.is_file():
+            continue
+        path_parts = rel_parts[:-1]
+        conflicts.append(
+            IndexConflict(
+                path="/".join(path_parts),
+                winner=sibling.relative_to(root).as_posix(),
+                shadowed="/".join(rel_parts),
+            )
+        )
+    return tuple(conflicts)
 
 
 # Per-(dir, exclusions) memo of the last signature. Value: (expires_at, sig).

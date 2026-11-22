@@ -11,7 +11,7 @@ from django.utils.translation import get_language
 
 from .conf import discover_template_roots, load
 from .context_processors import PACKAGE_LANGUAGES
-from .core.catalog import CatalogService
+from .core.catalog import CatalogService, find_index_conflicts
 from .core.catalog.resolver import ComponentNotFound, resolve
 from .core.catalog.scanner import signature
 from .core.component_graph import build_graph, scan_external_users
@@ -407,6 +407,10 @@ def insights(request: HttpRequest) -> HttpResponse:
             "report": report,
             "scan_enabled": scan_enabled,
             "cotton_health": cotton_health,
+            # `<dir>.html` + `<dir>/index.html` both on disk: Cotton renders
+            # the sibling and the index file is dead code. Catalog state, not
+            # Cotton config — its own card, so it isn't a silent drop.
+            "index_conflicts": find_index_conflicts(cfg),
             **_sidebar_context(catalog_service),
         },
     )

@@ -77,6 +77,20 @@ Catalog = dict[str, dict[str, list[Component]]]
 
 
 @dataclass(frozen=True)
+class IndexConflict:
+    """Two files competing for one component name.
+
+    Both `<dir>.html` and `<dir>/index.html` exist. Cotton (and the gallery)
+    serve the sibling file; the index file is never rendered. Paths are
+    POSIX-style and relative to the cotton directory.
+    """
+
+    path: str
+    winner: str
+    shadowed: str
+
+
+@dataclass(frozen=True)
 class ComponentSummary:
     """Everything the catalog templates (sidebar, index grid, compare) read —
     and nothing else. Deliberately omits `source`: it never reaches a template,

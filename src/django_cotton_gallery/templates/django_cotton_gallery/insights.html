@@ -19,7 +19,7 @@
       {% if report.by_category %}
         <ul class="cg-insight-card__breakdown">
           {% for cat, count in report.by_category %}
-            <li><span class="cg-insight-card__breakdown-label">{{ cat }}</span><span class="cg-insight-card__breakdown-count">{{ count }}</span></li>
+            <li><span class="cg-insight-card__breakdown-label">{% if cat %}{{ cat }}{% else %}{% trans "Components" %}{% endif %}</span><span class="cg-insight-card__breakdown-count">{{ count }}</span></li>
           {% endfor %}
         </ul>
       {% endif %}
@@ -113,65 +113,6 @@
       </h2>
 
       {% comment %}
-      Live snapshot of the Cotton settings. One row per setting, label
-      on the left, value on the right (mono pill). The absolute SCANNING
-      path uses RTL-truncation so the meaningful tail stays visible even
-      when the column is narrow.
-      {% endcomment %}
-      <dl class="cg-insight-card__kv">
-        <div class="cg-insight-card__kv-row">
-          <dt>
-            <code>COTTON_DIR</code>
-            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is COTTON_DIR?' %}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
-              </svg>
-              <span class="cg-info__bubble" role="tooltip">
-                {% blocktranslate %}Subfolder name (relative to <code>TEMPLATES['DIRS']</code>) where Cotton — and the gallery — look for component files. Default <code>"cotton"</code>. Belongs to the Cotton folder convention; the gallery just reads it.{% endblocktranslate %}
-              </span>
-            </span>
-          </dt>
-          <dd><code>"{{ cotton_health.cotton_subfolder }}"</code></dd>
-        </div>
-
-        <div class="cg-insight-card__kv-row">
-          <dt>
-            {% trans "Scanning" %}
-            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is being scanned?' %}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
-              </svg>
-              <span class="cg-info__bubble" role="tooltip">
-                {% trans "The absolute filesystem path the gallery is currently scanning. If this isn't where you expect your components to live, check your TEMPLATES['DIRS'] and COTTON_DIR settings." %}
-              </span>
-            </span>
-          </dt>
-          <dd>
-            <code
-              class="cg-insight-card__abs-path"
-              title="{{ cotton_health.cotton_dir_abs }}"
-              tabindex="0"
-            >{{ cotton_health.cotton_dir_abs }}</code>
-          </dd>
-        </div>
-
-        <div class="cg-insight-card__kv-row">
-          <dt>
-            <code>COTTON_SNAKE_CASED_NAMES</code>
-            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What does this setting do?' %}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
-              </svg>
-              <span class="cg-info__bubble" role="tooltip">
-                {% blocktranslate %}Cotton's setting that decides how a tag like <code>&lt;c-foo-bar /&gt;</code> maps to a file. With <code>True</code> (Cotton's default) it strips hyphens and looks for <code>foo_bar.html</code>; with <code>False</code> it keeps the hyphen and looks for <code>foo-bar.html</code>. The gallery indexes both styles transparently — pick whichever you prefer and stay consistent across the catalog.{% endblocktranslate %}
-              </span>
-            </span>
-          </dt>
-          <dd><strong>{% if cotton_health.snake_cased %}True{% else %}False{% endif %}</strong></dd>
-        </div>
-      </dl>
-
-      {% comment %}
       Verdict block — same visual rhythm as the Lint health card: a big
       glyph (number for BAD, symbol for GOOD/WARN) + a verdict pill that
       carries an info ⓘ with the long-form explanation and the fix. The
@@ -232,6 +173,66 @@
         </p>
         <p class="cg-insight-card__all-clean">{% blocktranslate count counter=report.total_components %}All <strong>{{ counter }}</strong> component maps 1:1 to its Cotton tag. No surprises.{% plural %}All <strong>{{ counter }}</strong> components map 1:1 to their Cotton tags. No surprises.{% endblocktranslate %}</p>
       {% endif %}
+
+      {% comment %}
+      Live snapshot of the Cotton settings, under the verdict so the card
+      answers "is it OK?" first. One row per setting, label on the left,
+      value on the right (mono pill). The absolute SCANNING path gets its
+      own stacked row with RTL-truncation so the meaningful tail stays
+      visible even when the column is narrow.
+      {% endcomment %}
+      <dl class="cg-insight-card__kv">
+        <div class="cg-insight-card__kv-row">
+          <dt>
+            <code>COTTON_DIR</code>
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is COTTON_DIR?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Subfolder name (relative to <code>TEMPLATES['DIRS']</code>) where Cotton — and the gallery — look for component files. Default <code>"cotton"</code>. Belongs to the Cotton folder convention; the gallery just reads it.{% endblocktranslate %}
+              </span>
+            </span>
+          </dt>
+          <dd><code>"{{ cotton_health.cotton_subfolder }}"</code></dd>
+        </div>
+
+        <div class="cg-insight-card__kv-row cg-insight-card__kv-row--stacked">
+          <dt>
+            {% trans "Scanning" %}
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What is being scanned?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% trans "The absolute filesystem path the gallery is currently scanning. If this isn't where you expect your components to live, check your TEMPLATES['DIRS'] and COTTON_DIR settings." %}
+              </span>
+            </span>
+          </dt>
+          <dd>
+            <code
+              class="cg-insight-card__abs-path"
+              title="{{ cotton_health.cotton_dir_abs }}"
+              tabindex="0"
+            >{{ cotton_health.cotton_dir_abs }}</code>
+          </dd>
+        </div>
+
+        <div class="cg-insight-card__kv-row">
+          <dt>
+            <code>COTTON_SNAKE_CASED_NAMES</code>
+            <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'What does this setting do?' %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+              </svg>
+              <span class="cg-info__bubble" role="tooltip">
+                {% blocktranslate %}Cotton's setting that decides how a tag like <code>&lt;c-foo-bar /&gt;</code> maps to a file. With <code>True</code> (Cotton's default) it strips hyphens and looks for <code>foo_bar.html</code>; with <code>False</code> it keeps the hyphen and looks for <code>foo-bar.html</code>. The gallery indexes both styles transparently — pick whichever you prefer and stay consistent across the catalog.{% endblocktranslate %}
+              </span>
+            </span>
+          </dt>
+          <dd><strong>{% if cotton_health.snake_cased %}True{% else %}False{% endif %}</strong></dd>
+        </div>
+      </dl>
     </article>
 
     <article class="cg-insight-card cg-insight-card--list">
@@ -264,6 +265,39 @@
         </ul>
       {% else %}
         <p class="cg-insight-card__empty">{% trans "Every component and every prop is documented." %}</p>
+      {% endif %}
+    </article>
+
+    {% comment %}
+    Competing components — `<dir>.html` and `<dir>/index.html` both exist.
+    Cotton renders the sibling file, so the index file is dead code; the
+    gallery follows the same rule and lists only the winner. Placed after
+    Coverage gaps so the dense grid drops it into the free row-2 cell.
+    {% endcomment %}
+    <article id="competing-components" class="cg-insight-card cg-insight-card--list{% if index_conflicts %} cg-insight-card--warn{% endif %}">
+      <h2 class="cg-insight-card__title">
+        {% trans "Competing" %}
+        <span class="cg-insight-card__count">{{ index_conflicts|length }}</span>
+        <span class="cg-info" tabindex="0" role="button" aria-label="{% trans 'Which file wins?' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
+          </svg>
+          <span class="cg-info__bubble" role="tooltip">
+            {% blocktranslate %}Two files are claiming the same tag. For <code>&lt;c-button /&gt;</code>, Cotton loads <code>button.html</code> and only falls back to <code>button/index.html</code> when <code>button.html</code> doesn't exist. When both exist, the <code>index.html</code> is never rendered, so any change you make to it won't show up. Keep only one of the two files.{% endblocktranslate %}
+          </span>
+        </span>
+      </h2>
+      {% if index_conflicts %}
+        <ul class="cg-insight-card__paths">
+          {% for conflict in index_conflicts %}
+            {# Only the component shows; the two files live in its tooltip (hover or keyboard focus). #}
+            <li>
+              <a href="{% url 'django_cotton_gallery:component_detail' conflict.path %}" class="cg-insight-card__path cg-insight-card__conflict cg-info" aria-describedby="conflict-{{ forloop.counter }}">{{ conflict.path }}<span class="cg-info__bubble" role="tooltip" id="conflict-{{ forloop.counter }}">{% blocktranslate with winner=conflict.winner shadowed=conflict.shadowed %}Used <code>{{ winner }}</code> · ignored <code>{{ shadowed }}</code>{% endblocktranslate %}</span></a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cg-insight-card__empty">{% trans "No components are competing." %}</p>
       {% endif %}
     </article>
 
