@@ -1,3 +1,9 @@
+---
+seo:
+  title: "@prop and @slot annotations"
+  description: "Annotate Cotton components with @prop, @slot, @trigger and @description comments to get typed live controls, slot editors and docs in the gallery."
+---
+
 # Annotation reference
 
 Every annotation is a Django comment block: `{# @keyword body #}`. The parser ignores everything else, so annotations can sit anywhere in the file.

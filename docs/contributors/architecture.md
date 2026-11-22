@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Architecture and code layout"
+  description: "How django-cotton-gallery is organised by feature: the catalog, preview and linter domain modules, the Django glue, and what ships in the wheel."
+---
+
 # Architecture
 
 How the library is laid out and why. Read this once before making structural changes.
@@ -10,7 +16,7 @@ The package has **one public surface** (the URL config + 8 views) and **one inte
 
 ## Layout: package by feature, not by layer
 
-```
+```text
 src/django_cotton_gallery/
 ├── core/                       # Pure-domain logic (no Django imports)
 │   ├── catalog/                # "Discover and resolve components"
@@ -41,7 +47,7 @@ This is **package-by-feature** ("Screaming Architecture"): the folder names tell
 
 ## The pipeline (data flow)
 
-```
+```text
 filesystem (cotton/)
     │
     │  core/catalog/scanner.py walks files
@@ -182,10 +188,10 @@ All code lives under `src/`, but only `src/django_cotton_gallery/` is published.
 
 ## What lives outside `src/`
 
-- **`docs/`** — all documentation, built by mkdocs and deployed to GitHub Pages. Two sections: `docs/users/` (consumer-facing) and `docs/contributors/` (maintainer-facing — this folder). NOT shipped.
+- **`docs/`** — all documentation as Markdown, built by the Astro project in `docs-site/` and deployed to GitHub Pages. Two sections: `docs/users/` (consumer-facing) and `docs/contributors/` (maintainer-facing — this folder). NOT shipped.
 - **`.github/`** — CI workflows. NOT shipped.
 - **`dist/`** — built wheel + sdist. NOT shipped (it's the output, not the source).
-- **Root config files** — `pyproject.toml`, `Makefile`, `tox.ini`, `mkdocs.yml`, `uv.lock`, and the dotfiles. NOT shipped.
+- **Root config files** — `pyproject.toml`, `Makefile`, `tox.ini`, `uv.lock`, and the dotfiles. NOT shipped.
 
 ## Things that are NOT in the architecture
 

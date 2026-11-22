@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Contributor guide"
+  description: "Where to start when working on django-cotton-gallery itself: development setup, tests, architecture, translations and the release process."
+---
+
 # For contributors
 
 Notes for working *on* `django-cotton-gallery` itself — setup, testing, architecture, release process. If you're consuming the library in your project, see [the user docs](../users/getting-started.md) instead.

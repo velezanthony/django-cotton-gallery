@@ -1,3 +1,9 @@
+---
+seo:
+  title: "Gallery settings reference"
+  description: "Every DJANGO_COTTON_GALLERY setting: component discovery, categories and ordering, the language switcher, and injecting Tailwind, HTMX or Alpine assets."
+---
+
 # Configuration
 
 Every setting the gallery reads from `settings.py`. All of them are optional.
@@ -101,27 +107,28 @@ Without this, the gallery's dropdown still shows the four options but selecting 
 
 The gallery has minimal chrome of its own. Your components likely need a CSS framework, an icon library, HTMX, Alpine.js, design tokens, env keys, etc. The gallery has **two complementary mechanisms** for injecting them — both are optional, both can be used together.
 
-!!! warning "If you use the settings approach, wire one context processor"
-    The `EXTRA_CSS` / `EXTRA_JS` URLs and the dependency badges in the hero are rendered from the `cotton_gallery` template variable, which is populated by a context processor. Without it, the URLs you declare are silently ignored.
+:::warning[If you use the settings approach, wire one context processor]
+The `EXTRA_CSS` / `EXTRA_JS` URLs and the dependency badges in the hero are rendered from the `cotton_gallery` template variable, which is populated by a context processor. Without it, the URLs you declare are silently ignored.
 
-    Add `gallery_assets` to your existing `TEMPLATES[0]["OPTIONS"]["context_processors"]`:
+Add `gallery_assets` to your existing `TEMPLATES[0]["OPTIONS"]["context_processors"]`:
 
-    ```python
-    # settings.py
-    TEMPLATES = [
-        {
-            # ... your existing TEMPLATES config ...
-            "OPTIONS": {
-                "context_processors": [
-                    # ... your existing context processors ...
-                    "django_cotton_gallery.context_processors.gallery_assets",
-                ],
-            },
+```python
+# settings.py
+TEMPLATES = [
+    {
+        # ... your existing TEMPLATES config ...
+        "OPTIONS": {
+            "context_processors": [
+                # ... your existing context processors ...
+                "django_cotton_gallery.context_processors.gallery_assets",
+            ],
         },
-    ]
-    ```
+    },
+]
+```
 
-    Not needed if you only use the **partial** approach (the partials are rendered through `{% maybe_include %}` and don't go through the context processor).
+Not needed if you only use the **partial** approach (the partials are rendered through `{% maybe_include %}` and don't go through the context processor).
+:::
 
 ### Which one do I use?
 
@@ -133,11 +140,12 @@ The gallery has minimal chrome of its own. Your components likely need a CSS fra
 | `window.MY_API_KEY = "..."` env globals | **Partial** — `_extra_head.html` |
 | Post-mount JS bridges (HTMX/Alpine init hooks) | **Partial** — `_extra_body.html` |
 
-!!! info "Both layers reach the preview"
-    Components render in a document of their own, and the gallery rebuilds your
-    stack inside it from the same two layers — URLs *and* partials. A stack
-    declared only in `_extra_head.html` reaches the preview exactly like one
-    declared in settings.
+:::info[Both layers reach the preview]
+Components render in a document of their own, and the gallery rebuilds your
+stack inside it from the same two layers — URLs *and* partials. A stack
+declared only in `_extra_head.html` reaches the preview exactly like one
+declared in settings.
+:::
 
 **Rule of thumb:** prefer the partials for inline HTML — your editor syntax-highlights it and `settings.py` stays minimal. Use the settings approach for flat URL lists you also want to surface as **dependency badges** in the hero.
 
@@ -180,8 +188,9 @@ Drop these files in your project's `templates/django_cotton_gallery/` directory.
 
 If they don't exist, the gallery silently skips them (handled by the `maybe_include` template tag — necessary because `{% include "..." ignore missing %}` was removed in Django 6).
 
-!!! tip "Tailwind play-CDN"
-    The gallery is **stack-agnostic** — it doesn't ship Tailwind, HTMX, or any frontend dependency. If you want Tailwind, inject the CDN script via `EXTRA_CSS` (or load your own bundle), then put your `tailwind.config = {...}` in `_extra_head.html`. With both wired, your config block runs **after** Tailwind initializes — that's the order Tailwind's docs require.
+:::tip[Tailwind play-CDN]
+The gallery is **stack-agnostic** — it doesn't ship Tailwind, HTMX, or any frontend dependency. If you want Tailwind, inject the CDN script via `EXTRA_CSS` (or load your own bundle), then put your `tailwind.config = {...}` in `_extra_head.html`. With both wired, your config block runs **after** Tailwind initializes — that's the order Tailwind's docs require.
+:::
 
 #### Example `_extra_head.html`
 
