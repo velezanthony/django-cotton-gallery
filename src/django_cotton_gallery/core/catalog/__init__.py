@@ -12,29 +12,15 @@ from pathlib import Path
 from ..annotations import AnnotationParser
 from ..schemas import Catalog, CatalogConfig
 from ..source_reader import read_text
-from .cache import CatalogCache
-from .orderer import order_catalog
-from .resolver import ComponentNotFound, resolve
-from .scanner import (
-    clear_signature_cache,
-    find_index_conflicts,
-    group_by_category,
-    scan,
-    signature,
-)
-
-__all__ = [
-    "CatalogCache",
-    "CatalogService",
-    "ComponentNotFound",
-    "clear_signature_cache",
-    "find_index_conflicts",
-    "group_by_category",
-    "order_catalog",
-    "resolve",
-    "scan",
-    "signature",
-]
+from .cache import CatalogCache as CatalogCache
+from .orderer import order_catalog as order_catalog
+from .resolver import ComponentNotFound as ComponentNotFound
+from .resolver import resolve as resolve
+from .scanner import clear_signature_cache as clear_signature_cache
+from .scanner import find_index_conflicts as find_index_conflicts
+from .scanner import group_by_category as group_by_category
+from .scanner import scan as scan
+from .scanner import signature as signature
 
 
 class CatalogService:
